@@ -1,0 +1,9 @@
+desktop.ini
+*.lnk*
+*backup*
+*secret*
+*test*
+*old*
+exe*
+__pycache__*
+~$*
