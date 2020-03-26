@@ -4,7 +4,7 @@ UTAU周辺のデータ処理を行うPythonのパッケージです。READMEは�
 
 ## 利用規約
 
-- LISENCE ファイルをご覧ください。
+- LICENSE ファイルをご覧ください。
 
 - table/japanese.table は [きりたん歌唱DB](https://zunko.jp/kiridev/login.php) からコピーしたものです。
 
