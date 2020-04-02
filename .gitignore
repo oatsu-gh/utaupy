@@ -1,9 +1,4 @@
 desktop.ini
-*.lnk*
-*backup*
-*secret*
-*test*
-*old*
-exe*
+test.py
+*.lnk
 __pycache__*
-~$*
