@@ -55,7 +55,7 @@ class OtoIni:
             oto.set_alies(oto.get_alies().replace(before, after))
         return self
 
-    def romanize(self, path_table, replace=True, dt=100):
+    def kana2roma(self, path_table, replace=True, dt=100):
         """
         エイリアスをローマ字にする
         かな→ローマ字 変換表のパス
@@ -64,29 +64,41 @@ class OtoIni:
           Falseのときエイリアスは平仮名のまま
         """
         # ローマ字変換表読み取り
-        t = table.load(path_table)
-        t.update({'R': ['pau'], 'pau': ['pau'], 'br': ['br']})
+        d = table.load(path_table)
+        d.update({'R': ['pau'], 'pau': ['pau'], 'br': ['br']})
         # 発音記号の分割数によってパラメータを調整
         for oto in self.otolist:
-            alies = oto.get_alies().split()[-1]
-            roma = table.kana2roma(t, alies)  # KeyErrorはリストにするだけで返される
+            kana = oto.get_alies().split()[-1]
+            try:
+                roma = d[kana]
+            # KeyErrorはリストにするだけで返される
+            except KeyError as e:
+                print('\n[KeyError in otoini.kana2roma]---------')
+                print('想定外の文字が kana として入力されました。')
+                print('該当文字列(kana):', kana)
+                print('エラー詳細(e)   :', e)
+                print('--------------------------------------\n')
+                roma = d[kana]
             # 歌詞をローマ字化
             if replace is True:
                 oto.set_alies(' '.join(roma))
             # モノフォン
             if len(roma) == 1:
-                print('  alies: {}\t-> {}\t: オーバーラップ右シフト・先行発声右詰め'.format(alies, roma))
+                # print('  alies: {}\t-> {}\t: オーバーラップ右シフト・先行発声右詰め'.format(alies, roma))
                 oto.set_overlap(2 * dt)
                 oto.set_onset(oto.get_fixed())
             # おもにCV形式のとき
             elif len(roma) == 2:
-                print('  alies: {}\t-> {}\t: そのまま'.format(alies, roma))
+                # print('  alies: {}\t-> {}\t: そのまま'.format(alies, roma))
+                pass
             # おもにCCV形式のとき
             elif len(roma) == 3:
-                print('  alies: {}\t-> {}\t: そのままでいい？'.format(alies, roma))
-            else:
+                # print('  alies: {}\t-> {}\t: そのままでいい？'.format(alies, roma))
+                pass
+            elif len(roma) >= 4:
                 print('  [ERROR]---------')
-                print('  alies: {}\t-> {}\t: そのままにします。'.format(alies, roma))
+                print('  1,2,3音素しか対応していません。')
+                print('  alies: {}\t-> {}\t: そのままにします。'.format(kana, roma))
                 print('  ----------------')
 
     def monophonize(self):
@@ -107,9 +119,6 @@ class OtoIni:
                 tmp1.set_alies(a)
                 tmp1.set_lblank(t)
                 tmp1.set_overlap(0)
-                # tmp1.set_onset(0)
-                # tmp1.set_fixed(0)
-                # tmp1.set_rblank(0)
                 l.append(tmp1)
                 # 2文字目(先行発声から固定範囲まで)----------------
                 tmp2 = Oto()
@@ -166,13 +175,15 @@ class Oto:
     """oto.ini中の1モーラ"""
 
     def __init__(self):
-        keys = ('FileName', 'Alies', 'LBlank', 'Fixed', 'RBlank', 'Onset', 'Overlap')
+        keys = ('FileName', 'Alies', 'LBlank',
+                'Fixed', 'RBlank', 'Onset', 'Overlap')
         l = [None] * 7
         self.d = dict(zip(keys, l))
 
     def from_otoini(self, l):
         """リストをもらってクラスオブジェクトにする"""
-        keys = ('FileName', 'Alies', 'LBlank', 'Fixed', 'RBlank', 'Onset', 'Overlap')
+        keys = ('FileName', 'Alies', 'LBlank',
+                'Fixed', 'RBlank', 'Onset', 'Overlap')
         # 数値部分をfloatにする
         l = l[:2] + [float(v) for v in l[2:]]
         self.d = dict(zip(keys, l))
