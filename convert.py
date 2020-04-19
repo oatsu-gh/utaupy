@@ -22,21 +22,21 @@ def ust2otoini(ustobj, name_wav, dt=100):
       | 左ブランク |オーバーラップ| 先行発声 | 固定範囲 |   右ブランク   |
       |   (dt)ms   |    (dt)ms    |  (dt)ms  |  (dt)ms  | (length-2dt)ms |
     """
-    notes = ustobj.get_values()
-    tempo = ustobj.get_tempo()
+    notes = ustobj.values
+    tempo = ustobj.tempo
     o = otoini.OtoIni()
     l = []
     t = 0
     for note in notes[2:-1]:
         length = note.get_length_ms(tempo)
-        oto = otoini.Oto()
+        oto = otoini.Oto
         oto.filename = name_wav
-        oto.alies = note.get_lyric()
+        oto.alies = note.lyric
         oto.lblank = max(t - (2 * dt), 0)
         oto.overlap = dt
         oto.onset = 2 * dt
         oto.fixed = min(3 * dt, length + 2 * dt)
-        # oto.set_fixed(length + 2 * dt)
+        # oto.fixed = length + 2 * dt
         oto.rblank = -(length + 2 * dt)  # 負で左ブランク相対時刻, 正で絶対時刻
         l.append(oto)
         t += length  # 今のノート終了位置が次のノート開始位置
@@ -51,14 +51,14 @@ def otoini2label(otoiniobj):
     発声終了: 次のノートのオーバーラップ
     発音記号: エイリアス流用
     """
-    otolist = otoiniobj.values()
+    otolist = otoiniobj.values
     lab = label.Label()
 
     # [[発音開始時刻, 発音記号], ...] の仮リストにする
     tmp = []
     for oto in otolist:
-        t = (oto.get_lblank() + oto.get_overlap()) / 1000
-        s = oto.get_alies()
+        t = oto.lblank + oto.overlap / 1000
+        s = oto.alies
         tmp.append([t, s])
 
     # 一つのリストにまとめる
@@ -70,7 +70,7 @@ def otoini2label(otoiniobj):
 
     # 最終ノートの処理
     v = tmp[-1]
-    rblank = otolist[-1].get_rblank() / 1000
+    rblank = otolist[-1].rblank / 1000
     t_end = max(rblank, v[0] - rblank)  # 右ブランクの符号ごとの挙動違いに対応
     l.append([v[0], t_end, v[1]])
 
