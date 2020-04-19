@@ -17,6 +17,7 @@ UTAUのデータ整理用モジュール
 #     o.write(path_ini)
 #     return o
 
+
 def main():
     """デバッグ用実装"""
     print('UST, otoini などを編集するためのモジュールです。')
