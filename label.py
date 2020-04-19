@@ -24,32 +24,65 @@ def load(path, mode='r', encoding='utf-8'):
     l = [[float(v[0]), float(v[1]), v[2]] for v in lines]
     # Labelクラスオブジェクト化
     lab = Label()
-    lab.set_values(l)
+    lab.values = l
     return lab
 
 
+# class Label:
+#     """
+#     歌唱ラベルLABファイルを想定したクラス
+#     Python propertyを使う前の実装
+#     """
+#
+#     def __init__(self):
+#         """二次元リスト [[開始時刻, 終了時刻, 発音], [], ...]"""
+#         self.lines = []
+#
+#     def get_values(self):
+#         """値を確認"""
+#         return self.lines
+#
+#     def set_values(self, l):
+#         """値を登録"""
+#         self.lines = l
+#
+#     def write(self, path, mode='w', encoding='utf-8', newline='\n'):
+#         """LABを保存"""
+#         # 出力用の文字列
+#         s = ''
+#         for l in self.lines:
+#             s += '{:.6f} {:.6f} {}\n'.format(*l)
+#         # ファイル出力
+#         with open(path, mode=mode, encoding=encoding, newline=newline) as f:
+#             f.write(s)
+#         return s
+
 class Label:
     """
-    歌唱ラベルLABファイルを想定したクラス
+    歌唱ラベルLABファイルを想定したクラス(2019/04/19から)
     """
 
     def __init__(self):
         """二次元リスト [[開始時刻, 終了時刻, 発音], [], ...]"""
-        self.lines = []
+        self.__values = []
 
-    def get_values(self):
-        """値を確認"""
-        return self.lines
+    @property
+    def values(self):
+        """propertyはgetterも兼ねるらしい"""
+        return self.__values
 
-    def set_values(self, l):
+    @values.setter
+    def values(self, lines):
         """値を登録"""
-        self.lines = l
+        if not isinstance(lines, list):
+            raise TypeError('"lines" must be list instance (values.setter in label.py)')
+        self.__values = lines
 
     def write(self, path, mode='w', encoding='utf-8', newline='\n'):
         """LABを保存"""
         # 出力用の文字列
         s = ''
-        for l in self.lines:
+        for l in self.__values:
             s += '{:.6f} {:.6f} {}\n'.format(*l)
         # ファイル出力
         with open(path, mode=mode, encoding=encoding, newline=newline) as f:

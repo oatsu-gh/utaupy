@@ -75,7 +75,7 @@ def otoini2label(otoiniobj):
     l.append([v[0], t_end, v[1]])
 
     # Labelクラスオブジェクト化
-    lab.set_values(l)
+    lab.values = l
     return lab
 
 
