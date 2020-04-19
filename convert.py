@@ -5,7 +5,7 @@ UTAU関連ファイルの相互変換
 """
 from . import label, otoini
 
-# from utaupy import ust
+# from . import ust
 
 
 def main():
