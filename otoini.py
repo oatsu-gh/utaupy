@@ -30,7 +30,7 @@ def load(path, mode='r', encoding='shift-jis'):
         otolist.append(oto)
     # OtoIniクラスオブジェクト化
     o = OtoIni()
-    o.set_values(otolist)
+    o.values = otolist
     return o
 
 
@@ -39,20 +39,22 @@ class OtoIni:
 
     def __init__(self):
         # 'Oto'クラスからなるリスト
-        self.otolist = []
+        self._values = []
 
-    def get_values(self):
+    @property
+    def values(self):
         """中身を確認する"""
-        return self.otolist
+        return self._values
 
-    def set_values(self, l):
+    @values.setter
+    def values(self, list_of_oto):
         """中身を上書きする"""
-        self.otolist = l
+        self._values = list_of_oto
 
     def replace_alieses(self, before, after):
         """エイリアスを置換する"""
-        for oto in self.otolist:
-            oto.set_alies(oto.get_alies().replace(before, after))
+        for oto in self._values:
+            oto.alies = oto.alies.replace(before, after)
         return self
 
     def kana2roma(self, path_table, replace=True, dt=100):
@@ -67,8 +69,8 @@ class OtoIni:
         d = table.load(path_table)
         d.update({'R': ['pau'], 'pau': ['pau'], 'br': ['br']})
         # 発音記号の分割数によってパラメータを調整
-        for oto in self.otolist:
-            kana = oto.get_alies().split()[-1]
+        for oto in self._values:
+            kana = oto.alies.split()[-1]
             try:
                 roma = d[kana]
             # KeyErrorはリストにするだけで返される
@@ -81,12 +83,12 @@ class OtoIni:
                 roma = d[kana]
             # 歌詞をローマ字化
             if replace is True:
-                oto.set_alies(' '.join(roma))
+                oto.alies = ' '.join(roma)
             # モノフォン
             if len(roma) == 1:
                 # print('  alies: {}\t-> {}\t: オーバーラップ右シフト・先行発声右詰め'.format(alies, roma))
-                oto.set_overlap(2 * dt)
-                oto.set_onset(oto.get_fixed())
+                oto.overlap = 2 * dt
+                oto.onset = oto.fixed
             # おもにCV形式のとき
             elif len(roma) == 2:
                 # print('  alies: {}\t-> {}\t: そのまま'.format(alies, roma))
@@ -105,29 +107,29 @@ class OtoIni:
         """音素ごとに分割"""
         # 新規OtoIniを作るために、otoを入れるリスト
         l = []
-        for oto in self.otolist:
-            alieses = oto.get_alies().split()
+        for oto in self._values:
+            alieses = oto.alies.split()
             if len(alieses) == 1:
                 l.append(oto)
             elif len(alieses) in [2, 3]:
-                name_wav = oto.get_filename()
+                name_wav = oto.filename
                 # 1文字目(オーバーラップから先行発声まで)------------
                 tmp1 = Oto()
                 a = alieses[0]
-                t = oto.get_lblank() + oto.get_overlap()  # オーバーラップの位置から
-                tmp1.set_filename(name_wav)
-                tmp1.set_alies(a)
-                tmp1.set_lblank(t)
-                tmp1.set_overlap(0)
+                t = oto.lblank + oto.overlap  # オーバーラップの位置から
+                tmp1.filename = name_wav
+                tmp1.alies = a
+                tmp1.lblank = t
+                tmp1.overlap = 0
                 l.append(tmp1)
                 # 2文字目(先行発声から固定範囲まで)----------------
                 tmp2 = Oto()
                 a = alieses[1]
-                t = oto.get_lblank() + oto.get_onset()  # 先行発声の位置から
-                tmp2.set_filename(name_wav)
-                tmp2.set_alies(a)
-                tmp2.set_lblank(t)
-                tmp2.set_overlap(0)
+                t = oto.lblank + oto.onset  # 先行発声の位置から
+                tmp2.filename = name_wav
+                tmp2.alies = a
+                tmp2.lblank = t
+                tmp2.overlap = 0
                 # tmp2.set_onset(0)
                 # tmp2.set_fixed(0)
                 # tmp2.set_rblank(0)
@@ -136,11 +138,11 @@ class OtoIni:
                     # 3文字目(固定範囲から右ブランクまで)----------------
                     tmp3 = Oto()
                     a = alieses[2]
-                    t = oto.get_lblank() + oto.get_fixed()  # 固定範囲の位置から
-                    tmp1.set_filename(name_wav)
-                    tmp1.set_alies(a)
-                    tmp1.set_lblank(t)
-                    tmp1.set_overlap(0)
+                    t = oto.lblank + oto.fixed# 固定範囲の位置から
+                    tmp1.filename = name_wav
+                    tmp1.alies = a
+                    tmp1.lblank = t
+                    tmp1.overlap = 0
                     l.append(tmp3)
             else:
                 print('\n[ERROR in otoini.monophonize()]----------------')
@@ -149,20 +151,20 @@ class OtoIni:
                 print('文字を連結して処理を続行します。')
                 print('-----------------------------------------------\n')
                 l.append(oto)
-        self.set_values(l)
+        self.values = l
 
     def write(self, path, mode='w', encoding='shift-jis'):
         """OtoIniクラスオブジェクトをINIファイルに出力"""
         s = ''
-        for oto in self.otolist:
+        for oto in self._values:
             l = []
-            l.append(oto.get_filename())
-            l.append(oto.get_alies())
-            l.append(oto.get_lblank())
-            l.append(oto.get_fixed())
-            l.append(oto.get_rblank())
-            l.append(oto.get_onset())
-            l.append(oto.get_overlap())
+            l.append(oto.filename)
+            l.append(oto.alies)
+            l.append(oto.lblank)
+            l.append(oto.fixed)
+            l.append(oto.rblank)
+            l.append(oto.onset)
+            l.append(oto.overlap)
             # 数値部分を丸めてから文字列に変換
             l = l[:2] + [str(round(float(v), 3)) for v in l[2:]]
             s += '{}={},{},{},{},{},{}\n'.format(*l)  # 'l[0]=l[1],l[2],...'
@@ -178,85 +180,102 @@ class Oto:
         keys = ('FileName', 'Alies', 'LBlank',
                 'Fixed', 'RBlank', 'Onset', 'Overlap')
         l = [None] * 7
-        self.d = dict(zip(keys, l))
+        self._d = dict(zip(keys, l))
 
     def from_otoini(self, l):
-        """リストをもらってクラスオブジェクトにする"""
+        """1音分のリストをもらってクラスオブジェクトにする"""
         keys = ('FileName', 'Alies', 'LBlank',
                 'Fixed', 'RBlank', 'Onset', 'Overlap')
         # 数値部分をfloatにする
         l = l[:2] + [float(v) for v in l[2:]]
-        self.d = dict(zip(keys, l))
+        self._d = dict(zip(keys, l))
         return self
 
     # ここからノートの全値の処理----------------------
-    def get_values(self):
+    @property
+    def values(self):
         """中身を確認する"""
-        return self.d
+        return self._d
 
-    def set_values(self, d):
+    @values.setter
+    def values(self, d):
         """中身を上書きする"""
-        self.d = d
+        self._d = d
     # ここまでノートの全値の処理----------------------
 
     # ここからノートの各値の参照----------------------
-    def get_filename(self):
+    @property
+    def filename(self):
         """wavファイル名を確認する"""
-        return self.d['FileName']
+        return self._d['FileName']
 
-    def get_alies(self):
+    @property
+    def alies(self):
         """エイリアスを確認する"""
-        return self.d['Alies']
+        return self._d['Alies']
 
-    def get_lblank(self):
+    @property
+    def lblank(self):
         """左ブランクを確認する"""
-        return self.d['LBlank']
+        return self._d['LBlank']
 
-    def get_fixed(self):
+    @property
+    def fixed(self):
         """固定範囲を確認する"""
-        return self.d['Fixed']
+        return self._d['Fixed']
 
-    def get_rblank(self):
+    @property
+    def rblank(self):
         """右ブランクを確認する"""
-        return self.d['RBlank']
+        return self._d['RBlank']
 
-    def get_onset(self):
+    @property
+    def onset(self):
         """先行発声を確認する"""
-        return self.d['Onset']
+        return self._d['Onset']
 
-    def get_overlap(self):
+    @property
+    def overlap(self):
         """右ブランクを確認する"""
-        return self.d['Overlap']
+        return self._d['Overlap']
+
     # ここまでノートの各値の参照----------------------
 
     # ここからの各値の上書き----------------------
-    def set_filename(self, x):
+    @filename.setter
+    def filename(self, x):
         """wavファイル名を上書きする"""
-        self.d['FileName'] = x
+        self._d['FileName'] = x
 
-    def set_alies(self, x):
+    @alies.setter
+    def alies(self, x):
         """エイリアスを上書きする"""
-        self.d['Alies'] = x
+        self._d['Alies'] = x
 
-    def set_lblank(self, x):
+    @lblank.setter
+    def lblank(self, x):
         """左ブランクを上書きする"""
-        self.d['LBlank'] = x
+        self._d['LBlank'] = x
 
-    def set_fixed(self, x):
+    @fixed.setter
+    def fixed(self, x):
         """固定範囲を上書きする"""
-        self.d['Fixed'] = x
+        self._d['Fixed'] = x
 
-    def set_rblank(self, x):
+    @rblank.setter
+    def rblank(self, x):
         """右ブランクを上書きする"""
-        self.d['RBlank'] = x
+        self._d['RBlank'] = x
 
-    def set_onset(self, x):
+    @onset.setter
+    def onset(self, x):
         """先行発声を上書きする"""
-        self.d['Onset'] = x
+        self._d['Onset'] = x
 
-    def set_overlap(self, x):
+    @overlap.setter
+    def overlap(self, x):
         """右ブランクを上書きする"""
-        self.d['Overlap'] = x
+        self._d['Overlap'] = x
     # ここまでノートの各値の上書き----------------------
 
 

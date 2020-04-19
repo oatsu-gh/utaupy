@@ -19,28 +19,28 @@ def ust2otoini(ustobj, name_wav, dt=100):
     dt     : 左ブランクと先行発声の時間距離
     overlap: オーバーラップと先行発声の距離
     【パラメータ設定図】
-    # | 左ブランク |オーバーラップ| 先行発声 | 固定範囲 |   右ブランク   |
-    # |   (dt)ms   |    (dt)ms    |  (dt)ms  |  (dt)ms  | (length-2dt)ms |
+      | 左ブランク |オーバーラップ| 先行発声 | 固定範囲 |   右ブランク   |
+      |   (dt)ms   |    (dt)ms    |  (dt)ms  |  (dt)ms  | (length-2dt)ms |
     """
     notes = ustobj.get_values()
     tempo = ustobj.get_tempo()
     o = otoini.OtoIni()
-    otolist = []
+    l = []
     t = 0
     for note in notes[2:-1]:
         length = note.get_length_ms(tempo)
         oto = otoini.Oto()
-        oto.set_filename(name_wav)
-        oto.set_alies(note.get_lyric())
-        oto.set_lblank(max(t - (2 * dt), 0))
-        oto.set_overlap(dt)
-        oto.set_onset(2 * dt)
-        oto.set_fixed(min(3 * dt, length + 2 * dt))
+        oto.filename = name_wav
+        oto.alies = note.get_lyric()
+        oto.lblank = max(t - (2 * dt), 0)
+        oto.overlap = dt
+        oto.onset = 2 * dt
+        oto.fixed = min(3 * dt, length + 2 * dt)
         # oto.set_fixed(length + 2 * dt)
-        oto.set_rblank(-(length + 2 * dt))  # 負で左ブランク相対時刻, 正で絶対時刻
-        otolist.append(oto)
+        oto.rblank = -(length + 2 * dt)  # 負で左ブランク相対時刻, 正で絶対時刻
+        l.append(oto)
         t += length  # 今のノート終了位置が次のノート開始位置
-    o.set_values(otolist)
+    o.values = l
     return o
 
 
@@ -51,7 +51,7 @@ def otoini2label(otoiniobj):
     発声終了: 次のノートのオーバーラップ
     発音記号: エイリアス流用
     """
-    otolist = otoiniobj.get_values()
+    otolist = otoiniobj.values()
     lab = label.Label()
 
     # [[発音開始時刻, 発音記号], ...] の仮リストにする
@@ -86,21 +86,21 @@ def label2otoini(labelobj, name_wav):
     """
     # Otoオブジェクトを格納するリスト
     otolist = []
-    for l in labelobj.get_values():
+    for l in labelobj.values:
         l = [v * 1000 for v in l[:2]] + l[2:]  # 単位換算(s -> ms)
         t = l[1] - l[0]
         oto = otoini.Oto()
-        oto.set_filename(name_wav)
-        oto.set_alies(l[2])
-        oto.set_lblank(l[0])
-        oto.set_overlap(0.0)
-        oto.set_onset(0.0)
-        oto.set_fixed(t)
-        oto.set_rblank(-t)
+        oto.filename = name_wav
+        oto.alies = l[2]
+        oto.lblank = l[0]
+        oto.overlap = 0.0
+        oto.onset = 0.0
+        oto.fixed = t
+        oto.rblank = -t
         otolist.append(oto)
     # クラスオブジェクト化
     o = otoini.OtoIni()
-    o.set_values(otolist)
+    o.values = otolist
     return o
 
 
