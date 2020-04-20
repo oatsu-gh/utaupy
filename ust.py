@@ -21,7 +21,7 @@ def load(path, mode='r', encoding='shift-jis'):
             s = f.read()
     # USTをノート単位に分割
     l = [r'[#' + v.strip() for v in s.split(r'[#')][1:]
-    # さらに行ごとに分割
+    # さらに行ごとに分割して二次元リストに
     l = [v.split('\n') for v in l]
 
     # ノートのリストを作る
@@ -31,11 +31,11 @@ def load(path, mode='r', encoding='shift-jis'):
         note.from_ust(lines)
         notes.append(note)
     # 旧形式の場合にタグの数を合わせる
-    if notes[0].tag != r'[#VERSION]':
-        ust_version = notes[0].by_key('UstVersion')
+    if notes[0].section != r'[#VERSION]':
+        version = notes[0].get_by_key('UstVersion')
         note = Note()
-        note.tag = r'[#VERSION]'
-        note.set_by_key('UstVersion', ust_version)
+        note.section = '[#VERSION]'
+        note.set_by_key('UstVersion', version)
         notes.insert(0, note)  # リスト先頭に挿入
     # Ustクラスオブジェクト化
     u = Ust()
@@ -101,7 +101,7 @@ class Ust:
             # ノートを解体して行のリストにする
             d = note.values
             lines = []
-            lines.append(d.pop('Tag'))
+            lines.append(d.pop('Section'))
             for k, v in d.items():
                 line = '{}={}'.format(str(k), str(v))
                 lines.append(line)
@@ -117,19 +117,20 @@ class Note:
     """UST内のノート"""
 
     def __init__(self):
-        self.d = {'Tag': None}
+        self.d = {}
+        self.section = None
 
     # ここからデータ入力系-----------------------------------------------------
     def from_ust(self, lines):
         """USTの一部からノートを生成"""
         # ノートの種類
-        tag = lines[0]
-        self.d['Tag'] = tag
-        # print('Making "Note" instance from UST: {}'.format(tag))
+        section = lines[0]
+        self.section = section
+        # print('Making "Note" instance from UST: {}'.format(section))
         # タグ以外の行の処理
-        if tag == '[#VERSION]':
-            self.d['UstVersion'] = lines[1]
-        elif tag == '[#TRACKEND]':
+        if section == '[#VERSION]':
+            self.d['Version'] = lines[1]
+        elif section == '[#TRACKEND]':
             pass
         else:
             for v in lines[1:]:
@@ -145,9 +146,9 @@ class Note:
         return self.d
 
     @property
-    def tag(self):
+    def section(self):
         """タグを確認"""
-        return self.d['Tag']
+        return self.d['Section']
 
     @property
     def length(self):
@@ -176,10 +177,10 @@ class Note:
         """ノートの中身を上書き"""
         self.d = d
 
-    @tag.setter
-    def tag(self, s):
+    @section.setter
+    def section(self, s):
         """タグを上書き"""
-        self.d['Tag'] = s
+        self.d['Section'] = s
 
     @length.setter
     def length(self, x):
@@ -204,6 +205,13 @@ class Note:
 
     # ここからデータ操作系-----------------------------------------------------
     # NOTE: msで長さ操作する二つ、テンポ取得を自動にしていい感じにしたい。
+    def get_by_key(self, key):
+        """ノートの特定の情報を上書きまたは登録"""
+        try:
+            return self.d[key]
+        except KeyError as e:
+            print('KeyError Exception in get_by_key in ust.py : {}'.format(e))
+            return None
 
     def set_by_key(self, key, x):
         """ノートの特定の情報を上書きまたは登録"""
@@ -221,13 +229,30 @@ class Note:
     # ここからノート操作系-----------------------------------------------------
     def delete(self):
         """選択ノートを削除"""
-        self.d['Tag'] = '[#DELETE]'
+        self.section = '[#DELETE]'
         return self
 
     def insert(self):
         """ノートを挿入(したい)"""
-        self.d['Tag'] = '[#INSERT]'
+        self.section = '[#INSERT]'
         return self
+
+    def refresh(self):
+        """
+        ノートの情報を引き継ぎつつ、自由にいじれるようにする
+        UTAUプラグインは値の上書きはできるが削除はできない。
+        一旦ノートを削除して新規ノートとして扱う必要がある。
+        """
+        self.section = '[#DELETE]\n[#INSERT]'
+
+    def suppin(self):
+        """ノートの情報を最小限にする"""
+        new_note = {}
+        new_note['Section'] = '[#DELETE]\n[#INSERT]'
+        new_note['Lyric'] = self.lyric
+        new_note['Length'] = self.length
+        new_note['NoteNum'] = self.notenum
+        self.d = new_note
     # ここまでノート操作系-----------------------------------------------------
 
     # ここからデータ出力系-----------------------------------------------------
@@ -237,7 +262,7 @@ class Note:
     #     """出力用のリストを返す"""
     #     d = self.d
     #     lines = []
-    #     lines.append(d.pop('Tag'))
+    #     lines.append(d.pop('Section'))
     #     for k, v in d.items():
     #         line = '{}={}'.format(str(k), str(v))
     #         lines.append(line)
