@@ -6,6 +6,7 @@ UTAU関連ファイルの相互変換
 from . import label, otoini
 
 # from . import ust
+# from pysnooper import snoop
 
 
 def main():
@@ -29,7 +30,7 @@ def ust2otoini(ustobj, name_wav, dt=100):
     t = 0
     for note in notes[2:-1]:
         length = note.get_length_ms(tempo)
-        oto = otoini.Oto
+        oto = otoini.Oto()
         oto.filename = name_wav
         oto.alies = note.lyric
         oto.lblank = max(t - (2 * dt), 0)
@@ -57,7 +58,7 @@ def otoini2label(otoiniobj):
     # [[発音開始時刻, 発音記号], ...] の仮リストにする
     tmp = []
     for oto in otolist:
-        t = oto.lblank + oto.overlap / 1000
+        t = (oto.lblank + oto.overlap) / 1000
         s = oto.alies
         tmp.append([t, s])
 
@@ -86,13 +87,13 @@ def label2otoini(labelobj, name_wav):
     """
     # Otoオブジェクトを格納するリスト
     otolist = []
-    for l in labelobj.values:
-        l = [v * 1000 for v in l[:2]] + l[2:]  # 単位換算(s -> ms)
-        t = l[1] - l[0]
+    for line in labelobj.values:
+        line = [v * 1000 for v in line[:2]] + line[2:]  # 単位換算(s -> ms)
+        t = line[1] - line[0]
         oto = otoini.Oto()
         oto.filename = name_wav
-        oto.alies = l[2]
-        oto.lblank = l[0]
+        oto.alies = line[2]
+        oto.lblank = line[0]
         oto.overlap = 0.0
         oto.onset = 0.0
         oto.fixed = t
