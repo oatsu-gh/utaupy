@@ -166,7 +166,7 @@ class OtoIni:
             l.append(oto.onset)
             l.append(oto.overlap)
             # 数値部分を丸めてから文字列に変換
-            l = l[:2] + [str(round(float(v), 3)) for v in l[2:]]
+            l = l[:2] + [str(round(float(v), 4)) for v in l[2:]]
             s += '{}={},{},{},{},{},{}\n'.format(*l)  # 'l[0]=l[1],l[2],...'
         with open(path, mode=mode, encoding=encoding) as f:
             f.write(s)
