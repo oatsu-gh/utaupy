@@ -59,7 +59,7 @@ class Label:
                 s += '{} {} {}\n'.format(*l)
         else:
             for l in lines:
-                s += '{:.6f} {:.6f} {}\n'.format(*l)
+                s += '{:.7f} {:.7f} {}\n'.format(*l)
         # ファイル出力
         with open(path, mode=mode, encoding=encoding, newline=newline) as f:
             f.write(s)
