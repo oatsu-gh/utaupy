@@ -53,8 +53,13 @@ class Label:
         """LABを保存"""
         # 出力用の文字列
         s = ''
-        for l in self._values:
-            s += '{:.6f} {:.6f} {}\n'.format(*l)
+        lines = self.values
+        if isinstance(lines[0][0], int):
+            for l in lines:
+                s += '{} {} {}\n'.format(*l)
+        else:
+            for l in lines:
+                s += '{:.6f} {:.6f} {}\n'.format(*l)
         # ファイル出力
         with open(path, mode=mode, encoding=encoding, newline=newline) as f:
             f.write(s)

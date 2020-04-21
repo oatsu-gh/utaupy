@@ -45,50 +45,61 @@ def ust2otoini(ustobj, name_wav, dt=100):
     return o
 
 
-def otoini2label(otoiniobj):
+def otoini2label(otoiniobj, otoini_time_order=10**(-3), label_time_order=1):
     """
     OtoIniクラスオブジェクトからLabelクラスオブジェクトを生成
     発声開始: オーバーラップ
     発声終了: 次のノートのオーバーラップ
     発音記号: エイリアス流用
+    label_time_order: ラベルの時間単位の桁。
     """
-    otolist = otoiniobj.values
-    lab = label.Label()
+    otoini_values = otoiniobj.values
+    time_order_ratio = otoini_time_order / label_time_order
+    print('time_order_ratio:', time_order_ratio)
 
     # [[発音開始時刻, 発音記号], ...] の仮リストにする
     tmp = []
-    for oto in otolist:
-        t = (oto.lblank + oto.overlap) / 1000
-        s = oto.alies
-        tmp.append([t, s])
+    for oto in otoini_values:
+        t_start = (oto.lblank + oto.overlap) * time_order_ratio
+        tmp.append([t_start, oto.alies])
 
-    # 一つのリストにまとめる
-    l = [[v[0], tmp[i + 1][0], v[1]] for i, v in enumerate(tmp[:-1])]
-    # ↓内包表記を展開した場合↓
-    # l = []
+    # [[発音開始時刻, 発音終了時刻, 発音記号], ...]
+    lines = [[v[0], tmp[i + 1][0], v[1]] for i, v in enumerate(tmp[:-1])]
+    # ↓内包表記を展開した場合↓-----
+    # lines = []
     # for i, v in enumerate(tmp[:-1]):
-    #     l.append([v[0], tmp[i+1][0], v[1]])
+    #     lines.append([v[0], tmp[i+1][0], v[1]])
+    # -------------------------------
 
     # 最終ノートの処理
-    v = tmp[-1]
-    rblank = otolist[-1].rblank / 1000
-    t_end = max(rblank, v[0] - rblank)  # 右ブランクの符号ごとの挙動違いに対応
-    l.append([v[0], t_end, v[1]])
+    last_oto = otoini_values[-1]
+    lblank = last_oto.lblank
+    rblank = last_oto.rblank
+    # 発声開始位置
+    t_start = (lblank + last_oto.overlap) * time_order_ratio
+    # 発声終了位置
+    # 右ブランクの符号ごとの挙動違いに対応
+    t_end = max(rblank, lblank - rblank) * time_order_ratio
+    # 最終ノートをリストに追加
+    lines.append([t_start, t_end, last_oto.alies])
 
     # Labelクラスオブジェクト化
-    lab.values = l
+    lab = label.Label()
+    lab.values = lines
     return lab
 
 
-def label2otoini(labelobj, name_wav):
+def label2otoini(labelobj, name_wav, otoini_time_order=10**(-3), label_time_order=1):
     """
     LabelオブジェクトをOtoIniオブジェクトに変換
     モノフォン、CV、VCV とかの選択肢が必要そう
     """
+    time_order_ratio = label_time_order / otoini_time_order
     # Otoオブジェクトを格納するリスト
-    otolist = []
-    for line in labelobj.values:
-        line = [v * 1000 for v in line[:2]] + line[2:]  # 単位換算(s -> ms)
+    l = []
+    lines = labelobj.values
+    for line in lines:
+        line = [v * time_order_ratio for v in line[:2]] + line[2:]
         t = line[1] - line[0]
         oto = otoini.Oto()
         oto.filename = name_wav
@@ -98,10 +109,10 @@ def label2otoini(labelobj, name_wav):
         oto.onset = 0.0
         oto.fixed = t
         oto.rblank = -t
-        otolist.append(oto)
+        l.append(oto)
     # クラスオブジェクト化
     o = otoini.OtoIni()
-    o.values = otolist
+    o.values = l
     return o
 
 
