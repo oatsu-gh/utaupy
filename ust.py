@@ -139,69 +139,65 @@ class Note:
         return self
     # ここまでデータ入力系-----------------------------------------------------
 
-    # ここからデータ参照系-----------------------------------------------------
     @property
     def values(self):
         """ノートの中身を見る"""
         return self.d
+
+    @values.setter
+    def values(self, d):
+        """ノートの中身を上書き"""
+        self.d = d
 
     @property
     def section(self):
         """タグを確認"""
         return self.d['Section']
 
-    @property
-    def length(self):
-        """ノート長を確認[samples]"""
-        return self.d['Length']
-
-    @property
-    def lyric(self):
-        """歌詞を確認"""
-        return self.d['Lyric']
-
-    @property
-    def notenum(self):
-        """音階番号を確認"""
-        return self.d['NoteNum']
-
-    @property
-    def tempo(self):
-        """BPMを確認"""
-        return self.d['Tempo']
-    # ここまでgetter-----------------------------------------------------
-
-    # ここからsetter-----------------------------------------------------
-    @values.setter
-    def values(self, d):
-        """ノートの中身を上書き"""
-        self.d = d
-
     @section.setter
     def section(self, s):
         """タグを上書き"""
         self.d['Section'] = s
+
+    @property
+    def length(self):
+        """ノート長を確認[samples]"""
+        return self.d['Length']
 
     @length.setter
     def length(self, x):
         """ノート長を上書き[samples]"""
         self.d['Length'] = x
 
+    @property
+    def lyric(self):
+        """歌詞を確認"""
+        return self.d['Lyric']
+
     @lyric.setter
     def lyric(self, x):
         """歌詞を上書き"""
         self.d['Lyric'] = x
+
+    @property
+    def notenum(self):
+        """音階番号を確認"""
+        return self.d['NoteNum']
 
     @notenum.setter
     def notenum(self, x):
         """音階番号を上書き"""
         self.d['NoteNum'] = x
 
+    @property
+    def tempo(self):
+        """BPMを確認"""
+        return self.d['Tempo']
+
     @tempo.setter
     def tempo(self, x):
         """BPMを上書き"""
         self.d['Tempo'] = x
-    # ここまでデータ上書き系-----------------------------------------------------
 
     # ここからデータ操作系-----------------------------------------------------
     # NOTE: msで長さ操作する二つ、テンポ取得を自動にしていい感じにしたい。
