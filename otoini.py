@@ -39,75 +39,83 @@ class OtoIni:
 
     def __init__(self):
         # 'Oto'クラスからなるリスト
-        self._values = []
+        self.___values = []
 
     @property
     def values(self):
         """中身を確認する"""
-        return self._values
+        return self.__values
 
     @values.setter
     def values(self, list_of_oto):
         """中身を上書きする"""
-        self._values = list_of_oto
+        self.__values = list_of_oto
 
     def replace_alieses(self, before, after):
         """エイリアスを置換する"""
-        for oto in self._values:
+        for oto in self.__values:
             oto.alies = oto.alies.replace(before, after)
         return self
 
-    def kana2roma(self, path_table, replace=True, dt=100):
+    def is_mono(self):
         """
-        エイリアスをローマ字にする
-        かな→ローマ字 変換表のパス
-        replace:
-          Trueのときエイリアスをローマ字に書き換え
-          Falseのときエイリアスは平仮名のまま
+        モノフォン形式のエイリアスになっているか判定する。
+        返り値はbool。
         """
-        # ローマ字変換表読み取り
-        d = table.load(path_table)
-        d.update({'R': ['pau'], 'pau': ['pau'], 'br': ['br']})
-        # 発音記号の分割数によってパラメータを調整
-        for oto in self._values:
-            kana = oto.alies.split()[-1]
-            try:
-                roma = d[kana]
-            # KeyErrorはリストにするだけで返される
-            except KeyError as e:
-                print('\n[KeyError in otoini.kana2roma]---------')
-                print('想定外の文字が kana として入力されました。')
-                print('該当文字列(kana):', kana)
-                print('エラー詳細(e)   :', e)
-                print('--------------------------------------\n')
-                roma = d[kana]
-            # 歌詞をローマ字化
-            if replace is True:
-                oto.alies = ' '.join(roma)
-            # モノフォン
-            if len(roma) == 1:
-                # print('  alies: {}\t-> {}\t: オーバーラップ右シフト・先行発声右詰め'.format(alies, roma))
-                oto.overlap = 2 * dt
-                oto.onset = oto.fixed
-            # おもにCV形式のとき
-            elif len(roma) == 2:
-                # print('  alies: {}\t-> {}\t: そのまま'.format(alies, roma))
-                pass
-            # おもにCCV形式のとき
-            elif len(roma) == 3:
-                # print('  alies: {}\t-> {}\t: そのままでいい？'.format(alies, roma))
-                pass
-            elif len(roma) >= 4:
-                print('  [ERROR]---------')
-                print('  1,2,3音素しか対応していません。')
-                print('  alies: {}\t-> {}\t: そのままにします。'.format(kana, roma))
-                print('  ----------------')
+        return all(len(v.alies) == 1 for v in self.values)
+
+    # def kana2romaji(self, path_table, replace=True, dt=100):
+    #     """
+    #     エイリアスをローマ字にする
+    #     かな→ローマ字 変換表のパス
+    #     replace:
+    #       Trueのときエイリアスをローマ字に書き換え
+    #       Falseのときエイリアスは平仮名のまま
+    #     """
+    #     # ローマ字変換表読み取り
+    #     d = table.load(path_table)
+    #     d.update({'R': ['pau'], 'pau': ['pau'], 'sil': ['sil'],
+    #               '息': ['br'], '吸': ['br'], 'br': ['br']})
+    #     # 発音記号の分割数によってパラメータを調整
+    #     for oto in self.__values:
+    #         kana = oto.alies.split()[-1]
+    #         try:
+    #             romaji = d[kana]
+    #         # KeyErrorはリストにするだけで返される
+    #         except KeyError as e:
+    #             print('\n[KeyError in otoini.kana2romaji]---------')
+    #             print('想定外の文字が kana として入力されました。')
+    #             print('該当文字列(kana):', kana)
+    #             print('エラー詳細(e)   :', e)
+    #             print('--------------------------------------\n')
+    #             romaji = d[kana]
+    #         # 歌詞をローマ字化
+    #         if replace is True:
+    #             oto.alies = ' '.join(romaji)
+    #         # モノフォン
+    #         if len(romaji) == 1:
+    #             # print('  alies: {}\t-> {}\t: オーバーラップ右シフト・先行発声右詰め'.format(alies, romaji))
+    #             oto.overlap = 2 * dt
+    #             oto.onset = oto.fixed
+    #         # おもにCV形式のとき
+    #         elif len(romaji) == 2:
+    #             # print('  alies: {}\t-> {}\t: そのまま'.format(alies, romaji))
+    #             pass
+    #         # おもにCCV形式のとき
+    #         elif len(romaji) == 3:
+    #             # print('  alies: {}\t-> {}\t: そのままでいい？'.format(alies, romaji))
+    #             pass
+    #         elif len(romaji) >= 4:
+    #             print('  [ERROR]---------')
+    #             print('  1,2,3音素しか対応していません。')
+    #             print('  alies: {}\t-> {}\t: そのままにします。'.format(kana, romaji))
+    #             print('  ----------------')
 
     def monophonize(self):
         """音素ごとに分割"""
         # 新規OtoIniを作るために、otoを入れるリスト
         l = []
-        for oto in self._values:
+        for oto in self.__values:
             alieses = oto.alies.split()
             if len(alieses) == 1:
                 l.append(oto)
@@ -138,7 +146,7 @@ class OtoIni:
                     # 3文字目(固定範囲から右ブランクまで)----------------
                     tmp3 = Oto()
                     a = alieses[2]
-                    t = oto.lblank + oto.fixed# 固定範囲の位置から
+                    t = oto.lblank + oto.fixed  # 固定範囲の位置から
                     tmp1.filename = name_wav
                     tmp1.alies = a
                     tmp1.lblank = t
@@ -156,7 +164,7 @@ class OtoIni:
     def write(self, path, mode='w', encoding='shift-jis'):
         """OtoIniクラスオブジェクトをINIファイルに出力"""
         s = ''
-        for oto in self._values:
+        for oto in self.__values:
             l = []
             l.append(oto.filename)
             l.append(oto.alies)
@@ -180,7 +188,7 @@ class Oto:
         keys = ('FileName', 'Alies', 'LBlank',
                 'Fixed', 'RBlank', 'Onset', 'Overlap')
         l = [None] * 7
-        self._d = dict(zip(keys, l))
+        self.__d = dict(zip(keys, l))
 
     def from_otoini(self, l):
         """1音分のリストをもらってクラスオブジェクトにする"""
@@ -188,95 +196,103 @@ class Oto:
                 'Fixed', 'RBlank', 'Onset', 'Overlap')
         # 数値部分をfloatにする
         l = l[:2] + [float(v) for v in l[2:]]
-        self._d = dict(zip(keys, l))
+        self.__d = dict(zip(keys, l))
         return self
 
     # ここからノートの全値の処理----------------------
     @property
     def values(self):
         """中身を確認する"""
-        return self._d
+        return self.__d
 
     @values.setter
     def values(self, d):
         """中身を上書きする"""
-        self._d = d
+        self.__d = d
     # ここまでノートの全値の処理----------------------
 
-    # ここからノートの各値の参照----------------------
+    # ここからノートの各値の処理----------------------
     @property
     def filename(self):
         """wavファイル名を確認する"""
-        return self._d['FileName']
+        return self.__d['FileName']
+
+    @filename.setter
+    def filename(self, x):
+        """wavファイル名を上書きする"""
+        self.__d['FileName'] = x
 
     @property
     def alies(self):
         """エイリアスを確認する"""
-        return self._d['Alies']
-
-    @property
-    def lblank(self):
-        """左ブランクを確認する"""
-        return self._d['LBlank']
-
-    @property
-    def fixed(self):
-        """固定範囲を確認する"""
-        return self._d['Fixed']
-
-    @property
-    def rblank(self):
-        """右ブランクを確認する"""
-        return self._d['RBlank']
-
-    @property
-    def onset(self):
-        """先行発声を確認する"""
-        return self._d['Onset']
-
-    @property
-    def overlap(self):
-        """右ブランクを確認する"""
-        return self._d['Overlap']
-
-    # ここまでノートの各値の参照----------------------
-
-    # ここからの各値の上書き----------------------
-    @filename.setter
-    def filename(self, x):
-        """wavファイル名を上書きする"""
-        self._d['FileName'] = x
+        return self.__d['Alies']
 
     @alies.setter
     def alies(self, x):
         """エイリアスを上書きする"""
-        self._d['Alies'] = x
+        self.__d['Alies'] = x
+
+    @property
+    def lblank(self):
+        """左ブランクを確認する"""
+        return self.__d['LBlank']
 
     @lblank.setter
     def lblank(self, x):
         """左ブランクを上書きする"""
-        self._d['LBlank'] = x
+        self.__d['LBlank'] = x
+
+    @property
+    def fixed(self):
+        """固定範囲を確認する"""
+        return self.__d['Fixed']
 
     @fixed.setter
     def fixed(self, x):
         """固定範囲を上書きする"""
-        self._d['Fixed'] = x
+        self.__d['Fixed'] = x
+
+    @property
+    def rblank(self):
+        """右ブランクを確認する"""
+        return self.__d['RBlank']
 
     @rblank.setter
     def rblank(self, x):
         """右ブランクを上書きする"""
-        self._d['RBlank'] = x
+        self.__d['RBlank'] = x
+
+    @property
+    def rblank2(self):
+        """右ブランクを絶対時刻で取得する"""
+        return max(self.__d['RBlank'], self.__d['LBlank'] - self.__d['RBlank'])
+
+    # LBlankがNullのとき処理できず、バグのもとになるので無効化
+    # @rblank2.setter
+    # def rblank2(self, x):
+    #     """右ブランクを上書きする。負の値に強制する。"""
+    #     self.__d['RBlank'] = min(x, self.__d['LBlank'] - x)
+
+    @property
+    def onset(self):
+        """先行発声を確認する"""
+        return self.__d['Onset']
 
     @onset.setter
     def onset(self, x):
         """先行発声を上書きする"""
-        self._d['Onset'] = x
+        self.__d['Onset'] = x
+
+    @property
+    def overlap(self):
+        """右ブランクを確認する"""
+        return self.__d['Overlap']
 
     @overlap.setter
     def overlap(self, x):
         """右ブランクを上書きする"""
-        self._d['Overlap'] = x
-    # ここまでノートの各値の上書き----------------------
+        self.__d['Overlap'] = x
+    # ここまでノートの各値の処理----------------------
 
 
 if __name__ == '__main__':

@@ -8,17 +8,15 @@
 def main():
     """呼び出されても特に何もしない"""
     print('平仮名とアルファベットの対応表を扱うモジュールです。')
-    print('平仮名やUSTの歌詞判定の機能もあります。（まだない）')
 
 
 def load(path):
     """テーブルを読み取ってインスタンス生成"""
-    d = {}
     # ファイル読み取り
     with open(path) as f:
-        with open(path, 'r') as f:
-            l = [v.split() for v in f.readlines()]
+        l = [v.strip().split() for v in f.readlines()]
     # 辞書にする
+    d = {}
     for v in l:
         d[v[0]] = v[1:]
     return d
