@@ -74,19 +74,19 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
     new = []  # mono_otoを入れるリスト
     for simple_oto in l:
         try:
-            phones = d[simple_oto.alies]
+            phonemes = d[simple_oto.alies]
         except KeyError as e:
             print('\nKeyError in utaupy.convert.ust2otoini_mono---------')
             print('ひらがなローマ字変換に失敗しました。そのままぶち込みます。')
             print('エラー詳細:')
             print('--------------------------------------\n')
-            phones = [simple_oto.alies]
+            phonemes = [simple_oto.alies]
         # 子音+母音 「か(k a)」
-        if len(phones) == 2:
+        if len(phonemes) == 2:
             # 子音部分
             first_oto = otoini.Oto()
             first_oto.filename = name_wav
-            first_oto.alies = phones[0]
+            first_oto.alies = phonemes[0]
             first_oto.lblank = simple_oto.lblank - (2 * dt)
             first_oto.overlap = 0
             first_oto.onset = dt
@@ -96,7 +96,7 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
             # 母音部分
             second_oto = otoini.Oto()
             second_oto.filename = name_wav
-            second_oto.alies = phones[1]
+            second_oto.alies = phonemes[1]
             second_oto.lblank = simple_oto.lblank - dt
             second_oto.overlap = 0
             second_oto.onset = dt
@@ -104,10 +104,10 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
             second_oto.rblank = simple_oto.rblank - dt
             new.append(second_oto)
         # 母音など 「あ(a)」「ん(cl)」「っ(cl)」「(pau)」「(br)」「(sil)」
-        elif len(phones) == 1:
+        elif len(phonemes) == 1:
             first_oto = otoini.Oto()
             first_oto.filename = name_wav
-            first_oto.alies = phones[0]
+            first_oto.alies = phonemes[0]
             first_oto.lblank = simple_oto.lblank - dt
             first_oto.overlap = 0
             first_oto.onset = dt
@@ -115,11 +115,11 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
             first_oto.rblank = simple_oto.rblank - dt
             new.append(first_oto)
         # 子音+半母音+母音 「ぐぁ(g w a)」
-        elif len(phones) == 3:
+        elif len(phonemes) == 3:
             # 子音部分
             first_oto = otoini.Oto()
             first_oto.filename = name_wav
-            first_oto.alies = phones[0]
+            first_oto.alies = phonemes[0]
             first_oto.lblank = simple_oto.lblank - (2 * dt)
             first_oto.overlap = 0
             first_oto.onset = dt
@@ -129,7 +129,7 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
             # 半母音部分
             second_oto = otoini.Oto()
             second_oto.filename = name_wav
-            second_oto.alies = phones[1]
+            second_oto.alies = phonemes[1]
             second_oto.lblank = simple_oto.lblank - dt
             second_oto.overlap = 0
             second_oto.onset = dt
@@ -139,7 +139,7 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
             # 母音部分
             third_oto = otoini.Oto()
             third_oto.filename = name_wav
-            third_oto.alies = phones[2]
+            third_oto.alies = phonemes[2]
             third_oto.lblank = simple_oto.lblank
             third_oto.overlap = 0
             third_oto.onset = dt
@@ -174,31 +174,31 @@ def ust2otoini_romaji_cv(ustobj, name_wav, path_tablefile, dt=100):
 
     for note in notes[2:-1]:
         try:
-            phones = d[note.lyric]
+            phonemes = d[note.lyric]
         except KeyError as e:
             print('\nKeyError in utaupy.convert.ust2otoini_romaji_cv----')
             print('ひらがなローマ字変換に失敗しました。そのままぶち込みます。')
             print('変換前の歌詞(note.lyric):', note.lyric)
             print('エラー詳細(e)           :', e)
-            phones = [note.lyric]
+            phonemes = [note.lyric]
             print('---------------------------------------------------\n')
         length = note.get_length_ms(tempo)
         oto = otoini.Oto()
         oto.filename = name_wav
-        oto.alies = ' '.join(phones)
+        oto.alies = ' '.join(phonemes)
         oto.lblank = t - (2 * dt)
         oto.fixed = min(3 * dt, length + 2 * dt)
         oto.rblank = -(length + 2 * dt)  # 負で左ブランク相対時刻, 正で絶対時刻
-        if len(phones) == 1:
+        if len(phonemes) == 1:
             oto.overlap = 2 * dt
             oto.onset = 3 * dt
-        elif len(phones) in [2, 3]:
+        elif len(phonemes) in [2, 3]:
             oto.overlap = dt
             oto.onset = 2 * dt
         else:
-            print('\nERROR when setting alies : phones = {}-------------'.format(phones))
+            print('\nERROR when setting alies : phonemes = {}-------------'.format(phonemes))
             raise ValueError('1エイリアスあたり 1, 2, 3 音素しか対応していません。')
-            oto.alies = ''.join(phones)
+            oto.alies = ''.join(phonemes)
             oto.overlap = dt
             oto.onset = 2 * dt
 
