@@ -39,21 +39,21 @@ class OtoIni:
 
     def __init__(self):
         # 'Oto'クラスからなるリスト
-        self._values = []
+        self.___values = []
 
     @property
     def values(self):
         """中身を確認する"""
-        return self._values
+        return self.__values
 
     @values.setter
     def values(self, list_of_oto):
         """中身を上書きする"""
-        self._values = list_of_oto
+        self.__values = list_of_oto
 
     def replace_alieses(self, before, after):
         """エイリアスを置換する"""
-        for oto in self._values:
+        for oto in self.__values:
             oto.alies = oto.alies.replace(before, after)
         return self
 
@@ -64,58 +64,58 @@ class OtoIni:
         """
         return all(len(v.alies) == 1 for v in self.values)
 
-    def kana2romaji(self, path_table, replace=True, dt=100):
-        """
-        エイリアスをローマ字にする
-        かな→ローマ字 変換表のパス
-        replace:
-          Trueのときエイリアスをローマ字に書き換え
-          Falseのときエイリアスは平仮名のまま
-        """
-        # ローマ字変換表読み取り
-        d = table.load(path_table)
-        d.update({'R': ['pau'], 'pau': ['pau'], 'sil': ['sil'],
-                  '息': ['br'], '吸': 'br', 'br': ['br']})
-        # 発音記号の分割数によってパラメータを調整
-        for oto in self._values:
-            kana = oto.alies.split()[-1]
-            try:
-                romaji = d[kana]
-            # KeyErrorはリストにするだけで返される
-            except KeyError as e:
-                print('\n[KeyError in otoini.kana2romaji]---------')
-                print('想定外の文字が kana として入力されました。')
-                print('該当文字列(kana):', kana)
-                print('エラー詳細(e)   :', e)
-                print('--------------------------------------\n')
-                romaji = d[kana]
-            # 歌詞をローマ字化
-            if replace is True:
-                oto.alies = ' '.join(romaji)
-            # モノフォン
-            if len(romaji) == 1:
-                # print('  alies: {}\t-> {}\t: オーバーラップ右シフト・先行発声右詰め'.format(alies, romaji))
-                oto.overlap = 2 * dt
-                oto.onset = oto.fixed
-            # おもにCV形式のとき
-            elif len(romaji) == 2:
-                # print('  alies: {}\t-> {}\t: そのまま'.format(alies, romaji))
-                pass
-            # おもにCCV形式のとき
-            elif len(romaji) == 3:
-                # print('  alies: {}\t-> {}\t: そのままでいい？'.format(alies, romaji))
-                pass
-            elif len(romaji) >= 4:
-                print('  [ERROR]---------')
-                print('  1,2,3音素しか対応していません。')
-                print('  alies: {}\t-> {}\t: そのままにします。'.format(kana, romaji))
-                print('  ----------------')
+    # def kana2romaji(self, path_table, replace=True, dt=100):
+    #     """
+    #     エイリアスをローマ字にする
+    #     かな→ローマ字 変換表のパス
+    #     replace:
+    #       Trueのときエイリアスをローマ字に書き換え
+    #       Falseのときエイリアスは平仮名のまま
+    #     """
+    #     # ローマ字変換表読み取り
+    #     d = table.load(path_table)
+    #     d.update({'R': ['pau'], 'pau': ['pau'], 'sil': ['sil'],
+    #               '息': ['br'], '吸': ['br'], 'br': ['br']})
+    #     # 発音記号の分割数によってパラメータを調整
+    #     for oto in self.__values:
+    #         kana = oto.alies.split()[-1]
+    #         try:
+    #             romaji = d[kana]
+    #         # KeyErrorはリストにするだけで返される
+    #         except KeyError as e:
+    #             print('\n[KeyError in otoini.kana2romaji]---------')
+    #             print('想定外の文字が kana として入力されました。')
+    #             print('該当文字列(kana):', kana)
+    #             print('エラー詳細(e)   :', e)
+    #             print('--------------------------------------\n')
+    #             romaji = d[kana]
+    #         # 歌詞をローマ字化
+    #         if replace is True:
+    #             oto.alies = ' '.join(romaji)
+    #         # モノフォン
+    #         if len(romaji) == 1:
+    #             # print('  alies: {}\t-> {}\t: オーバーラップ右シフト・先行発声右詰め'.format(alies, romaji))
+    #             oto.overlap = 2 * dt
+    #             oto.onset = oto.fixed
+    #         # おもにCV形式のとき
+    #         elif len(romaji) == 2:
+    #             # print('  alies: {}\t-> {}\t: そのまま'.format(alies, romaji))
+    #             pass
+    #         # おもにCCV形式のとき
+    #         elif len(romaji) == 3:
+    #             # print('  alies: {}\t-> {}\t: そのままでいい？'.format(alies, romaji))
+    #             pass
+    #         elif len(romaji) >= 4:
+    #             print('  [ERROR]---------')
+    #             print('  1,2,3音素しか対応していません。')
+    #             print('  alies: {}\t-> {}\t: そのままにします。'.format(kana, romaji))
+    #             print('  ----------------')
 
     def monophonize(self):
         """音素ごとに分割"""
         # 新規OtoIniを作るために、otoを入れるリスト
         l = []
-        for oto in self._values:
+        for oto in self.__values:
             alieses = oto.alies.split()
             if len(alieses) == 1:
                 l.append(oto)
@@ -164,7 +164,7 @@ class OtoIni:
     def write(self, path, mode='w', encoding='shift-jis'):
         """OtoIniクラスオブジェクトをINIファイルに出力"""
         s = ''
-        for oto in self._values:
+        for oto in self.__values:
             l = []
             l.append(oto.filename)
             l.append(oto.alies)
