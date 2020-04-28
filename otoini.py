@@ -74,7 +74,8 @@ class OtoIni:
         """
         # ローマ字変換表読み取り
         d = table.load(path_table)
-        d.update({'R': ['pau'], 'pau': ['pau'], 'sil': ['sil']})
+        d.update({'R': ['pau'], 'pau': ['pau'], 'sil': ['sil'],
+                  '息': ['br'], '吸': 'br', 'br': ['br']})
         # 発音記号の分割数によってパラメータを調整
         for oto in self._values:
             kana = oto.alies.split()[-1]

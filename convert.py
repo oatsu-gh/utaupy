@@ -139,6 +139,8 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
         else:
             raise ValueError('len(alies) must be in [1, 2, 3]')
 
+    new[0].lblank = 0
+    new[0].onset = 0
     mono_otoini = otoini.OtoIni()
     mono_otoini.values = new
     return mono_otoini
@@ -173,7 +175,7 @@ def ust2otoini_romaji_cv(ustobj, name_wav, dt=100):
         t += length  # 今のノート終了位置が次のノート開始位置
 
     l[0].lblank = 0  # 最初の左ブランクを0にする
-    l[0].ovealap = 0  # 最初のオーバーラップを0にする
+    l[0].overlap = 0  # 最初のオーバーラップを0にする
     o.values = l
     return o
 
