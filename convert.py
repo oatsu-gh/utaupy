@@ -77,10 +77,11 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
             phonemes = d[simple_oto.alies]
         except KeyError as e:
             print('\nKeyError in utaupy.convert.ust2otoini_mono---------')
-            print('ひらがなローマ字変換に失敗しました。そのままぶち込みます。')
+            print('ひらがなローマ字変換に失敗しました。半角スペースで音素として分割してぶち込みます。')
             print('エラー詳細:')
             print('--------------------------------------\n')
-            phonemes = [simple_oto.alies]
+            phonemes = simple_oto.alies.split()
+            print(phonemes)
         # 子音+母音 「か(k a)」
         if len(phonemes) == 2:
             # 子音部分
@@ -180,7 +181,7 @@ def ust2otoini_romaji_cv(ustobj, name_wav, path_tablefile, dt=100):
             print('ひらがなローマ字変換に失敗しました。そのままぶち込みます。')
             print('変換前の歌詞(note.lyric):', note.lyric)
             print('エラー詳細(e)           :', e)
-            phonemes = [note.lyric]
+            phonemes = note.lyric.split()
             print('---------------------------------------------------\n')
         length = note.get_length_ms(tempo)
         oto = otoini.Oto()
