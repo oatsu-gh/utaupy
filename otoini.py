@@ -39,7 +39,7 @@ class OtoIni:
 
     def __init__(self):
         # 'Oto'クラスからなるリスト
-        self.___values = []
+        self.__values = []
 
     @property
     def values(self):
