@@ -40,16 +40,15 @@ u = ust.load(ust_path)
 で UST ファイルをクラス Ust() として扱えます。LAB, INI を扱いたいときは  label, otoini を import してください。Ust() は Note() を要素として持つリスト型です。
 
 ```
-for note in u.get_values():
-    lyric = note.get_lyric()
+for note in u.values:
+    lyric = note.lyric
     print(lyric)
 ```
-
-と書けば歌詞を出力できます。一般的に紹介すると
-
-- `note.set_xxxx(a)` でxxxxの値をaで上書きできます。
-
-- `note.set_yyyy(a)` でyyyyの値をaで上書きできます。
+property で getter と setter 設定してあるパラメータについては書き換えもできます。
+```
+note.lyric = 'あ'
+print(note.lyric)  # 'あ'
+```
 
 ### convert
 
