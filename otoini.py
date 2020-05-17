@@ -62,7 +62,7 @@ class OtoIni:
         モノフォン形式のエイリアスになっているか判定する。
         返り値はbool。
         """
-        return all(len(v.alies) == 1 for v in self.values)
+        return all(len(v.alies.split()) == 1 for v in self.values)
 
     # def kana2romaji(self, path_table, replace=True, dt=100):
     #     """
@@ -122,36 +122,33 @@ class OtoIni:
             elif len(alieses) in [2, 3]:
                 name_wav = oto.filename
                 # 1文字目(オーバーラップから先行発声まで)------------
-                tmp1 = Oto()
+                tmp = Oto()
                 a = alieses[0]
                 t = oto.lblank + oto.overlap  # オーバーラップの位置から
-                tmp1.filename = name_wav
-                tmp1.alies = a
-                tmp1.lblank = t
-                tmp1.overlap = 0
-                l.append(tmp1)
+                tmp.filename = name_wav
+                tmp.alies = a
+                tmp.lblank = t
+                tmp.overlap = 0
+                l.append(tmp)
                 # 2文字目(先行発声から固定範囲まで)----------------
-                tmp2 = Oto()
+                tmp = Oto()
                 a = alieses[1]
                 t = oto.lblank + oto.onset  # 先行発声の位置から
-                tmp2.filename = name_wav
-                tmp2.alies = a
-                tmp2.lblank = t
-                tmp2.overlap = 0
-                # tmp2.set_onset(0)
-                # tmp2.set_fixed(0)
-                # tmp2.set_rblank(0)
-                l.append(tmp2)
+                tmp.filename = name_wav
+                tmp.alies = a
+                tmp.lblank = t
+                tmp.overlap = 0
+                l.append(tmp)
                 if len(alieses) == 3:
                     # 3文字目(固定範囲から右ブランクまで)----------------
-                    tmp3 = Oto()
+                    tmp = Oto()
                     a = alieses[2]
                     t = oto.lblank + oto.fixed  # 固定範囲の位置から
-                    tmp3.filename = name_wav
-                    tmp3.alies = a
-                    tmp3.lblank = t
-                    tmp3.overlap = 0
-                    l.append(tmp3)
+                    tmp.filename = name_wav
+                    tmp.alies = a
+                    tmp.lblank = t
+                    tmp.overlap = 0
+                    l.append(tmp)
             else:
                 print('\n[ERROR in otoini.monophonize()]----------------')
                 print('エイリアスのローマ字分割数は 1, 2, 3 以外対応していません。')

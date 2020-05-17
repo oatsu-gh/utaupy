@@ -226,7 +226,6 @@ def otoini2label(otoiniobj, mode='auto',
     otoini_time_order: otoiniの時間単位の桁。
     label_time_order : ラベルの時間単位の桁。
     """
-    otoini_values = otoiniobj.values
     time_order_ratio = otoini_time_order / label_time_order
     print('  time_order_ratio:', time_order_ratio)
 
@@ -242,6 +241,7 @@ def otoini2label(otoiniobj, mode='auto',
         print('  mode: OtoIni(mono) -> Label(mono)')
         # [[発音開始時刻, 発音記号], ...] の仮リストにする
         tmp = []
+        otoini_values = otoiniobj.values
         for oto in otoini_values:
             if debug:
                 print('    {}'.format(oto.values))
@@ -268,8 +268,11 @@ def otoini2label(otoiniobj, mode='auto',
 
     elif mode == 'romaji_cv':
         print('  mode: OtoIni(romaji_cv) -> Label(mono)')
+        # モノフォン化
+        otoiniobj.monophonize()
         # [[発音開始時刻, 発音記号], ...] の仮リストにする
         tmp = []
+        otoini_values = otoiniobj.values
         for oto in otoini_values:
             if debug:
                 print('    {}'.format(oto.values))
