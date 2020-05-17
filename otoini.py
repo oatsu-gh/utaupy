@@ -147,10 +147,10 @@ class OtoIni:
                     tmp3 = Oto()
                     a = alieses[2]
                     t = oto.lblank + oto.fixed  # 固定範囲の位置から
-                    tmp1.filename = name_wav
-                    tmp1.alies = a
-                    tmp1.lblank = t
-                    tmp1.overlap = 0
+                    tmp3.filename = name_wav
+                    tmp3.alies = a
+                    tmp3.lblank = t
+                    tmp3.overlap = 0
                     l.append(tmp3)
             else:
                 print('\n[ERROR in otoini.monophonize()]----------------')
