@@ -117,7 +117,7 @@ class Note:
     """UST内のノート"""
 
     def __init__(self):
-        self.d = {}
+        self.__d = {}
         self.section = None
 
     # ここからデータ入力系-----------------------------------------------------
@@ -129,97 +129,97 @@ class Note:
         # print('Making "Note" instance from UST: {}'.format(section))
         # タグ以外の行の処理
         if section == '[#VERSION]':
-            self.d['Version'] = lines[1]
+            self.__d['Version'] = lines[1]
         elif section == '[#TRACKEND]':
             pass
         else:
             for v in lines[1:]:
                 tmp = v.split('=', 1)
-                self.d[tmp[0]] = tmp[1]
+                self.__d[tmp[0]] = tmp[1]
         return self
     # ここまでデータ入力系-----------------------------------------------------
 
     @property
     def values(self):
         """ノートの中身を見る"""
-        return self.d
+        return self.__d
 
     @values.setter
     def values(self, d):
         """ノートの中身を上書き"""
-        self.d = d
+        self.__d = d
 
     @property
     def section(self):
         """タグを確認"""
-        return self.d['Section']
+        return self.__d['Section']
 
     @section.setter
     def section(self, s):
         """タグを上書き"""
-        self.d['Section'] = s
+        self.__d['Section'] = s
 
     @property
     def length(self):
         """ノート長を確認[samples]"""
-        return self.d['Length']
+        return self.__d['Length']
 
     @length.setter
     def length(self, x):
         """ノート長を上書き[samples]"""
-        self.d['Length'] = x
+        self.__d['Length'] = x
 
     @property
     def lyric(self):
         """歌詞を確認"""
-        return self.d['Lyric']
+        return self.__d['Lyric']
 
     @lyric.setter
     def lyric(self, x):
         """歌詞を上書き"""
-        self.d['Lyric'] = x
+        self.__d['Lyric'] = x
 
     @property
     def notenum(self):
         """音階番号を確認"""
-        return self.d['NoteNum']
+        return self.__d['NoteNum']
 
     @notenum.setter
     def notenum(self, x):
         """音階番号を上書き"""
-        self.d['NoteNum'] = x
+        self.__d['NoteNum'] = x
 
     @property
     def tempo(self):
         """BPMを確認"""
-        return self.d['Tempo']
+        return self.__d['Tempo']
 
     @tempo.setter
     def tempo(self, x):
         """BPMを上書き"""
-        self.d['Tempo'] = x
+        self.__d['Tempo'] = x
 
     # ここからデータ操作系-----------------------------------------------------
     # NOTE: msで長さ操作する二つ、テンポ取得を自動にしていい感じにしたい。
     def get_by_key(self, key):
         """ノートの特定の情報を上書きまたは登録"""
         try:
-            return self.d[key]
+            return self.__d[key]
         except KeyError as e:
             print('KeyError Exception in get_by_key in ust.py : {}'.format(e))
             return None
 
     def set_by_key(self, key, x):
         """ノートの特定の情報を上書きまたは登録"""
-        self.d[key] = x
+        self.__d[key] = x
 
     def get_length_ms(self, tempo):
         """ノート長を確認[ms]"""
-        return 125 * float(self.d['Length']) / float(tempo)
+        return 125 * float(self.__d['Length']) / float(tempo)
 
     def set_length_ms(self, x, tempo):
         """ノート長を上書き[ms]"""
-        self.d['Length'] = x * tempo // 125
+        self.__d['Length'] = x * tempo // 125
     # ここまでデータ操作系-----------------------------------------------------
 
     # ここからノート操作系-----------------------------------------------------
@@ -248,7 +248,7 @@ class Note:
         new_note['Lyric'] = self.lyric
         new_note['Length'] = self.length
         new_note['NoteNum'] = self.notenum
-        self.d = new_note
+        self.__d = new_note
     # ここまでノート操作系-----------------------------------------------------
 
     # ここからデータ出力系-----------------------------------------------------
@@ -256,7 +256,7 @@ class Note:
     # -------------------------------------------------------------------------
     # def as_lines(self):
     #     """出力用のリストを返す"""
-    #     d = self.d
+    #     d = self.__d
     #     lines = []
     #     lines.append(d.pop('Section'))
     #     for k, v in d.items():

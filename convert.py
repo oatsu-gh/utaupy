@@ -3,11 +3,13 @@
 """
 UTAU関連ファイルの相互変換
 """
-# from . import ust
+# from . import ust as _ust
 # from pysnooper import snoop
 # from pprint import pprint
 
-from . import label, otoini, table
+from . import label as _label
+from . import otoini as _otoini
+from . import table as _table
 
 
 def main():
@@ -15,7 +17,7 @@ def main():
     print('AtomとReaperが好き')
 
 
-def ust2otoini(ustobj, name_wav, path_tablefile, mode='romaji_cv', dt=100):
+def ust2otoini(ust, name_wav, path_tablefile, mode='romaji_cv', dt=100):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
     機能選択部分
@@ -23,16 +25,16 @@ def ust2otoini(ustobj, name_wav, path_tablefile, mode='romaji_cv', dt=100):
     allowed_modes = ['mono', 'romaji_cv']
     if mode == 'romaji_cv':
         print('  変換モード : ひらがな歌詞 → ローマ字CV')
-        otoiniobj = ust2otoini_romaji_cv(ustobj, name_wav, path_tablefile, dt)
+        otoini = ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt)
     elif mode == 'mono':
         print('  変換モード : ひらがな歌詞 → ローマ字モノフォン')
-        otoiniobj = ust2otoini_mono(ustobj, name_wav, path_tablefile)
+        otoini = ust2otoini_mono(ust, name_wav, path_tablefile)
     else:
         raise ValueError('argument \'mode\' must be in {}'.format(allowed_modes))
-    return otoiniobj
+    return otoini
 
 
-def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
+def ust2otoini_mono(ust, name_wav, path_tablefile, dt=100):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
     vowel_otoの対称は母音以外に 'N', 'cl' なども含まれる。
@@ -51,16 +53,17 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
       ||          dt(ms)           | dt(ms)  | ノート長 - dt (ms) |
     -------------------------------------------------------------------------
     """
-    d = table.load(path_tablefile)  # ひらがなローマ字対応表の辞書
+    d = _table.load(path_tablefile)  # ひらがなローマ字対応表の辞書
     d.update({'R': ['pau'], 'pau': ['pau'], 'sil': ['sil'], 'br': ['br'], '息': ['br']})
-    notes = ustobj.values
-    tempo = ustobj.tempo
+    notes = ust.values
+    tempo = ust.tempo
 
+    # UstのNoteオブジェクトごとにOtoオブジェクトを生成
     l = []  # simple_otoを入れるリスト
     t = 0  # ノート開始時刻を記録
     for note in notes[2:-1]:
         length = note.get_length_ms(tempo)
-        simple_oto = otoini.Oto()
+        simple_oto = _otoini.Oto()  # 各パラメータ位置を両端に集めたOto
         simple_oto.filename = name_wav
         simple_oto.alias = note.lyric
         simple_oto.offset = t
@@ -70,7 +73,8 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
         simple_oto.cutoff = -length  # 負で左ブランク相対時刻, 正で絶対時刻
         l.append(simple_oto)
         t += length  # 今のノート終了位置が次のノート開始位置
-    # 音素単位に分割
+
+    # Otoを音素ごとに分割
     new = []  # mono_otoを入れるリスト
     for simple_oto in l:
         try:
@@ -85,7 +89,7 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
         # 子音+母音 「か(k a)」
         if len(phonemes) == 2:
             # 子音部分
-            first_oto = otoini.Oto()
+            first_oto = _otoini.Oto()
             first_oto.filename = name_wav
             first_oto.alias = phonemes[0]
             first_oto.offset = simple_oto.offset - (2 * dt)
@@ -95,7 +99,7 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
             first_oto.cutoff = - 2 * dt
             new.append(first_oto)
             # 母音部分
-            second_oto = otoini.Oto()
+            second_oto = _otoini.Oto()
             second_oto.filename = name_wav
             second_oto.alias = phonemes[1]
             second_oto.offset = simple_oto.offset - dt
@@ -106,7 +110,7 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
             new.append(second_oto)
         # 母音など 「あ(a)」「ん(cl)」「っ(cl)」「(pau)」「(br)」「(sil)」
         elif len(phonemes) == 1:
-            first_oto = otoini.Oto()
+            first_oto = _otoini.Oto()
             first_oto.filename = name_wav
             first_oto.alias = phonemes[0]
             first_oto.offset = simple_oto.offset - dt
@@ -118,7 +122,7 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
         # 子音+半母音+母音 「ぐぁ(g w a)」
         elif len(phonemes) == 3:
             # 子音部分
-            first_oto = otoini.Oto()
+            first_oto = _otoini.Oto()
             first_oto.filename = name_wav
             first_oto.alias = phonemes[0]
             first_oto.offset = simple_oto.offset - (2 * dt)
@@ -128,7 +132,7 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
             first_oto.cutoff = - 2 * dt
             new.append(first_oto)
             # 半母音部分
-            second_oto = otoini.Oto()
+            second_oto = _otoini.Oto()
             second_oto.filename = name_wav
             second_oto.alias = phonemes[1]
             second_oto.offset = simple_oto.offset - dt
@@ -138,7 +142,7 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
             second_oto.cutoff = - 2 * dt
             new.append(second_oto)
             # 母音部分
-            third_oto = otoini.Oto()
+            third_oto = _otoini.Oto()
             third_oto.filename = name_wav
             third_oto.alias = phonemes[2]
             third_oto.offset = simple_oto.offset
@@ -152,12 +156,12 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
 
     new[0].offset = 0
     new[0].preutterance = 0
-    mono_otoini = otoini.OtoIni()
+    mono_otoini = _otoini.OtoIni()
     mono_otoini.values = new
     return mono_otoini
 
 
-def ust2otoini_romaji_cv(ustobj, name_wav, path_tablefile, dt=100, debug=False):
+def ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt=100, debug=False):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
     dt   : 左ブランク - オーバーラップ - 先行発声 - 固定範囲と右ブランク の距離
@@ -166,10 +170,10 @@ def ust2otoini_romaji_cv(ustobj, name_wav, path_tablefile, dt=100, debug=False):
       | 左ブランク |オーバーラップ| 先行発声 | 固定範囲 |   右ブランク   |
       |   (dt)ms   |    (dt)ms    |  (dt)ms  |  (dt)ms  | (length-2dt)ms |
     """
-    d = table.load(path_tablefile)  # ひらがなローマ字対応表の辞書
+    d = _table.load(path_tablefile)  # ひらがなローマ字対応表の辞書
     d.update({'R': ['pau'], 'pau': ['pau'], 'sil': ['sil'], 'br': ['br'], '息': ['br']})
-    notes = ustobj.values
-    tempo = ustobj.tempo
+    notes = ust.values
+    tempo = ust.tempo
     l = []  # otoini生成元にするリスト
     t = 0  # ノート開始時刻を記録
 
@@ -186,7 +190,7 @@ def ust2otoini_romaji_cv(ustobj, name_wav, path_tablefile, dt=100, debug=False):
             phonemes = note.lyric.split()
             print('---------------------------------------------------\n')
         length = note.get_length_ms(tempo)
-        oto = otoini.Oto()
+        oto = _otoini.Oto()
         oto.filename = name_wav
         oto.alias = ' '.join(phonemes)
         oto.offset = t - (2 * dt)
@@ -207,16 +211,16 @@ def ust2otoini_romaji_cv(ustobj, name_wav, path_tablefile, dt=100, debug=False):
 
         l.append(oto)
         t += length  # 今のノート終了位置が次のノート開始位置
-
+    # 最初が休符なことを想定して、
     l[0].offset = 0  # 最初の左ブランクを0にする
-    l[0].preutterance = 0
+    l[0].preutterance = 0  # 最初の先行発声を0にする
     l[0].overlap = 0  # 最初のオーバーラップを0にする
-    otoiniobj = otoini.OtoIni()
-    otoiniobj.values = l
-    return otoiniobj
+    otoini = _otoini.OtoIni()
+    otoini.values = l
+    return otoini
 
 
-def otoini2label(otoiniobj, mode='auto',
+def otoini2label(otoini, mode='auto',
                  otoini_time_order=10**(-3), label_time_order=10**(-7), debug=False):
     """
     OtoIniクラスオブジェクトからLabelクラスオブジェクトを生成
@@ -232,7 +236,7 @@ def otoini2label(otoiniobj, mode='auto',
     allowed_modes = ['auto', 'mono', 'romaji_cv']
     # エイリアスのタイプ自動判別
     if mode == 'auto':
-        if otoiniobj.is_mono():
+        if otoini.is_mono():
             mode = 'mono'
         else:
             mode = 'romaji_cv'
@@ -241,10 +245,10 @@ def otoini2label(otoiniobj, mode='auto',
         print('  mode: OtoIni(mono) -> Label(mono)')
         # [[発音開始時刻, 発音記号], ...] の仮リストにする
         tmp = []
-        otoini_values = otoiniobj.values
+        otoini_values = otoini.values
         for oto in otoini_values:
             if debug:
-                print('    {}'.format(oto.values))
+                print(f'    {oto.values}')
             t_start = (oto.offset + oto.preutterance) * time_order_ratio
             tmp.append([int(t_start), oto.alias])
             # [[発音開始時刻, 発音終了時刻, 発音記号], ...]
@@ -257,7 +261,7 @@ def otoini2label(otoiniobj, mode='auto',
         # 最終ノートだけ特別な処理
         oto = otoini_values[-1]
         if debug:
-            print('    {}'.format(oto.values))
+            print(f'    {oto.values}')
 
         # 発声開始位置
         t_start = int((oto.offset + oto.preutterance) * time_order_ratio)
@@ -269,13 +273,13 @@ def otoini2label(otoiniobj, mode='auto',
     elif mode == 'romaji_cv':
         print('  mode: OtoIni(romaji_cv) -> Label(mono)')
         # モノフォン化
-        otoiniobj.monophonize()
+        otoini.monophonize()
         # [[発音開始時刻, 発音記号], ...] の仮リストにする
         tmp = []
-        otoini_values = otoiniobj.values
+        otoini_values = otoini.values
         for oto in otoini_values:
             if debug:
-                print('    {}'.format(oto.values))
+                print(f'    {oto.values}')
 
             t_start = (oto.offset + oto.overlap) * time_order_ratio
             tmp.append([int(t_start), oto.alias])
@@ -291,7 +295,7 @@ def otoini2label(otoiniobj, mode='auto',
         # 最終ノートだけ特別な処理
         oto = otoini_values[-1]
         if debug:
-            print('    {}'.format(oto.values))
+            print(f'    {oto.values}')
         # 発声開始位置
         t_start = int((oto.offset + oto.overlap) * time_order_ratio)
         # 発声終了位置(右ブランクの符号ごとの挙動違いに対応)
@@ -303,37 +307,40 @@ def otoini2label(otoiniobj, mode='auto',
         raise ValueError('argument \'mode\' must be in {}'.format(allowed_modes))
 
     # Labelクラスオブジェクト化
-    lab = label.Label()
-    lab.values = lines
-    return lab
+    label = _label.Label()
+    label.values = lines
+    return label
 
 
-def label2otoini(labelobj, name_wav,
+def label2otoini(label, name_wav,
                  otoini_time_order=10**(-3), label_time_order=10**(-7)):
     """
     LabelオブジェクトをOtoIniオブジェクトに変換
     モノフォン、CV、VCV とかの選択肢が必要そう
-    otoini_time_order: otoiniの時間単位の桁。
-    label_time_order : ラベルの時間単位の桁。
+    otoini_time_order: otoiniの時間オーダー。
+    label_time_order : ラベルの時間オーダー。
     """
     time_order_ratio = label_time_order / otoini_time_order
-    # Otoオブジェクトを格納するリスト
-    l = []
-    lines = labelobj.values
+
+    l = []  # Otoオブジェクトを格納するリスト
+    lines = label.values
+
+    # ラベルの各行をOtoオブジェクトに変換して、リストにまとめる。
     for line in lines:
         line = [v * time_order_ratio for v in line[:2]] + line[2:]
-        t = line[1] - line[0]
-        oto = otoini.Oto()
+        duration = line[1] - line[0]  # 発声の長さ
+        oto = _otoini.Oto()
         oto.filename = name_wav
         oto.alias = line[2]
         oto.offset = line[0]
         oto.overlap = 0.0
         oto.preutterance = 0.0
-        oto.consonant = t
-        oto.cutoff = -t
+        oto.consonant = duration
+        oto.cutoff = - duration
         l.append(oto)
-    # クラスオブジェクト化
-    o = otoini.OtoIni()
+
+    # Otoiniオブジェクト化
+    o = _otoini.OtoIni()
     o.values = l
     return o
 

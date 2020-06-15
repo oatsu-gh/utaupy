@@ -122,33 +122,33 @@ class OtoIni:
             elif len(aliases) in [2, 3]:
                 name_wav = oto.filename
                 # 1文字目(オーバーラップから先行発声まで)------------
-                tmp = Oto()
+                new = Oto()
                 a = aliases[0]
                 t = oto.offset + oto.overlap  # オーバーラップの位置から
-                tmp.filename = name_wav
-                tmp.alias = a
-                tmp.offset = t
-                tmp.overlap = 0
-                l.append(tmp)
+                new.filename = name_wav
+                new.alias = a
+                new.offset = t
+                new.overlap = 0
+                l.append(new)
                 # 2文字目(先行発声から固定範囲まで)----------------
-                tmp = Oto()
+                new = Oto()
                 a = aliases[1]
                 t = oto.offset + oto.preutterance  # 先行発声の位置から
-                tmp.filename = name_wav
-                tmp.alias = a
-                tmp.offset = t
-                tmp.overlap = 0
-                l.append(tmp)
+                new.filename = name_wav
+                new.alias = a
+                new.offset = t
+                new.overlap = 0
+                l.append(new)
                 if len(aliases) == 3:
                     # 3文字目(固定範囲から右ブランクまで)----------------
-                    tmp = Oto()
+                    new = Oto()
                     a = aliases[2]
                     t = oto.offset + oto.consonant  # 固定範囲の位置から
-                    tmp.filename = name_wav
-                    tmp.alias = a
-                    tmp.offset = t
-                    tmp.overlap = 0
-                    l.append(tmp)
+                    new.filename = name_wav
+                    new.alias = a
+                    new.offset = t
+                    new.overlap = 0
+                    l.append(new)
             else:
                 print('\n[ERROR in otoini.monophonize()]----------------')
                 print('エイリアスのローマ字分割数は 1, 2, 3 以外対応していません。')
