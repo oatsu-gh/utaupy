@@ -3,14 +3,13 @@
 """
 UTAU関連ファイルの相互変換
 """
+# from pysnooper import snoop
+# from pprint import pprint
+
 from . import label as _label
 from . import otoini as _otoini
 from . import table as _table
 from . import ust as _ust
-
-# from pysnooper import snoop
-# from pprint import pprint
-
 
 
 def main():
@@ -18,7 +17,7 @@ def main():
     print('AtomとReaperが好き')
 
 
-def ust2otoini(ust, name_wav, path_tablefile, mode='romaji_cv', dt=100):
+def ust2otoini(ust, name_wav, path_tablefile, mode='romaji_cv', dt=100, debug=False):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
     機能選択部分
@@ -26,10 +25,10 @@ def ust2otoini(ust, name_wav, path_tablefile, mode='romaji_cv', dt=100):
     allowed_modes = ['mono', 'romaji_cv']
     if mode == 'romaji_cv':
         print('  変換モード : ひらがな歌詞 → ローマ字CV')
-        otoini = ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt)
+        otoini = ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt, debug=debug)
     elif mode == 'mono':
         print('  変換モード : ひらがな歌詞 → ローマ字モノフォン')
-        otoini = ust2otoini_mono(ust, name_wav, path_tablefile)
+        otoini = ust2otoini_mono(ust, name_wav, path_tablefile, debug=debug)
     else:
         raise ValueError('argument \'mode\' must be in {}'.format(allowed_modes))
     return otoini
@@ -38,17 +37,19 @@ def ust2otoini(ust, name_wav, path_tablefile, mode='romaji_cv', dt=100):
 def make_finalnote_R(ust):
     """Ustの最後のノートが必ず休符 になるようにする"""
     notes = ust.values
-    if notes[-1].lyric not in ('pau', 'sil', 'R'):
+    # Ust内の最後はTRACKENDなので後ろから二番目のノートで判定
+    if notes[-2].lyric not in ('pau', 'sil', 'R'):
+        print(notes[-2].values)
         extra_note = _ust.Note()
-        extra_note.values = notes[-1]
+        extra_note.values = notes[-2]
         extra_note.lyric = 'R'
-        notes.append(extra_note)
+        notes.insert(-1, extra_note)
     processed_ust = _ust.Ust()
     processed_ust.values = notes
     return processed_ust
 
 
-def ust2otoini_mono(ust, name_wav, path_tablefile, dt=100):
+def ust2otoini_mono(ust, name_wav, path_tablefile, dt=100, debug=False):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
     vowel_otoの対称は母音以外に 'N', 'cl' なども含まれる。
@@ -92,6 +93,8 @@ def ust2otoini_mono(ust, name_wav, path_tablefile, dt=100):
     # Otoを音素ごとに分割
     new = []  # mono_otoを入れるリスト
     for simple_oto in l:
+        if debug:
+            print(f'    {simple_oto.values}')
         try:
             phonemes = d[simple_oto.alias]
         except KeyError as e:
@@ -274,11 +277,9 @@ def otoini2label(otoini, mode='auto',
         # for i, v in enumerate(tmp[:-1]):
         #     lines.append([v[0], tmp[i+1][0], v[1]])
         # -------------------------------
+
         # 最終ノートだけ特別な処理
         oto = otoini_values[-1]
-        if debug:
-            print(f'    {oto.values}')
-
         # 発声開始位置
         t_start = int(time_order_ratio * (oto.offset + oto.preutterance))
         # 発声終了位置(右ブランクの符号ごとの挙動違いに対応)
@@ -310,8 +311,6 @@ def otoini2label(otoini, mode='auto',
 
         # 最終ノートだけ特別な処理
         oto = otoini_values[-1]
-        if debug:
-            print(f'    {oto.values}')
         # 発声開始位置
         t_start = int(time_order_ratio * (oto.offset + oto.overlap))
         # 発声終了位置(右ブランクの符号ごとの挙動違いに対応)
