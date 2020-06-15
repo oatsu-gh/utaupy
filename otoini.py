@@ -167,7 +167,7 @@ class OtoIni:
             l.append(oto.alias)
             l.append(oto.offset)
             l.append(oto.consonant)
-            l.append(oto.rblank)
+            l.append(oto.cutoff)
             l.append(oto.preutterance)
             l.append(oto.overlap)
             # 数値部分を丸めてから文字列に変換
@@ -183,14 +183,14 @@ class Oto:
 
     def __init__(self):
         keys = ('FileName', 'Alias', 'Offset',
-                'Consonant', 'RBlank', 'Preutterance', 'Overlap')
+                'Consonant', 'Cutoff', 'Preutterance', 'Overlap')
         l = [None] * 7
         self.__d = dict(zip(keys, l))
 
     def from_otoini(self, l):
         """1音分のリストをもらってクラスオブジェクトにする"""
         keys = ('FileName', 'Alias', 'Offset',
-                'Consonant', 'RBlank', 'Preutterance', 'Overlap')
+                'Consonant', 'Cutoff', 'Preutterance', 'Overlap')
         # 数値部分をfloatにする
         l = l[:2] + [float(v) for v in l[2:]]
         self.__d = dict(zip(keys, l))
@@ -250,25 +250,25 @@ class Oto:
         self.__d['Consonant'] = x
 
     @property
-    def rblank(self):
+    def cutoff(self):
         """右ブランクを確認する"""
-        return self.__d['RBlank']
+        return self.__d['Cutoff']
 
-    @rblank.setter
-    def rblank(self, x):
+    @cutoff.setter
+    def cutoff(self, x):
         """右ブランクを上書きする"""
-        self.__d['RBlank'] = x
+        self.__d['Cutoff'] = x
 
     @property
-    def rblank2(self):
+    def cutoff2(self):
         """右ブランクを絶対時刻で取得する"""
-        return max(self.__d['RBlank'], self.__d['Offset'] - self.__d['RBlank'])
+        return max(self.__d['Cutoff'], self.__d['Offset'] - self.__d['Cutoff'])
 
     # OffsetがNullのとき処理できず、バグのもとになるので無効化
-    # @rblank2.setter
-    # def rblank2(self, x):
+    # @cutoff2.setter
+    # def cutoff2(self, x):
     #     """右ブランクを上書きする。負の値に強制する。"""
-    #     self.__d['RBlank'] = min(x, self.__d['Offset'] - x)
+    #     self.__d['Cutoff'] = min(x, self.__d['Offset'] - x)
 
     @property
     def preutterance(self):
