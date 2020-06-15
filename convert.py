@@ -62,96 +62,96 @@ def ust2otoini_mono(ustobj, name_wav, path_tablefile, dt=100):
         length = note.get_length_ms(tempo)
         simple_oto = otoini.Oto()
         simple_oto.filename = name_wav
-        simple_oto.alies = note.lyric
-        simple_oto.lblank = t
+        simple_oto.alias = note.lyric
+        simple_oto.offset = t
         simple_oto.overlap = 0
-        simple_oto.onset = 0
-        simple_oto.fixed = length
-        simple_oto.rblank = -length  # 負で左ブランク相対時刻, 正で絶対時刻
+        simple_oto.preutterance = 0
+        simple_oto.consonant = length
+        simple_oto.cutoff = -length  # 負で左ブランク相対時刻, 正で絶対時刻
         l.append(simple_oto)
         t += length  # 今のノート終了位置が次のノート開始位置
     # 音素単位に分割
     new = []  # mono_otoを入れるリスト
     for simple_oto in l:
         try:
-            phonemes = d[simple_oto.alies]
+            phonemes = d[simple_oto.alias]
         except KeyError as e:
             print('\nKeyError in utaupy.convert.ust2otoini_mono---------')
             print('ひらがなローマ字変換に失敗しました。半角スペースで音素として分割してぶち込みます。')
-            print('エラー詳細:')
+            print('エラー詳細:', e)
             print('--------------------------------------\n')
-            phonemes = simple_oto.alies.split()
+            phonemes = simple_oto.alias.split()
             print(phonemes)
         # 子音+母音 「か(k a)」
         if len(phonemes) == 2:
             # 子音部分
             first_oto = otoini.Oto()
             first_oto.filename = name_wav
-            first_oto.alies = phonemes[0]
-            first_oto.lblank = simple_oto.lblank - (2 * dt)
+            first_oto.alias = phonemes[0]
+            first_oto.offset = simple_oto.offset - (2 * dt)
             first_oto.overlap = 0
-            first_oto.onset = dt
-            first_oto.fixed = 2 * dt
-            first_oto.rblank = - 2 * dt
+            first_oto.preutterance = dt
+            first_oto.consonant = 2 * dt
+            first_oto.cutoff = - 2 * dt
             new.append(first_oto)
             # 母音部分
             second_oto = otoini.Oto()
             second_oto.filename = name_wav
-            second_oto.alies = phonemes[1]
-            second_oto.lblank = simple_oto.lblank - dt
+            second_oto.alias = phonemes[1]
+            second_oto.offset = simple_oto.offset - dt
             second_oto.overlap = 0
-            second_oto.onset = dt
-            second_oto.fixed = 2 * dt
-            second_oto.rblank = simple_oto.rblank - dt
+            second_oto.preutterance = dt
+            second_oto.consonant = 2 * dt
+            second_oto.cutoff = simple_oto.cutoff - dt
             new.append(second_oto)
         # 母音など 「あ(a)」「ん(cl)」「っ(cl)」「(pau)」「(br)」「(sil)」
         elif len(phonemes) == 1:
             first_oto = otoini.Oto()
             first_oto.filename = name_wav
-            first_oto.alies = phonemes[0]
-            first_oto.lblank = simple_oto.lblank - dt
+            first_oto.alias = phonemes[0]
+            first_oto.offset = simple_oto.offset - dt
             first_oto.overlap = 0
-            first_oto.onset = dt
-            first_oto.fixed = 2 * dt
-            first_oto.rblank = simple_oto.rblank - dt
+            first_oto.preutterance = dt
+            first_oto.consonant = 2 * dt
+            first_oto.cutoff = simple_oto.cutoff - dt
             new.append(first_oto)
         # 子音+半母音+母音 「ぐぁ(g w a)」
         elif len(phonemes) == 3:
             # 子音部分
             first_oto = otoini.Oto()
             first_oto.filename = name_wav
-            first_oto.alies = phonemes[0]
-            first_oto.lblank = simple_oto.lblank - (2 * dt)
+            first_oto.alias = phonemes[0]
+            first_oto.offset = simple_oto.offset - (2 * dt)
             first_oto.overlap = 0
-            first_oto.onset = dt
-            first_oto.fixed = 2 * dt
-            first_oto.rblank = - 2 * dt
+            first_oto.preutterance = dt
+            first_oto.consonant = 2 * dt
+            first_oto.cutoff = - 2 * dt
             new.append(first_oto)
             # 半母音部分
             second_oto = otoini.Oto()
             second_oto.filename = name_wav
-            second_oto.alies = phonemes[1]
-            second_oto.lblank = simple_oto.lblank - dt
+            second_oto.alias = phonemes[1]
+            second_oto.offset = simple_oto.offset - dt
             second_oto.overlap = 0
-            second_oto.onset = dt
-            second_oto.fixed = 2 * dt
-            second_oto.rblank = - 2 * dt
+            second_oto.preutterance = dt
+            second_oto.consonant = 2 * dt
+            second_oto.cutoff = - 2 * dt
             new.append(second_oto)
             # 母音部分
             third_oto = otoini.Oto()
             third_oto.filename = name_wav
-            third_oto.alies = phonemes[2]
-            third_oto.lblank = simple_oto.lblank
+            third_oto.alias = phonemes[2]
+            third_oto.offset = simple_oto.offset
             third_oto.overlap = 0
-            third_oto.onset = dt
-            third_oto.fixed = 2 * dt
-            third_oto.rblank = simple_oto.rblank - (2 * dt)
+            third_oto.preutterance = dt
+            third_oto.consonant = 2 * dt
+            third_oto.cutoff = simple_oto.cutoff - (2 * dt)
             new.append(third_oto)
         else:
-            raise ValueError('len(alies) must be in [1, 2, 3]')
+            raise ValueError('len(alias) must be in [1, 2, 3]')
 
-    new[0].lblank = 0
-    new[0].onset = 0
+    new[0].offset = 0
+    new[0].preutterance = 0
     mono_otoini = otoini.OtoIni()
     mono_otoini.values = new
     return mono_otoini
@@ -175,7 +175,7 @@ def ust2otoini_romaji_cv(ustobj, name_wav, path_tablefile, dt=100, debug=False):
 
     for note in notes[2:-1]:
         if debug:
-            print('    '.format(note.values))
+            print(f'    {note.values}')
         try:
             phonemes = d[note.lyric]
         except KeyError as e:
@@ -188,28 +188,28 @@ def ust2otoini_romaji_cv(ustobj, name_wav, path_tablefile, dt=100, debug=False):
         length = note.get_length_ms(tempo)
         oto = otoini.Oto()
         oto.filename = name_wav
-        oto.alies = ' '.join(phonemes)
-        oto.lblank = t - (2 * dt)
-        oto.fixed = min(3 * dt, length + 2 * dt)
-        oto.rblank = -(length + 2 * dt)  # 負で左ブランク相対時刻, 正で絶対時刻
+        oto.alias = ' '.join(phonemes)
+        oto.offset = t - (2 * dt)
+        oto.consonant = min(3 * dt, length + 2 * dt)
+        oto.cutoff = -(length + 2 * dt)  # 負で左ブランク相対時刻, 正で絶対時刻
         if len(phonemes) == 1:
             oto.overlap = 2 * dt
-            oto.onset = 3 * dt
+            oto.preutterance = 3 * dt
         elif len(phonemes) in [2, 3]:
             oto.overlap = dt
-            oto.onset = 2 * dt
+            oto.preutterance = 2 * dt
         else:
-            print('\nERROR when setting alies : phonemes = {}-------------'.format(phonemes))
-            raise ValueError('1エイリアスあたり 1, 2, 3 音素しか対応していません。')
-            oto.alies = ''.join(phonemes)
+            print('\nERROR when setting alias : phonemes = {}-------------'.format(phonemes))
+            print('1エイリアスあたり 1, 2, 3 音素しか対応していません。')
+            oto.alias = ''.join(phonemes)
             oto.overlap = dt
-            oto.onset = 2 * dt
+            oto.preutterance = 2 * dt
 
         l.append(oto)
         t += length  # 今のノート終了位置が次のノート開始位置
 
-    l[0].lblank = 0  # 最初の左ブランクを0にする
-    l[0].onset = 0
+    l[0].offset = 0  # 最初の左ブランクを0にする
+    l[0].preutterance = 0
     l[0].overlap = 0  # 最初のオーバーラップを0にする
     otoiniobj = otoini.OtoIni()
     otoiniobj.values = l
@@ -245,8 +245,8 @@ def otoini2label(otoiniobj, mode='auto',
         for oto in otoini_values:
             if debug:
                 print('    {}'.format(oto.values))
-            t_start = (oto.lblank + oto.onset) * time_order_ratio
-            tmp.append([int(t_start), oto.alies])
+            t_start = (oto.offset + oto.preutterance) * time_order_ratio
+            tmp.append([int(t_start), oto.alias])
             # [[発音開始時刻, 発音終了時刻, 発音記号], ...]
         lines = [[v[0], tmp[i + 1][0], v[1]] for i, v in enumerate(tmp[:-1])]
         # ↓内包表記を展開した場合↓-----
@@ -260,11 +260,11 @@ def otoini2label(otoiniobj, mode='auto',
             print('    {}'.format(oto.values))
 
         # 発声開始位置
-        t_start = int((oto.lblank + oto.onset) * time_order_ratio)
+        t_start = int((oto.offset + oto.preutterance) * time_order_ratio)
         # 発声終了位置(右ブランクの符号ごとの挙動違いに対応)
-        t_end = int(oto.rblank2 * time_order_ratio)
+        t_end = int(oto.cutoff2 * time_order_ratio)
         # 最終ノートをリストに追加
-        lines.append([t_start, t_end, oto.alies])
+        lines.append([t_start, t_end, oto.alias])
 
     elif mode == 'romaji_cv':
         print('  mode: OtoIni(romaji_cv) -> Label(mono)')
@@ -277,8 +277,8 @@ def otoini2label(otoiniobj, mode='auto',
             if debug:
                 print('    {}'.format(oto.values))
 
-            t_start = (oto.lblank + oto.overlap) * time_order_ratio
-            tmp.append([int(t_start), oto.alies])
+            t_start = (oto.offset + oto.overlap) * time_order_ratio
+            tmp.append([int(t_start), oto.alias])
 
         # [[発音開始時刻, 発音終了時刻, 発音記号], ...]
         lines = [[v[0], tmp[i + 1][0], v[1]] for i, v in enumerate(tmp[:-1])]
@@ -293,11 +293,11 @@ def otoini2label(otoiniobj, mode='auto',
         if debug:
             print('    {}'.format(oto.values))
         # 発声開始位置
-        t_start = int((oto.lblank + oto.overlap) * time_order_ratio)
+        t_start = int((oto.offset + oto.overlap) * time_order_ratio)
         # 発声終了位置(右ブランクの符号ごとの挙動違いに対応)
-        t_end = int(oto.rblank2 * time_order_ratio)
+        t_end = int(oto.cutoff2 * time_order_ratio)
         # 最終ノートをリストに追加
-        lines.append([t_start, t_end, oto.alies])
+        lines.append([t_start, t_end, oto.alias])
 
     else:
         raise ValueError('argument \'mode\' must be in {}'.format(allowed_modes))
@@ -325,12 +325,12 @@ def label2otoini(labelobj, name_wav,
         t = line[1] - line[0]
         oto = otoini.Oto()
         oto.filename = name_wav
-        oto.alies = line[2]
-        oto.lblank = line[0]
+        oto.alias = line[2]
+        oto.offset = line[0]
         oto.overlap = 0.0
-        oto.onset = 0.0
-        oto.fixed = t
-        oto.rblank = -t
+        oto.preutterance = 0.0
+        oto.consonant = t
+        oto.cutoff = -t
         l.append(oto)
     # クラスオブジェクト化
     o = otoini.OtoIni()
