@@ -3,13 +3,14 @@
 """
 UTAU関連ファイルの相互変換
 """
-# from . import ust as _ust
-# from pysnooper import snoop
-# from pprint import pprint
-
 from . import label as _label
 from . import otoini as _otoini
 from . import table as _table
+from . import ust as _ust
+
+# from pysnooper import snoop
+# from pprint import pprint
+
 
 
 def main():
@@ -34,6 +35,19 @@ def ust2otoini(ust, name_wav, path_tablefile, mode='romaji_cv', dt=100):
     return otoini
 
 
+def make_finalnote_R(ust):
+    """Ustの最後のノートが必ず休符 になるようにする"""
+    notes = ust.values
+    if notes[-1].lyric not in ('pau', 'sil', 'R'):
+        extra_note = _ust.Note()
+        extra_note.values = notes[-1]
+        extra_note.lyric = 'R'
+        notes.append(extra_note)
+    processed_ust = _ust.Ust()
+    processed_ust.values = notes
+    return processed_ust
+
+
 def ust2otoini_mono(ust, name_wav, path_tablefile, dt=100):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
@@ -55,6 +69,7 @@ def ust2otoini_mono(ust, name_wav, path_tablefile, dt=100):
     """
     d = _table.load(path_tablefile)  # ひらがなローマ字対応表の辞書
     d.update({'R': ['pau'], 'pau': ['pau'], 'sil': ['sil'], 'br': ['br'], '息': ['br']})
+    ust = make_finalnote_R(ust)  # 最終ノートが休符じゃない場合を対策
     notes = ust.values
     tempo = ust.tempo
 
@@ -172,6 +187,7 @@ def ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt=100, debug=False):
     """
     d = _table.load(path_tablefile)  # ひらがなローマ字対応表の辞書
     d.update({'R': ['pau'], 'pau': ['pau'], 'sil': ['sil'], 'br': ['br'], '息': ['br']})
+    ust = make_finalnote_R(ust)  # 最終ノートが休符じゃない場合を対策
     notes = ust.values
     tempo = ust.tempo
     l = []  # otoini生成元にするリスト
@@ -264,9 +280,9 @@ def otoini2label(otoini, mode='auto',
             print(f'    {oto.values}')
 
         # 発声開始位置
-        t_start = int((oto.offset + oto.preutterance) * time_order_ratio)
+        t_start = int(time_order_ratio * (oto.offset + oto.preutterance))
         # 発声終了位置(右ブランクの符号ごとの挙動違いに対応)
-        t_end = int(oto.cutoff2 * time_order_ratio)
+        t_end = int(time_order_ratio * oto.cutoff2)
         # 最終ノートをリストに追加
         lines.append([t_start, t_end, oto.alias])
 
@@ -281,7 +297,7 @@ def otoini2label(otoini, mode='auto',
             if debug:
                 print(f'    {oto.values}')
 
-            t_start = (oto.offset + oto.overlap) * time_order_ratio
+            t_start = time_order_ratio * (oto.offset + oto.overlap)
             tmp.append([int(t_start), oto.alias])
 
         # [[発音開始時刻, 発音終了時刻, 発音記号], ...]
@@ -297,9 +313,9 @@ def otoini2label(otoini, mode='auto',
         if debug:
             print(f'    {oto.values}')
         # 発声開始位置
-        t_start = int((oto.offset + oto.overlap) * time_order_ratio)
+        t_start = int(time_order_ratio * (oto.offset + oto.overlap))
         # 発声終了位置(右ブランクの符号ごとの挙動違いに対応)
-        t_end = int(oto.cutoff2 * time_order_ratio)
+        t_end = int(time_order_ratio * oto.cutoff2)
         # 最終ノートをリストに追加
         lines.append([t_start, t_end, oto.alias])
 
