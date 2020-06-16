@@ -5,6 +5,7 @@ UTAU関連ファイルの相互変換
 """
 # from pysnooper import snoop
 # from pprint import pprint
+from copy import deepcopy
 
 from . import label as _label
 from . import otoini as _otoini
@@ -37,12 +38,12 @@ def ust2otoini(ust, name_wav, path_tablefile, mode='romaji_cv', dt=100, debug=Fa
 def make_finalnote_R(ust):
     """Ustの最後のノートが必ず休符 になるようにする"""
     notes = ust.values
-    # Ust内の最後はTRACKENDなので後ろから二番目のノートで判定
+    note = notes[-2]
+    # Ust内の最後はTRACKENDなので後ろから2番目のノートで判定
     # DEBUG: NoteのIDが引き継がれるっぽくて最後から2番目のノートもRになってしまう。
-    if notes[-2].lyric not in ('pau', 'sil', 'R'):
-        print('****', notes[-2].values, '****')
-        extra_note = _ust.Note()
-        extra_note.values = notes[-2].values
+    if note.lyric not in ('pau', 'sil', 'R'):
+        print('  末尾に休符を自動追加しました。')
+        extra_note = deepcopy(note)
         extra_note.lyric = 'R'
         notes.insert(-1, extra_note)
     processed_ust = _ust.Ust()
