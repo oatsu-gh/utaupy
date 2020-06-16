@@ -5,7 +5,7 @@ setParam用のINIファイルとデータを扱うモジュールです。
 """
 import re
 
-from . import table
+# from . import table
 
 
 def main():
@@ -51,10 +51,10 @@ class OtoIni:
         """中身を上書きする"""
         self.__values = list_of_oto
 
-    def replace_alieses(self, before, after):
+    def replace_aliases(self, before, after):
         """エイリアスを置換する"""
         for oto in self.__values:
-            oto.alies = oto.alies.replace(before, after)
+            oto.alias = oto.alias.replace(before, after)
         return self
 
     def is_mono(self):
@@ -62,7 +62,7 @@ class OtoIni:
         モノフォン形式のエイリアスになっているか判定する。
         返り値はbool。
         """
-        return all(len(v.alies.split()) == 1 for v in self.values)
+        return all(len(v.alias.split()) == 1 for v in self.values)
 
     # def kana2romaji(self, path_table, replace=True, dt=100):
     #     """
@@ -78,7 +78,7 @@ class OtoIni:
     #               '息': ['br'], '吸': ['br'], 'br': ['br']})
     #     # 発音記号の分割数によってパラメータを調整
     #     for oto in self.__values:
-    #         kana = oto.alies.split()[-1]
+    #         kana = oto.alias.split()[-1]
     #         try:
     #             romaji = d[kana]
     #         # KeyErrorはリストにするだけで返される
@@ -91,24 +91,24 @@ class OtoIni:
     #             romaji = d[kana]
     #         # 歌詞をローマ字化
     #         if replace is True:
-    #             oto.alies = ' '.join(romaji)
+    #             oto.alias = ' '.join(romaji)
     #         # モノフォン
     #         if len(romaji) == 1:
-    #             # print('  alies: {}\t-> {}\t: オーバーラップ右シフト・先行発声右詰め'.format(alies, romaji))
+    #             # print('  alias: {}\t-> {}\t: オーバーラップ右シフト・先行発声右詰め'.format(alias, romaji))
     #             oto.overlap = 2 * dt
-    #             oto.onset = oto.fixed
+    #             oto.preutterance = oto.consonant
     #         # おもにCV形式のとき
     #         elif len(romaji) == 2:
-    #             # print('  alies: {}\t-> {}\t: そのまま'.format(alies, romaji))
+    #             # print('  alias: {}\t-> {}\t: そのまま'.format(alias, romaji))
     #             pass
     #         # おもにCCV形式のとき
     #         elif len(romaji) == 3:
-    #             # print('  alies: {}\t-> {}\t: そのままでいい？'.format(alies, romaji))
+    #             # print('  alias: {}\t-> {}\t: そのままでいい？'.format(alias, romaji))
     #             pass
     #         elif len(romaji) >= 4:
     #             print('  [ERROR]---------')
     #             print('  1,2,3音素しか対応していません。')
-    #             print('  alies: {}\t-> {}\t: そのままにします。'.format(kana, romaji))
+    #             print('  alias: {}\t-> {}\t: そのままにします。'.format(kana, romaji))
     #             print('  ----------------')
 
     def monophonize(self):
@@ -116,43 +116,43 @@ class OtoIni:
         # 新規OtoIniを作るために、otoを入れるリスト
         l = []
         for oto in self.__values:
-            alieses = oto.alies.split()
-            if len(alieses) == 1:
+            aliases = oto.alias.split()
+            if len(aliases) == 1:
                 l.append(oto)
-            elif len(alieses) in [2, 3]:
+            elif len(aliases) in [2, 3]:
                 name_wav = oto.filename
                 # 1文字目(オーバーラップから先行発声まで)------------
-                tmp = Oto()
-                a = alieses[0]
-                t = oto.lblank + oto.overlap  # オーバーラップの位置から
-                tmp.filename = name_wav
-                tmp.alies = a
-                tmp.lblank = t
-                tmp.overlap = 0
-                l.append(tmp)
+                new = Oto()
+                a = aliases[0]
+                t = oto.offset + oto.overlap  # オーバーラップの位置から
+                new.filename = name_wav
+                new.alias = a
+                new.offset = t
+                new.overlap = 0
+                l.append(new)
                 # 2文字目(先行発声から固定範囲まで)----------------
-                tmp = Oto()
-                a = alieses[1]
-                t = oto.lblank + oto.onset  # 先行発声の位置から
-                tmp.filename = name_wav
-                tmp.alies = a
-                tmp.lblank = t
-                tmp.overlap = 0
-                l.append(tmp)
-                if len(alieses) == 3:
+                new = Oto()
+                a = aliases[1]
+                t = oto.offset + oto.preutterance  # 先行発声の位置から
+                new.filename = name_wav
+                new.alias = a
+                new.offset = t
+                new.overlap = 0
+                l.append(new)
+                if len(aliases) == 3:
                     # 3文字目(固定範囲から右ブランクまで)----------------
-                    tmp = Oto()
-                    a = alieses[2]
-                    t = oto.lblank + oto.fixed  # 固定範囲の位置から
-                    tmp.filename = name_wav
-                    tmp.alies = a
-                    tmp.lblank = t
-                    tmp.overlap = 0
-                    l.append(tmp)
+                    new = Oto()
+                    a = aliases[2]
+                    t = oto.offset + oto.consonant  # 固定範囲の位置から
+                    new.filename = name_wav
+                    new.alias = a
+                    new.offset = t
+                    new.overlap = 0
+                    l.append(new)
             else:
                 print('\n[ERROR in otoini.monophonize()]----------------')
                 print('エイリアスのローマ字分割数は 1, 2, 3 以外対応していません。')
-                print('alieses: {}'.format(alieses))
+                print('aliases: {}'.format(aliases))
                 print('文字を連結して処理を続行します。')
                 print('-----------------------------------------------\n')
                 l.append(oto)
@@ -164,11 +164,11 @@ class OtoIni:
         for oto in self.__values:
             l = []
             l.append(oto.filename)
-            l.append(oto.alies)
-            l.append(oto.lblank)
-            l.append(oto.fixed)
-            l.append(oto.rblank)
-            l.append(oto.onset)
+            l.append(oto.alias)
+            l.append(oto.offset)
+            l.append(oto.consonant)
+            l.append(oto.cutoff)
+            l.append(oto.preutterance)
             l.append(oto.overlap)
             # 数値部分を丸めてから文字列に変換
             l = l[:2] + [str(round(float(v), 4)) for v in l[2:]]
@@ -182,15 +182,15 @@ class Oto:
     """oto.ini中の1モーラ"""
 
     def __init__(self):
-        keys = ('FileName', 'Alies', 'LBlank',
-                'Fixed', 'RBlank', 'Onset', 'Overlap')
+        keys = ('FileName', 'Alias', 'Offset',
+                'Consonant', 'Cutoff', 'Preutterance', 'Overlap')
         l = [None] * 7
         self.__d = dict(zip(keys, l))
 
     def from_otoini(self, l):
         """1音分のリストをもらってクラスオブジェクトにする"""
-        keys = ('FileName', 'Alies', 'LBlank',
-                'Fixed', 'RBlank', 'Onset', 'Overlap')
+        keys = ('FileName', 'Alias', 'Offset',
+                'Consonant', 'Cutoff', 'Preutterance', 'Overlap')
         # 数値部分をfloatにする
         l = l[:2] + [float(v) for v in l[2:]]
         self.__d = dict(zip(keys, l))
@@ -220,65 +220,65 @@ class Oto:
         self.__d['FileName'] = x
 
     @property
-    def alies(self):
+    def alias(self):
         """エイリアスを確認する"""
-        return self.__d['Alies']
+        return self.__d['Alias']
 
-    @alies.setter
-    def alies(self, x):
+    @alias.setter
+    def alias(self, x):
         """エイリアスを上書きする"""
-        self.__d['Alies'] = x
+        self.__d['Alias'] = x
 
     @property
-    def lblank(self):
+    def offset(self):
         """左ブランクを確認する"""
-        return self.__d['LBlank']
+        return self.__d['Offset']
 
-    @lblank.setter
-    def lblank(self, x):
+    @offset.setter
+    def offset(self, x):
         """左ブランクを上書きする"""
-        self.__d['LBlank'] = x
+        self.__d['Offset'] = x
 
     @property
-    def fixed(self):
+    def consonant(self):
         """固定範囲を確認する"""
-        return self.__d['Fixed']
+        return self.__d['Consonant']
 
-    @fixed.setter
-    def fixed(self, x):
+    @consonant.setter
+    def consonant(self, x):
         """固定範囲を上書きする"""
-        self.__d['Fixed'] = x
+        self.__d['Consonant'] = x
 
     @property
-    def rblank(self):
+    def cutoff(self):
         """右ブランクを確認する"""
-        return self.__d['RBlank']
+        return self.__d['Cutoff']
 
-    @rblank.setter
-    def rblank(self, x):
+    @cutoff.setter
+    def cutoff(self, x):
         """右ブランクを上書きする"""
-        self.__d['RBlank'] = x
+        self.__d['Cutoff'] = x
 
     @property
-    def rblank2(self):
+    def cutoff2(self):
         """右ブランクを絶対時刻で取得する"""
-        return max(self.__d['RBlank'], self.__d['LBlank'] - self.__d['RBlank'])
+        return max(self.__d['Cutoff'], self.__d['Offset'] - self.__d['Cutoff'])
 
-    # LBlankがNullのとき処理できず、バグのもとになるので無効化
-    # @rblank2.setter
-    # def rblank2(self, x):
+    # OffsetがNullのとき処理できず、バグのもとになるので無効化
+    # @cutoff2.setter
+    # def cutoff2(self, x):
     #     """右ブランクを上書きする。負の値に強制する。"""
-    #     self.__d['RBlank'] = min(x, self.__d['LBlank'] - x)
+    #     self.__d['Cutoff'] = min(x, self.__d['Offset'] - x)
 
     @property
-    def onset(self):
+    def preutterance(self):
         """先行発声を確認する"""
-        return self.__d['Onset']
+        return self.__d['Preutterance']
 
-    @onset.setter
-    def onset(self, x):
+    @preutterance.setter
+    def preutterance(self, x):
         """先行発声を上書きする"""
-        self.__d['Onset'] = x
+        self.__d['Preutterance'] = x
 
     @property
     def overlap(self):
