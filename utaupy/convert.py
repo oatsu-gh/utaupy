@@ -198,6 +198,7 @@ def ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt=100, debug=False):
     l = []  # otoini生成元にするリスト
     t = 0  # ノート開始時刻を記録
 
+    # NOTE: ここnotes[2:-1]とust.values[2:1]で処理時間に差は出る？
     for note in notes[2:-1]:
         if debug:
             print(f'    {note.values}')
@@ -210,28 +211,34 @@ def ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt=100, debug=False):
             print('エラー詳細(e)           :', e)
             phonemes = note.lyric.split()
             print('---------------------------------------------------\n')
+
         length = note.get_length_ms(tempo)
         oto = _otoini.Oto()
-        oto.filename = name_wav
-        oto.alias = ' '.join(phonemes)
-        oto.offset = t - (2 * dt)
-        oto.consonant = min(3 * dt, length + 2 * dt)
-        oto.cutoff = -(length + 2 * dt)  # 負で左ブランク相対時刻, 正で絶対時刻
+        oto.filename = name_wav     # wavファイル名
+        oto.alias = ' '.join(phonemes)  # エイリアスは音素ごとに空白区切り
+        oto.offset = t - (2 * dt)   # 左ブランクはノート開始位置より2段手前
+        oto.preutterance = 2 * dt   # 先行発声はノート開始位置
+        oto.consonant = min(3 * dt, length + 2 * dt)  # 子音部固定範囲は先行発声より1段後ろか終端
+        oto.cutoff = -(length + 2 * dt)  # 右ブランクはノート終端、負で左ブランク相対時刻、正で絶対時刻
+
+        # 1音素のときはノート開始位置に先行発声を配置
         if len(phonemes) == 1:
-            oto.overlap = 2 * dt
-            oto.preutterance = 3 * dt
-        elif len(phonemes) in [2, 3]:
+            oto.overlap = 0
+
+        # 2,3音素の時はノート開始位置に先行発声、その手前にオーバーラップ
+        elif len(phonemes) in (2, 3):
             oto.overlap = dt
-            oto.preutterance = 2 * dt
+
+        # 4音素以上には未対応。特殊音素と判断して1音素として処理
         else:
             print('\nERROR when setting alias : phonemes = {}-------------'.format(phonemes))
             print('1エイリアスあたり 1, 2, 3 音素しか対応していません。')
             oto.alias = ''.join(phonemes)
-            oto.overlap = dt
-            oto.preutterance = 2 * dt
+            oto.overlap = 0
 
         l.append(oto)
         t += length  # 今のノート終了位置が次のノート開始位置
+
     # 最初が休符なことを想定して、
     l[0].offset = 0  # 最初の左ブランクを0にする
     l[0].preutterance = 0  # 最初の先行発声を0にする
@@ -272,7 +279,7 @@ def otoini2label(otoini, mode='auto',
                 print(f'    {oto.values}')
             t_start = (oto.offset + oto.preutterance) * time_order_ratio
             tmp.append([int(t_start), oto.alias])
-            # [[発音開始時刻, 発音終了時刻, 発音記号], ...]
+        # [[発音開始時刻, 発音終了時刻, 発音記号], ...]
         lines = [[v[0], tmp[i + 1][0], v[1]] for i, v in enumerate(tmp[:-1])]
         # ↓内包表記を展開した場合↓-----
         # lines = []
@@ -300,7 +307,7 @@ def otoini2label(otoini, mode='auto',
             if debug:
                 print(f'    {oto.values}')
 
-            t_start = time_order_ratio * (oto.offset + oto.overlap)
+            t_start = time_order_ratio * (oto.offset + oto.preutterance)
             tmp.append([int(t_start), oto.alias])
 
         # [[発音開始時刻, 発音終了時刻, 発音記号], ...]
@@ -314,7 +321,7 @@ def otoini2label(otoini, mode='auto',
         # 最終ノートだけ特別な処理
         oto = otoini_values[-1]
         # 発声開始位置
-        t_start = int(time_order_ratio * (oto.offset + oto.overlap))
+        t_start = int(time_order_ratio * (oto.offset + oto.preutterance))
         # 発声終了位置(右ブランクの符号ごとの挙動違いに対応)
         t_end = int(time_order_ratio * oto.cutoff2)
         # 最終ノートをリストに追加

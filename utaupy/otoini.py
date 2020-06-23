@@ -112,47 +112,44 @@ class OtoIni:
     #             print('  ----------------')
 
     def monophonize(self):
-        """音素ごとに分割"""
+        """
+        音素ごとに分割する
+        音素の発声開始位置: 左ブランク=先行発声
+        """
         # 新規OtoIniを作るために、otoを入れるリスト
         l = []
         for oto in self.__values:
-            aliases = oto.alias.split()
-            if len(aliases) == 1:
+            phonemes = oto.alias.split()
+            if len(phonemes) == 1:
                 l.append(oto)
-            elif len(aliases) in [2, 3]:
+            elif len(phonemes) in [2, 3]:
                 name_wav = oto.filename
                 # 1文字目(オーバーラップから先行発声まで)------------
-                new = Oto()
-                a = aliases[0]
-                t = oto.offset + oto.overlap  # オーバーラップの位置から
-                new.filename = name_wav
-                new.alias = a
-                new.offset = t
-                new.overlap = 0
-                l.append(new)
+                mono_oto = Oto()
+                mono_oto.filename = name_wav
+                mono_oto.alias = phonemes[0]
+                mono_oto.offset = oto.offset + oto.overlap  # オーバーラップの位置に左ブランクを移動
+                mono_oto.preutterance = 0
+                l.append(mono_oto)
                 # 2文字目(先行発声から固定範囲まで)----------------
-                new = Oto()
-                a = aliases[1]
-                t = oto.offset + oto.preutterance  # 先行発声の位置から
-                new.filename = name_wav
-                new.alias = a
-                new.offset = t
-                new.overlap = 0
-                l.append(new)
-                if len(aliases) == 3:
+                mono_oto = Oto()
+                mono_oto.filename = name_wav
+                mono_oto.alias = phonemes[1]
+                mono_oto.offset = oto.offset + oto.preutterance  # 先行発声の位置に左ブランクを移動
+                mono_oto.preutterance = 0
+                l.append(mono_oto)
+                if len(phonemes) == 3:
                     # 3文字目(固定範囲から右ブランクまで)----------------
-                    new = Oto()
-                    a = aliases[2]
-                    t = oto.offset + oto.consonant  # 固定範囲の位置から
-                    new.filename = name_wav
-                    new.alias = a
-                    new.offset = t
-                    new.overlap = 0
-                    l.append(new)
+                    mono_oto = Oto()
+                    mono_oto.filename = name_wav
+                    mono_oto.alias = phonemes[2]
+                    mono_oto.offset = oto.offset + oto.consonant  # 固定範囲の位置に左ブランクを移動
+                    mono_oto.preutterance = 0
+                    l.append(mono_oto)
             else:
                 print('\n[ERROR in otoini.monophonize()]----------------')
-                print('エイリアスのローマ字分割数は 1, 2, 3 以外対応していません。')
-                print('aliases: {}'.format(aliases))
+                print('エイリアスの音素数は 1, 2, 3 以外対応していません。')
+                print('phonemes: {}'.format(phonemes))
                 print('文字を連結して処理を続行します。')
                 print('-----------------------------------------------\n')
                 l.append(oto)
