@@ -1,5 +1,1 @@
-from utaupy import convert
-from utaupy import label
-from utaupy import otoini
-from utaupy import table
-from utaupy import ust
+from utaupy import convert, label, otoini, shiro, svp, table, ust

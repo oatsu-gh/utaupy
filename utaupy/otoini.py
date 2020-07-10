@@ -181,8 +181,8 @@ class Oto:
     def __init__(self):
         keys = ('FileName', 'Alias', 'Offset',
                 'Consonant', 'Cutoff', 'Preutterance', 'Overlap')
-        l = [None] * 7
-        self.__d = dict(zip(keys, l))
+        tpl = (None, None, 0, 0, 0, 0, 0, 0)
+        self.__d = dict(zip(keys, tpl))
 
     def from_otoini(self, l):
         """1音分のリストをもらってクラスオブジェクトにする"""

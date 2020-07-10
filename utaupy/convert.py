@@ -18,6 +18,42 @@ def main():
     print('AtomとReaperが好き')
 
 
+def svp2ust(svp, debug=False):
+    """
+    svpファイルを受け取って、簡易的なustオブジェクトにする。
+    """
+    svnotes = svp['tracks'][0]['mainGroup']['notes']
+
+    # ust.Noteを入れておくリスト
+    l = []
+    # バージョン情報の空ノートを追加
+    utaunote = _ust.Note()
+    l.append(utaunote)
+    # プロジェクト設定のノートを追加
+    utaunote = _ust.Note()
+    utaunote.set_by_key('Tempo', svp['time']['tempo'][0]['bpm'])
+    l.append(utaunote)
+
+    # 前奏の休符を追加
+    utaunote = _ust.Note()
+    utaunote.lyric = 'R'
+    utaunote.length = svnotes[0]['onset'] // 1470000
+    l.append(utaunote)
+
+    # DEBUG: 休符が挟まってるかどうかを判定して、休符を追加する処理を実装する必要がある。
+    for svnote in svnotes:
+        utaunote = _ust.Note()
+        utaunote.lyric = svnote['lyrics']
+        utaunote.length = svnote['duration'] // 1470000
+        l.append(utaunote)
+        if debug:
+            print(utaunote.values)
+
+    ust = _ust.Ust()
+    ust.values = l
+    return ust
+
+
 def ust2otoini(ust, name_wav, path_tablefile, mode='romaji_cv', dt=100, debug=False):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
@@ -40,7 +76,6 @@ def make_finalnote_R(ust):
     notes = ust.values
     note = notes[-2]
     # Ust内の最後はTRACKENDなので後ろから2番目のノートで判定
-    # DEBUG: NoteのIDが引き継がれるっぽくて最後から2番目のノートもRになってしまう。
     if note.lyric not in ('pau', 'sil', 'R'):
         print('  末尾に休符を自動追加しました。')
         extra_note = deepcopy(note)
@@ -210,7 +245,7 @@ def ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt=100, debug=False):
             print('変換前の歌詞(note.lyric):', note.lyric)
             print('エラー詳細(e)           :', e)
             phonemes = note.lyric.split()
-            print('---------------------------------------------------\n')
+            print('---------------------------------------------------')
 
         length = note.get_length_ms(tempo)
         oto = _otoini.Oto()
