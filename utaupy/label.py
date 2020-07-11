@@ -56,21 +56,18 @@ class Label:
             raise TypeError('"lines" must be list instance (values.setter in label.py)')
         self.__values = lines
 
-    def write(self, path, mode='w', encoding='utf-8', newline='\n', kiritan=False):
+    def write(self, path, mode='w', encoding='utf-8', newline='\n', delimiter=' ', kiritan=False):
         """LABを保存"""
         # 出力用の文字列
-        s = ''
-        lines = self.values
+        l = self.values
         if kiritan:
-            for l in lines:
-                s += '{:.7f} {:.7f} {}\n'.format(*l)
+            lines = ['{:.7f} {:.7f} {}'.format(*v) for v in l] # 100ns -> 1s 表記変換
         else:
-            for l in lines:
-                s += '{} {} {}\n'.format(*l)
+            lines = [f'{v[0]}{delimiter}{v[1]}{delimiter}{v[2]}' for v in l]
         # ファイル出力
         with open(path, mode=mode, encoding=encoding, newline=newline) as f:
-            f.write(s)
-        return s
+            f.write('\n'.join(lines))
+        return lines
 
 
 if __name__ == '__main__':
