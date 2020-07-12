@@ -53,7 +53,7 @@ class Label:
     def values(self, lines):
         """値を登録"""
         if not isinstance(lines, list):
-            raise TypeError('"lines" must be list instance (values.setter in label.py)')
+            raise TypeError('argument \'lines\' must be list instance (values.setter in utaupy.label.py)')
         self.__values = lines
 
     def write(self, path, mode='w', encoding='utf-8', newline='\n', delimiter=' ', kiritan=False):
