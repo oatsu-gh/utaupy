@@ -428,6 +428,7 @@ def reclist2regioncsv(reclist, a, b):
         region = _reaper.Region()
         region.name = v
         region.start = '{}.1.00'.format(t)
+        region.end = '{}.1.00'.format(t + duration)
         region.length = '{}.0.00'.format(duration)
         l.append(region)
 
