@@ -40,11 +40,13 @@ def load(path, mode='r', encoding='utf-8'):
     choices = ['utf-8', 'shift-jis']
     if encoding in choices:
         choices.remove(encoding)
+
     # 指定された文字コードで読み取ろうとする
     try:
         with open(path, mode=mode, encoding=encoding) as f:
             reader = csv.reader(f)
             l = [row for row in reader]
+
     # 上手くいかなかったらもう片方の文字コードで読み取る
     except UnicodeDecodeError as e:
         print('[WARN]', e)
@@ -52,63 +54,116 @@ def load(path, mode='r', encoding='utf-8'):
         with open(path, mode=mode, encoding=choices[0]) as f:
             reader = csv.reader(f)
             l = [row for row in csv.reader(f)]
-    return l[1:]
+
+    tmp = []
+    # 行ごとにRegionオブジェクトを生成
+    keys = tuple(l[0])
+    for v in l[1:]:
+        region = Region()
+        region.values = dict(zip(keys, v))
+        tmp.append(region)
+
+    regioncsv = RegionCsv()
+    regioncsv.values = tmp
+    return regioncsv
 
 
-class Region:
-    """REAPERのリージョンCSV用のクラス"""
+class RegionCsv:
+    """
+    REAPERのリージョンCSV用のクラス
+    """
 
     def __init__(self):
-        self.__values = []
+        # 辞書からなるリスト
+        self.__l = []
 
     @property
     def values(self):
-        """値を確認"""
-        return self.__values
+        """
+        値を確認
+        """
+        return self.__l
 
     @values.setter
-    def values(self, l_2d):
-        """値を登録"""
-        if not isinstance(lines, list):
-            raise TypeError('argument \'l_2d\' must be 2-dimensional list instance (values.setter in utaupy.reaper.py)')
-        self.__values = lines
+    def values(self, l):
+        """
+        値を代入
+        """
+        self.__l = l
 
-    @property
-    def tags(self):
-        """タグ一覧を取得"""
-        return [v[0] for v in self.__values]
+    # def append(self, region):
+    #     """Regionオブジェクトを末尾に追加"""
+    #     self.__l.append(region)
+    #     return self
 
-    @property
-    def names(self):
-        """リージョン名一覧を取得"""
-        return [v[1] for v in self.__values]
-
-    @property
-    def starts(self):
-        """開始時刻一覧を取得"""
-        return [v[2] for v in self.__values]
-
-    @property
-    def ends(self):
-        """終了時刻一覧を取得"""
-        return [v[3] for v in self.__values]
-
-    @property
-    def lengths(self):
-        """終了時刻一覧を取得"""
-        return [v[4] for v in self.__values]
+    def write(self, path, mode='w'):
+        """
+        REAPERのリージョンに適したCSVを出力する。
+        """
+        rows = [['#', 'Name', 'Start', 'End', 'Length']]
+        for i, region in enumerate(self.__l):
+            row = [f'R{i}', region.name, region.start, region.end, region.length]
+            rows.append(row)
+        # ファイル出力
+        with open(path, mode=mode, encoding='utf-8', newline='\n') as f:
+            writer = csv.writer(f)
+            writer.writerows(rows)
 
 
-def write_csv(l, path, mode='w'):
+class Region:
     """
-    二次元配列を受け取って、REAPERのリージョンに適したCSVを出力する。
+    REAPERのリージョンひとつ分のクラス
+    辞書
     """
-    # 見出し行を追加
-    l = [['#', 'Name', 'Start', 'End', 'Length']] + l
-    # ファイル出力
-    with open(path) as f:
-        writer = csv.writer(f)
-        writer.writerows(l)
+
+    def __init__(self):
+        self.__d = {'#': '', 'Name': '', 'Start': '', 'End': '', 'Length': ''}
+
+    @property
+    def values(self):
+        """
+        値を確認
+        """
+        return self.__d
+
+    @values.setter
+    def values(self, d):
+        """
+        値を代入
+        """
+        self.__d = d
+
+    @property
+    def name(self):
+        return self.__d['Name']
+
+    @name.setter
+    def name(self, x):
+        self.__d['Name'] = x
+
+    @property
+    def start(self):
+        return self.__d['Start']
+
+    @start.setter
+    def start(self, x):
+        self.__d['Start'] = x
+
+    @property
+    def end(self):
+        return self.__d['End']
+
+    @end.setter
+    def end(self, x):
+        self.__d['End'] = x
+
+    @property
+    def length(self):
+        return self.__d['Length']
+
+    @length.setter
+    def length(self, x):
+        self.__d['Length'] = x
 
 
 if __name__ == '__main__':

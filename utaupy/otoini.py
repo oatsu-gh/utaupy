@@ -153,7 +153,7 @@ class OtoIni:
                 print('文字を連結して処理を続行します。')
                 print('-----------------------------------------------\n')
                 l.append(oto)
-        self.values = l
+        self.__values = l
 
     def write(self, path, mode='w', encoding='shift-jis'):
         """OtoIniクラスオブジェクトをINIファイルに出力"""

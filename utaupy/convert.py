@@ -9,6 +9,8 @@ from copy import deepcopy
 
 from . import label as _label
 from . import otoini as _otoini
+from . import reaper as _reaper
+from . import reclist as _reclist
 from . import table as _table
 from . import ust as _ust
 
@@ -402,6 +404,36 @@ def label2otoini(label, name_wav,
     o = _otoini.OtoIni()
     o.values = l
     return o
+
+
+def reclist2regioncsv(reclist, a, b):
+    """
+    reclist: 録音リストの配列
+    a: 1行ごとの発声部分の長さ （小節）
+    b: 1行ごとの余白部分の長さ （小節）
+
+    実際はbを2等分する必要がありそうだけど
+    DAWで音声ファイル移動させるほうが実装が楽
+
+    |______a_________|___b____|______a_________|___b____|
+    |ああいあうえあー|　　　　|いいうあえいえー|　　　　|
+    | 2小節          | 1小節  | 2小節          | 1小節  |
+
+    """
+    duration = a + b
+    t = 1  # 開始位置を記録するやつ
+    l = []
+    for v in reclist:
+        t += duration
+        region = up.reaper.Region()
+        region.name = v
+        region.start = '{}.1.00'.format(t)
+        region.length = '{}.0.00'.format(duration)
+        l.append(region)
+
+    regioncsv = up.reaper.RegionCsv()
+    regioncsv.values = l
+    return regioncsv
 
 
 if __name__ == '__main__':
