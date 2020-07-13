@@ -425,13 +425,13 @@ def reclist2regioncsv(reclist, a, b):
     l = []
     for v in reclist:
         t += duration
-        region = up.reaper.Region()
+        region = _reaper.Region()
         region.name = v
         region.start = '{}.1.00'.format(t)
         region.length = '{}.0.00'.format(duration)
         l.append(region)
 
-    regioncsv = up.reaper.RegionCsv()
+    regioncsv = _reaper.RegionCsv()
     regioncsv.values = l
     return regioncsv
 
