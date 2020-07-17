@@ -91,10 +91,11 @@ class RegionCsv:
         """
         self.__l = l
 
-    # def append(self, region):
-    #     """Regionオブジェクトを末尾に追加"""
-    #     self.__l.append(region)
-    #     return self
+
+    def append(self, region):
+        """Regionオブジェクトを末尾に追加"""
+        self.__l.append(region)
+
 
     def write(self, path, mode='w'):
         """
