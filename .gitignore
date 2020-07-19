@@ -1,4 +1,5 @@
 desktop.ini
 test.py
+ignore*
 *.lnk
 __pycache__*

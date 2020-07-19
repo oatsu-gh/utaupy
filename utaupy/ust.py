@@ -7,7 +7,17 @@ USTファイルとデータを扱うモジュールです。
 
 def main():
     """実行されたときの挙動"""
-    print('デフォ子かわいいよデフォ子')
+    print('デフォ子かわいいよデフォ子\n')
+
+    print('ust読み取りテストをします。')
+    path = input('ustのパスを入力してください。\n>>> ')
+    ust = load(path)
+    print()
+
+    for note in ust.values:
+        print(note.values)
+
+    input('\nPress Enter to exit.')
 
 
 def notenum_as_abc(notenum):
@@ -58,13 +68,26 @@ def load(path, mode='r', encoding='shift-jis'):
     notes = []
     for lines in l:
         note = Note()
-        note.from_ust(lines)
+        # ノートの種類
+        tag = lines[0]
+        note.tag = tag
+        # print('Making "Note" instance from UST: {}'.format(tag))
+        # タグ以外の行の処理
+        if tag == '[#VERSION]':
+            note.set_by_key('Version', lines[1])
+        elif tag == '[#TRACKEND]':
+            pass
+        else:
+            for line in lines[1:]:
+                key, value = line.split('=', 1)
+                note.set_by_key(key, value)
         notes.append(note)
+
     # 旧形式の場合にタグの数を合わせる
-    if notes[0].section != r'[#VERSION]':
+    if notes[0].tag != r'[#VERSION]':
         version = notes[0].get_by_key('UstVersion')
         note = Note()
-        note.section = '[#VERSION]'
+        note.tag = '[#VERSION]'
         note.set_by_key('UstVersion', version)
         notes.insert(0, note)  # リスト先頭に挿入
     # Ustクラスオブジェクト化
@@ -79,27 +102,48 @@ class Ust:
     def __init__(self):
         """インスタンス作成"""
         # ノート(クラスオブジェクト)からなるリスト
-        self.notes = []
+        self._notes = []
 
     @property
     def values(self):
         """中身を見る"""
-        return self.notes
+        return self._notes
 
     @values.setter
     def values(self, l):
-        """中身を上書きする"""
-        self.notes = l
+        """
+        中身を上書きする
+        """
+        if not isinstance(l, list):
+            raise TypeError('argument \"l\" must be list instance')
+        self._notes = l
+        return self
+
+    @property
+    def musicalnotes(self):
+        """
+        全セクションのうち、VERSION と SETTING TRACKEND を除いたノート部分を取得
+        """
+        return self._notes[2:-1]
+
+    @musicalnotes.setter
+    def musicalnotes(self, l):
+        """
+        全セクションのうち、VERSION と SETTING TRACKEND を除いたノート部分を上書き
+        """
+        if not isinstance(l, list):
+            raise TypeError('argument \"l\" must be list instance')
+        self._notes = self._notes[:2] + l + self._notes[-1:]
         return self
 
     @property
     def tempo(self):
         """全体のBPMを見る"""
         try:
-            project_tempo = self.notes[1].tempo
+            project_tempo = self._notes[1].tempo
             return project_tempo
         except KeyError:
-            first_note_tempo = self.notes[2].tempo
+            first_note_tempo = self._notes[2].tempo
             return first_note_tempo
 
         print('\n[ERROR]--------------------------------------------------')
@@ -109,25 +153,25 @@ class Ust:
 
     # NOTE: deepcopyすれば非破壊的処理にできそう。
     def replace_lyrics(self, before, after):
-        """歌詞を置換（文字列指定・破壊的処理）"""
-        for note in self.notes[2:-1]:
+        """歌詞を一括置換（文字列指定・破壊的処理）"""
+        for note in self._notes[2:-1]:
             note.lyric = note.lyric.replace(before, after)
 
     # NOTE: deepcopyすれば非破壊的処理にできそう。
     def translate_lyrics(self, before, after):
-        """歌詞を置換（複数文字指定・破壊的処理）"""
-        for note in self.notes[2:]:
+        """歌詞を一括置換（複数文字指定・破壊的処理）"""
+        for note in self._notes[2:-1]:
             note.lyric = note.lyric.translate(before, after)
 
     def vcv2cv(self):
         """歌詞を平仮名連続音から単独音にする"""
-        for note in self.notes[2:]:
+        for note in self._notes[2:-1]:
             note.lyric = note.lyric.split()[-1]
 
     def write(self, path, mode='w', encoding='shift-jis'):
         """USTを保存"""
         lines = []
-        for note in self.notes:
+        for note in self._notes:
             # ノートを解体して行のリストにする
             d = note.values
             lines = []
@@ -148,26 +192,7 @@ class Note:
 
     def __init__(self):
         self.__d = {}
-        self.section = None
-
-    # ここからデータ入力系-----------------------------------------------------
-    def from_ust(self, lines):
-        """USTの一部からノートを生成"""
-        # ノートの種類
-        section = lines[0]
-        self.section = section
-        # print('Making "Note" instance from UST: {}'.format(section))
-        # タグ以外の行の処理
-        if section == '[#VERSION]':
-            self.__d['Version'] = lines[1]
-        elif section == '[#TRACKEND]':
-            pass
-        else:
-            for v in lines[1:]:
-                tmp = v.split('=', 1)
-                self.__d[tmp[0]] = tmp[1]
-        return self
-    # ここまでデータ入力系-----------------------------------------------------
+        self.tag = None
 
     @property
     def values(self):
@@ -176,16 +201,20 @@ class Note:
 
     @values.setter
     def values(self, d):
-        """ノートの中身を上書き"""
+        """
+        ノートの中身を上書き
+        """
+        if not isinstance(d, dict):
+            raise TypeError('argument \"d\" must be dictionary instance')
         self.__d = d
 
     @property
-    def section(self):
+    def tag(self):
         """タグを確認"""
         return self.__d['Section']
 
-    @section.setter
-    def section(self, s):
+    @tag.setter
+    def tag(self, s):
         """タグを上書き"""
         self.__d['Section'] = s
 
@@ -255,12 +284,12 @@ class Note:
     # ここからノート操作系-----------------------------------------------------
     def delete(self):
         """選択ノートを削除"""
-        self.section = '[#DELETE]'
+        self.tag = '[#DELETE]'
         return self
 
     def insert(self):
         """ノートを挿入(したい)"""
-        self.section = '[#INSERT]'
+        self.tag = '[#INSERT]'
         return self
 
     def refresh(self):
@@ -269,7 +298,7 @@ class Note:
         UTAUプラグインは値の上書きはできるが削除はできない。
         一旦ノートを削除して新規ノートとして扱う必要がある。
         """
-        self.section = '[#DELETE]\n[#INSERT]'
+        self.tag = '[#DELETE]\n[#INSERT]'
 
     def suppin(self):
         """ノートの情報を最小限にする"""
