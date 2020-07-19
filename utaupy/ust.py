@@ -175,7 +175,7 @@ class Ust:
             # ノートを解体して行のリストにする
             d = note.values
             lines = []
-            lines.append(d.pop('Section'))
+            lines.append(d.pop('Tag'))
             for k, v in d.items():
                 line = '{}={}'.format(str(k), str(v))
                 lines.append(line)
@@ -211,12 +211,12 @@ class Note:
     @property
     def tag(self):
         """タグを確認"""
-        return self.__d['Section']
+        return self.__d['Tag']
 
     @tag.setter
     def tag(self, s):
         """タグを上書き"""
-        self.__d['Section'] = s
+        self.__d['Tag'] = s
 
     @property
     def length(self):
@@ -303,7 +303,7 @@ class Note:
     def suppin(self):
         """ノートの情報を最小限にする"""
         new_note = {}
-        new_note['Section'] = '[#DELETE]\n[#INSERT]'
+        new_note['Tag'] = '[#DELETE]\n[#INSERT]'
         new_note['Lyric'] = self.lyric
         new_note['Length'] = self.length
         new_note['NoteNum'] = self.notenum
@@ -317,7 +317,7 @@ class Note:
     #     """出力用のリストを返す"""
     #     d = self.__d
     #     lines = []
-    #     lines.append(d.pop('Section'))
+    #     lines.append(d.pop('Tag'))
     #     for k, v in d.items():
     #         line = '{}={}'.format(str(k), str(v))
     #         lines.append(line)
