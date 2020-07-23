@@ -285,7 +285,8 @@ def ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt=100, debug=False):
     return otoini
 
 
-def otoini2label(otoini, mode='auto', debug=False):
+def otoini2label(otoini, mode='auto',
+                 otoini_time_order=10**(-3), label_time_order=10**(-7), debug=False):
     """
     OtoIniクラスオブジェクトからLabelクラスオブジェクトを生成
     発声開始: オーバーラップ
@@ -294,9 +295,8 @@ def otoini2label(otoini, mode='auto', debug=False):
     otoini_time_order: otoiniの時間単位の桁。
     label_time_order : ラベルの時間単位の桁。
     """
-    time_order_ratio = 10000
-    # time_order_ratio = otoini_time_order / label_time_order
-    # print('  time_order_ratio:', time_order_ratio)
+    time_order_ratio = otoini_time_order / label_time_order
+    print('  time_order_ratio:', time_order_ratio)
 
     allowed_modes = ['auto', 'mono', 'romaji_cv']
     # エイリアスのタイプ自動判別
@@ -305,75 +305,105 @@ def otoini2label(otoini, mode='auto', debug=False):
             mode = 'mono'
         else:
             mode = 'romaji_cv'
-    if mode == 'romaji_cv':
+
+    if mode == 'mono':
+        print('  mode: OtoIni(mono) -> Label(mono)')
+        # [[発音開始時刻, 発音記号], ...] の仮リストにする
+        tmp = []
+        otoini_values = otoini.values
+        for oto in otoini_values:
+            if debug:
+                print(f'    {oto.values}')
+            t_start = (oto.offset + oto.preutterance) * time_order_ratio
+            tmp.append([int(t_start), oto.alias])
+        # [[発音開始時刻, 発音終了時刻, 発音記号], ...]
+        lines = [[v[0], tmp[i + 1][0], v[1]] for i, v in enumerate(tmp[:-1])]
+        # ↓内包表記を展開した場合↓-----
+        # lines = []
+        # for i, v in enumerate(tmp[:-1]):
+        #     lines.append([v[0], tmp[i+1][0], v[1]])
+        # -------------------------------
+
+        # 最終ノートだけ特別な処理
+        oto = otoini_values[-1]
+        # 発声開始位置
+        t_start = int(time_order_ratio * (oto.offset + oto.preutterance))
+        # 発声終了位置(右ブランクの符号ごとの挙動違いに対応)
+        t_end = int(time_order_ratio * oto.cutoff2)
+        # 最終ノートをリストに追加
+        lines.append([t_start, t_end, oto.alias])
+
+    elif mode == 'romaji_cv':
         print('  mode: OtoIni(romaji_cv) -> Label(mono)')
         # モノフォン化
         otoini.monophonize()
-    elif mode == 'mono':
-        print('  mode: OtoIni(mono) -> Label(mono)')
+        # [[発音開始時刻, 発音記号], ...] の仮リストにする
+        tmp = []
+        otoini_values = otoini.values
+        for oto in otoini_values:
+            if debug:
+                print(f'    {oto.values}')
+
+            t_start = time_order_ratio * (oto.offset + oto.preutterance)
+            tmp.append([int(t_start), oto.alias])
+
+        # [[発音開始時刻, 発音終了時刻, 発音記号], ...]
+        lines = [[v[0], tmp[i + 1][0], v[1]] for i, v in enumerate(tmp[:-1])]
+        # ↓内包表記を展開した場合↓-----
+        # lines = []
+        # for i, v in enumerate(tmp[:-1]):
+        #     lines.append([v[0], tmp[i+1][0], v[1]])
+        # -------------------------------
+
+        # 最終ノートだけ特別な処理
+        oto = otoini_values[-1]
+        # 発声開始位置
+        t_start = int(time_order_ratio * (oto.offset + oto.preutterance))
+        # 発声終了位置(右ブランクの符号ごとの挙動違いに対応)
+        t_end = int(time_order_ratio * oto.cutoff2)
+        # 最終ノートをリストに追加
+        lines.append([t_start, t_end, oto.alias])
+
     else:
         raise ValueError('argument \'mode\' must be in {}'.format(allowed_modes))
 
-    # 計算の重複を避けるために [[発音開始時刻, 発音記号], ...] の仮リストにする
-    tmp = []
-    otoini_values = otoini.values
-    for oto in otoini_values:
-        if debug:
-            print(f'    {oto.values}')
-        t_start = int(time_order_ratio * (oto.offset + oto.preutterance))
-        tmp.append([t_start, oto.alias])
-
-    # OtoオブジェクトをPhonemeオブジェクトに変換する
-    phonemes = []
-    for i, v in enumerate(tmp[:-1]):
-        phoneme = _label.Phoneme()
-        phoneme.start = v[0]
-        phoneme.end = tmp[i + 1][0]
-        phoneme.symbol = v[1]
-        phonemes.append(phoneme)
-
-    # 最終Otoだけ終了位置が必要なので 特別な処理
-    oto = otoini_values[-1]
-    phoneme = _label.Phoneme()
-    phoneme.start = int(time_order_ratio * (oto.offset + oto.preutterance))
-    phoneme.end = int(time_order_ratio * oto.cutoff2)  # 発声終了位置は右ブランク
-    phonemes.append(phoneme)
-
     # Labelクラスオブジェクト化
     label = _label.Label()
-    label.values = phonemes
+    label.values = lines
     return label
 
 
-def label2otoini(label, name_wav):
+def label2otoini(label, name_wav,
+                 otoini_time_order=10**(-3), label_time_order=10**(-7)):
     """
     LabelオブジェクトをOtoIniオブジェクトに変換
     モノフォン、CV、VCV とかの選択肢が必要そう
     otoini_time_order: otoiniの時間オーダー。
     label_time_order : ラベルの時間オーダー。
     """
-    # time_order_ratio = label_time_order / otoini_time_order
-    time_order_ratio = 10**(-4)
+    time_order_ratio = label_time_order / otoini_time_order
 
     l = []  # Otoオブジェクトを格納するリスト
+    lines = label.values
 
-    # 各音素PhonemeオブジェクトをOtoオブジェクトに変換して、リストにまとめる。
-    for phoneme in label.values:
+    # ラベルの各行をOtoオブジェクトに変換して、リストにまとめる。
+    for line in lines:
+        line = [v * time_order_ratio for v in line[:2]] + line[2:]
+        duration = line[1] - line[0]  # 発声の長さ
         oto = _otoini.Oto()
         oto.filename = name_wav
-        oto.alias = phoneme.symbol
-        oto.offset = phoneme.start * time_order_ratio
+        oto.alias = line[2]
+        oto.offset = line[0]
         oto.overlap = 0.0
         oto.preutterance = 0.0
-        oto.consonant = (phoneme.end - phoneme.start) * time_order_ratio
-        oto.cutoff = - (phoneme.end - phoneme.start) * time_order_ratio
+        oto.consonant = duration
+        oto.cutoff = - duration
         l.append(oto)
 
     # Otoiniオブジェクト化
-    otoini = _otoini.OtoIni()
-    otoini.values = l
-    return otoini
-
+    o = _otoini.OtoIni()
+    o.values = l
+    return o
 
 if __name__ == '__main__':
     main()
