@@ -64,7 +64,7 @@ def load(path, mode='r', encoding='utf-8', kiritan=False):
         for v in lines:
             phoneme = Phoneme()
             phoneme.start = int(v[0])
-            phoneme.end = int(v[0])
+            phoneme.end = int(v[1])
             phoneme.symbol = v[2]
             phonemes.append(phoneme)
 
