@@ -56,6 +56,21 @@ def svp2ust(svp, debug=False):
     return ust
 
 
+def make_finalnote_R(ust):
+    """Ustの最後のノートが必ず休符 になるようにする"""
+    notes = ust.values
+    note = notes[-2]
+    # Ust内の最後はTRACKENDなので後ろから2番目のノートで判定
+    if note.lyric not in ('pau', 'sil', 'R'):
+        print('  末尾に休符を自動追加しました。')
+        extra_note = deepcopy(note)
+        extra_note.lyric = 'R'
+        notes.insert(-1, extra_note)
+    processed_ust = _ust.Ust()
+    processed_ust.values = notes
+    return processed_ust
+
+
 def ust2otoini(ust, name_wav, path_tablefile, mode='romaji_cv', dt=100, debug=False):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
@@ -71,21 +86,6 @@ def ust2otoini(ust, name_wav, path_tablefile, mode='romaji_cv', dt=100, debug=Fa
     else:
         raise ValueError('argument \'mode\' must be in {}'.format(allowed_modes))
     return otoini
-
-
-def make_finalnote_R(ust):
-    """Ustの最後のノートが必ず休符 になるようにする"""
-    notes = ust.values
-    note = notes[-2]
-    # Ust内の最後はTRACKENDなので後ろから2番目のノートで判定
-    if note.lyric not in ('pau', 'sil', 'R'):
-        print('  末尾に休符を自動追加しました。')
-        extra_note = deepcopy(note)
-        extra_note.lyric = 'R'
-        notes.insert(-1, extra_note)
-    processed_ust = _ust.Ust()
-    processed_ust.values = notes
-    return processed_ust
 
 
 def ust2otoini_mono(ust, name_wav, path_tablefile, dt=100, debug=False):
@@ -235,7 +235,7 @@ def ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt=100, debug=False):
     l = []  # otoini生成元にするリスト
     t = 0  # ノート開始時刻を記録
 
-    # NOTE: ここnotes[2:-1]とust.values[2:1]で処理時間に差は出る？
+    # NOTE: ここnotes[2:-1]とust.values[2:-1]で処理時間に差は出る？
     for note in notes[2:-1]:
         if debug:
             print(f'    {note.values}')
@@ -278,8 +278,9 @@ def ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt=100, debug=False):
 
     # 最初が休符なことを想定して、
     l[0].offset = 0  # 最初の左ブランクを0にする
-    l[0].preutterance = 0  # 最初の先行発声を0にする
     l[0].overlap = 0  # 最初のオーバーラップを0にする
+    l[0].preutterance = 0  # 最初の先行発声を0にする
+    l[0].cutoff2 -= 2 * dt
     otoini = _otoini.OtoIni()
     otoini.values = l
     return otoini
