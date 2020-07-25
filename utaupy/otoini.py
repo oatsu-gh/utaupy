@@ -113,7 +113,8 @@ class OtoIni:
 
     def monophonize(self):
         """
-        音素ごとに分割する
+        音素ごとに分割する。
+        otoini→label 変換の用途を想定
         音素の発声開始位置: 左ブランク=先行発声
         """
         # 新規OtoIniを作るために、otoを入れるリスト
@@ -148,9 +149,9 @@ class OtoIni:
                     l.append(mono_oto)
             else:
                 print('\n[ERROR in otoini.monophonize()]----------------')
-                print('エイリアスの音素数は 1, 2, 3 以外対応していません。')
-                print('phonemes: {}'.format(phonemes))
-                print('文字を連結して処理を続行します。')
+                print('  エイリアスの音素数は 1, 2, 3 以外対応していません。')
+                print('  phonemes: {}'.format(phonemes))
+                print('  文字を連結して処理を続行します。')
                 print('-----------------------------------------------\n')
                 l.append(oto)
         self.__values = l
@@ -261,15 +262,15 @@ class Oto:
         """右ブランクを絶対時刻で取得する"""
         return max(self.__d['Cutoff'], self.__d['Offset'] - self.__d['Cutoff'])
 
-    # OffsetがNullのとき処理できず、バグのもとになるので無効化
-    # @cutoff2.setter
-    # def cutoff2(self, x):
-    #     """右ブランクを上書きする。負の値に強制する。"""
-    #     self.__d['Cutoff'] = min(x, self.__d['Offset'] - x)
+    # OffsetがNullのとき処理できない
+    @cutoff2.setter
+    def cutoff2(self, x):
+        """右ブランクを絶対時刻で受け取り、負の値で上書きする"""
+        self.__d['Cutoff'] = self.__d['Offset'] - x
 
     @property
     def preutterance(self):
-        """先行発声を確認する"""
+        """先行発声を取得する"""
         return self.__d['Preutterance']
 
     @preutterance.setter
@@ -279,12 +280,12 @@ class Oto:
 
     @property
     def overlap(self):
-        """右ブランクを確認する"""
+        """オーバーラップを取得する"""
         return self.__d['Overlap']
 
     @overlap.setter
     def overlap(self, x):
-        """右ブランクを上書きする"""
+        """オーバーラップを上書きする"""
         self.__d['Overlap'] = x
     # ここまでノートの各値の処理----------------------
 
