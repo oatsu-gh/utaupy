@@ -3,6 +3,7 @@
 """
 USTファイルとデータを扱うモジュールです。
 """
+from copy import deepcopy
 
 
 def main():
@@ -104,6 +105,9 @@ class Ust:
         # ノート(クラスオブジェクト)からなるリスト
         self._notes = []
 
+    def __len__(self):
+        return len(self._notes)
+
     @property
     def values(self):
         """中身を見る"""
@@ -119,22 +123,22 @@ class Ust:
         self._notes = l
         return self
 
-    @property
-    def musicalnotes(self):
-        """
-        全セクションのうち、VERSION と SETTING TRACKEND を除いたノート部分を取得
-        """
-        return self._notes[2:-1]
-
-    @musicalnotes.setter
-    def musicalnotes(self, l):
-        """
-        全セクションのうち、VERSION と SETTING TRACKEND を除いたノート部分を上書き
-        """
-        if not isinstance(l, list):
-            raise TypeError('argument \"l\" must be list instance')
-        self._notes = self._notes[:2] + l + self._notes[-1:]
-        return self
+    # @property
+    # def musicalnotes(self):
+    #     """
+    #     全セクションのうち、VERSION と SETTING TRACKEND を除いたノート部分を取得
+    #     """
+    #     return self._notes[2:-1]
+    #
+    # @musicalnotes.setter
+    # def musicalnotes(self, l):
+    #     """
+    #     全セクションのうち、VERSION と SETTING TRACKEND を除いたノート部分を上書き
+    #     """
+    #     if not isinstance(l, list):
+    #         raise TypeError('argument \"l\" must be list instance')
+    #     self._notes = self._notes[:2] + l + self._notes[-1:]
+    #     return self
 
     @property
     def tempo(self):
@@ -168,17 +172,28 @@ class Ust:
         for note in self._notes[2:-1]:
             note.lyric = note.lyric.split()[-1]
 
+    def make_finalnote_R(self):
+        """Ustの最後のノートが必ず休符 になるようにする"""
+        note = self._notes[-2]
+        # Ust内の最後はTRACKENDなので後ろから2番目のノートで判定
+        if note.lyric not in ('pau', 'sil', 'R'):
+            print('  末尾に休符を自動追加しました。')
+            extra_note = deepcopy(note)
+            extra_note.lyric = 'R'
+            self._notes.insert(-1, extra_note)
+
     def write(self, path, mode='w', encoding='shift-jis'):
-        """USTを保存"""
+        """
+        USTを保存
+        """
         lines = []
         for note in self._notes:
             # ノートを解体して行のリストにする
             d = note.values
-            lines = []
+            # DEBUG: popするせいでwriteのあとにTagを取得できなくなる
             lines.append(d.pop('Tag'))
             for k, v in d.items():
-                line = '{}={}'.format(str(k), str(v))
-                lines.append(line)
+                lines.append('{}={}'.format(str(k), str(v)))
         # 出力用の文字列
         s = '\n'.join(lines)
         # ファイル出力
@@ -192,7 +207,11 @@ class Note:
 
     def __init__(self):
         self.__d = {}
-        self.tag = None
+        self.tag = '[#UNDEFINED]'
+        self.lyric = None
+
+    def __str__(self):
+        return f'{self.tag} {self.lyric}\t<utaupy.ust.Note object>'
 
     @property
     def values(self):
@@ -221,12 +240,12 @@ class Note:
     @property
     def length(self):
         """ノート長を確認[samples]"""
-        return self.__d['Length']
+        return int(self.__d['Length'])
 
     @length.setter
     def length(self, x):
         """ノート長を上書き[samples]"""
-        self.__d['Length'] = x
+        self.__d['Length'] = str(x)
 
     @property
     def lyric(self):
@@ -241,17 +260,17 @@ class Note:
     @property
     def notenum(self):
         """音階番号を確認"""
-        return self.__d['NoteNum']
+        return int(self.__d['NoteNum'])
 
     @notenum.setter
     def notenum(self, x):
         """音階番号を上書き"""
-        self.__d['NoteNum'] = x
+        self.__d['NoteNum'] = str(x)
 
     @property
     def tempo(self):
         """BPMを確認"""
-        return self.__d['Tempo']
+        return float(self.__d['Tempo'])
 
     @tempo.setter
     def tempo(self, x):
@@ -265,7 +284,7 @@ class Note:
         try:
             return self.__d[key]
         except KeyError as e:
-            print('KeyError Exception in get_by_key in ust.py : {}'.format(e))
+            print('KeyError Exception in get_by_key in ust.py line 284 : {}'.format(e))
             return None
 
     def set_by_key(self, key, x):

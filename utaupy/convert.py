@@ -5,7 +5,6 @@ UTAU関連ファイルの相互変換
 """
 # from pysnooper import snoop
 # from pprint import pprint
-from copy import deepcopy
 
 from . import label as _label
 from . import otoini as _otoini
@@ -56,21 +55,6 @@ def svp2ust(svp, debug=False):
     return ust
 
 
-def make_finalnote_R(ust):
-    """Ustの最後のノートが必ず休符 になるようにする"""
-    notes = ust.values
-    note = notes[-2]
-    # Ust内の最後はTRACKENDなので後ろから2番目のノートで判定
-    if note.lyric not in ('pau', 'sil', 'R'):
-        print('  末尾に休符を自動追加しました。')
-        extra_note = deepcopy(note)
-        extra_note.lyric = 'R'
-        notes.insert(-1, extra_note)
-    processed_ust = _ust.Ust()
-    processed_ust.values = notes
-    return processed_ust
-
-
 def ust2otoini(ust, name_wav, path_tablefile, mode='romaji_cv', dt=100, debug=False):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
@@ -109,7 +93,7 @@ def ust2otoini_mono(ust, name_wav, path_tablefile, dt=100, debug=False):
     """
     d = _table.load(path_tablefile)  # ひらがなローマ字対応表の辞書
     d.update({'R': ['pau'], 'pau': ['pau'], 'sil': ['sil'], 'br': ['br'], '息': ['br']})
-    ust = make_finalnote_R(ust)  # 最終ノートが休符じゃない場合を対策
+    ust.make_finalnote_R()  # 最終ノートが休符じゃない場合を対策
     notes = ust.values
     tempo = ust.tempo
 
@@ -229,7 +213,7 @@ def ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt=100, debug=False):
     """
     d = _table.load(path_tablefile)  # ひらがなローマ字対応表の辞書
     d.update({'R': ['pau'], 'pau': ['pau'], 'sil': ['sil'], 'br': ['br'], '息': ['br']})
-    ust = make_finalnote_R(ust)  # 最終ノートが休符じゃない場合を対策
+    ust.make_finalnote_R()  # 最終ノートが休符じゃない場合を対策
     notes = ust.values
     tempo = ust.tempo
     l = []  # otoini生成元にするリスト
