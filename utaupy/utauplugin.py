@@ -57,11 +57,11 @@ class PluginText(_ust.Ust):
 
     @property
     def notes(self):
-        return self._notes
+        return self.__notes
 
     @notes.setter
     def notes(self, l):
-        self._notes = l
+        self.__notes = l
 
     def insert_note(self, i):
         """
