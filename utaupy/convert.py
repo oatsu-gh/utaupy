@@ -55,7 +55,7 @@ def svp2ust(svp, debug=False):
     return ust
 
 
-def ust2otoini(ust, name_wav, d_table, mode='romaji_cv', dt=100, debug=False):
+def ust2otoini(ust, name_wav, d_table, mode='romaji_cv', dt=100, replace=True, debug=False):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
     機能選択部分
@@ -63,7 +63,7 @@ def ust2otoini(ust, name_wav, d_table, mode='romaji_cv', dt=100, debug=False):
     allowed_modes = ['mono', 'romaji_cv']
     if mode == 'romaji_cv':
         print('  変換モード : ひらがな歌詞 → ローマ字CV')
-        otoini = ust2otoini_romaji_cv(ust, name_wav, d_table, dt, debug=debug)
+        otoini = ust2otoini_romaji_cv(ust, name_wav, d_table, dt, replace=replace, debug=debug)
     elif mode == 'mono':
         print('  変換モード : ひらがな歌詞 → ローマ字モノフォン')
         otoini = ust2otoini_mono(ust, name_wav, d_table, debug=debug)
@@ -200,7 +200,7 @@ def ust2otoini_mono(ust, name_wav, d_table, dt=100, debug=False):
     return mono_otoini
 
 
-def ust2otoini_romaji_cv(ust, name_wav, d_table, dt=100, debug=False):
+def ust2otoini_romaji_cv(ust, name_wav, d_table, dt=100, replace=True, debug=False):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
     dt   : 左ブランク - オーバーラップ - 先行発声 - 固定範囲と右ブランク の距離
@@ -222,17 +222,16 @@ def ust2otoini_romaji_cv(ust, name_wav, d_table, dt=100, debug=False):
         try:
             phonemes = d_table[note.lyric]
         except KeyError as e:
-            print('KeyError in utaupy.convert.ust2otoini_romaji_cv----')
-            print('ひらがなローマ字変換に失敗しました。そのままぶち込みます。')
-            print('変換前の歌詞(note.lyric):', note.lyric)
-            print('エラー詳細(e)           :', e)
+            print(f'    [ERROR] KeyError in utaupy.convert.ust2otoini_romaji_cv : {e}')
             phonemes = note.lyric.split()
-            print('---------------------------------------------------')
 
         length = note.get_length_ms(tempo)
         oto = _otoini.Oto()
         oto.filename = name_wav     # wavファイル名
-        oto.alias = ' '.join(phonemes)  # エイリアスは音素ごとに空白区切り
+        if replace:
+            oto.alias = ' '.join(phonemes)  # エイリアスは音素ごとに空白区切り
+        else:
+            oto.alias = note.lyric
         oto.offset = t - (2 * dt)   # 左ブランクはノート開始位置より2段手前
         oto.preutterance = 2 * dt   # 先行発声はノート開始位置
         oto.consonant = min(3 * dt, length + 2 * dt)  # 子音部固定範囲は先行発声より1段後ろか終端
