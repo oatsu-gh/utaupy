@@ -64,52 +64,18 @@ class OtoIni:
         """
         return all(len(v.alias.split()) == 1 for v in self.values)
 
-    # def kana2romaji(self, path_table, replace=True, dt=100):
-    #     """
-    #     エイリアスをローマ字にする
-    #     かな→ローマ字 変換表のパス
-    #     replace:
-    #       Trueのときエイリアスをローマ字に書き換え
-    #       Falseのときエイリアスは平仮名のまま
-    #     """
-    #     # ローマ字変換表読み取り
-    #     d = table.load(path_table)
-    #     d.update({'R': ['pau'], 'pau': ['pau'], 'sil': ['sil'],
-    #               '息': ['br'], '吸': ['br'], 'br': ['br']})
-    #     # 発音記号の分割数によってパラメータを調整
-    #     for oto in self.__values:
-    #         kana = oto.alias.split()[-1]
-    #         try:
-    #             romaji = d[kana]
-    #         # KeyErrorはリストにするだけで返される
-    #         except KeyError as e:
-    #             print('\n[KeyError in otoini.kana2romaji]---------')
-    #             print('想定外の文字が kana として入力されました。')
-    #             print('該当文字列(kana):', kana)
-    #             print('エラー詳細(e)   :', e)
-    #             print('--------------------------------------\n')
-    #             romaji = d[kana]
-    #         # 歌詞をローマ字化
-    #         if replace is True:
-    #             oto.alias = ' '.join(romaji)
-    #         # モノフォン
-    #         if len(romaji) == 1:
-    #             # print('  alias: {}\t-> {}\t: オーバーラップ右シフト・先行発声右詰め'.format(alias, romaji))
-    #             oto.overlap = 2 * dt
-    #             oto.preutterance = oto.consonant
-    #         # おもにCV形式のとき
-    #         elif len(romaji) == 2:
-    #             # print('  alias: {}\t-> {}\t: そのまま'.format(alias, romaji))
-    #             pass
-    #         # おもにCCV形式のとき
-    #         elif len(romaji) == 3:
-    #             # print('  alias: {}\t-> {}\t: そのままでいい？'.format(alias, romaji))
-    #             pass
-    #         elif len(romaji) >= 4:
-    #             print('  [ERROR]---------')
-    #             print('  1,2,3音素しか対応していません。')
-    #             print('  alias: {}\t-> {}\t: そのままにします。'.format(kana, romaji))
-    #             print('  ----------------')
+    def kana2romaji(self, d_table, replace=True):
+        """
+        エイリアスをローマ字にする
+        replace:
+          Trueのときエイリアスをローマ字に書き換え
+          Falseのときエイリアスは平仮名のまま
+        """
+        for oto in self.__values:
+            try:
+                oto.alias = ' '.join(d_table[oto.alias])
+            except KeyError as e:
+                print(f'[ERROR] KeyError in utaupy.otoini.OtoIni.kana2romaji: {e}')
 
     def monophonize(self):
         """

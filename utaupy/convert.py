@@ -55,7 +55,7 @@ def svp2ust(svp, debug=False):
     return ust
 
 
-def ust2otoini(ust, name_wav, path_tablefile, mode='romaji_cv', dt=100, debug=False):
+def ust2otoini(ust, name_wav, d_table, mode='romaji_cv', dt=100, debug=False):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
     機能選択部分
@@ -63,16 +63,16 @@ def ust2otoini(ust, name_wav, path_tablefile, mode='romaji_cv', dt=100, debug=Fa
     allowed_modes = ['mono', 'romaji_cv']
     if mode == 'romaji_cv':
         print('  変換モード : ひらがな歌詞 → ローマ字CV')
-        otoini = ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt, debug=debug)
+        otoini = ust2otoini_romaji_cv(ust, name_wav, d_table, dt, debug=debug)
     elif mode == 'mono':
         print('  変換モード : ひらがな歌詞 → ローマ字モノフォン')
-        otoini = ust2otoini_mono(ust, name_wav, path_tablefile, debug=debug)
+        otoini = ust2otoini_mono(ust, name_wav, d_table, debug=debug)
     else:
         raise ValueError('argument \'mode\' must be in {}'.format(allowed_modes))
     return otoini
 
 
-def ust2otoini_mono(ust, name_wav, path_tablefile, dt=100, debug=False):
+def ust2otoini_mono(ust, name_wav, d_table, dt=100, debug=False):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
     vowel_otoの対称は母音以外に 'N', 'cl' なども含まれる。
@@ -91,8 +91,6 @@ def ust2otoini_mono(ust, name_wav, path_tablefile, dt=100, debug=False):
       ||          dt(ms)           | dt(ms)  | ノート長 - dt (ms) |
     -------------------------------------------------------------------------
     """
-    d = _table.load(path_tablefile)  # ひらがなローマ字対応表の辞書
-    d.update({'R': ['pau'], 'pau': ['pau'], 'sil': ['sil'], 'br': ['br'], '息': ['br']})
     ust.make_finalnote_R()  # 最終ノートが休符じゃない場合を対策
     notes = ust.values
     tempo = ust.tempo
@@ -119,7 +117,7 @@ def ust2otoini_mono(ust, name_wav, path_tablefile, dt=100, debug=False):
         if debug:
             print(f'    {simple_oto.values}')
         try:
-            phonemes = d[simple_oto.alias]
+            phonemes = d_table[simple_oto.alias]
         except KeyError as e:
             print('\nKeyError in utaupy.convert.ust2otoini_mono---------')
             print('ひらがなローマ字変換に失敗しました。半角スペースで音素として分割してぶち込みます。')
@@ -202,7 +200,7 @@ def ust2otoini_mono(ust, name_wav, path_tablefile, dt=100, debug=False):
     return mono_otoini
 
 
-def ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt=100, debug=False):
+def ust2otoini_romaji_cv(ust, name_wav, d_table, dt=100, debug=False):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
     dt   : 左ブランク - オーバーラップ - 先行発声 - 固定範囲と右ブランク の距離
@@ -211,8 +209,6 @@ def ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt=100, debug=False):
       | 左ブランク |オーバーラップ| 先行発声 | 固定範囲 |   右ブランク   |
       |   (dt)ms   |    (dt)ms    |  (dt)ms  |  (dt)ms  | (length-2dt)ms |
     """
-    d = _table.load(path_tablefile)  # ひらがなローマ字対応表の辞書
-    d.update({'R': ['pau'], 'pau': ['pau'], 'sil': ['sil'], 'br': ['br'], '息': ['br']})
     ust.make_finalnote_R()  # 最終ノートが休符じゃない場合を対策
     notes = ust.values
     tempo = ust.tempo
@@ -224,7 +220,7 @@ def ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt=100, debug=False):
         if debug:
             print(f'    {note.values}')
         try:
-            phonemes = d[note.lyric]
+            phonemes = d_table[note.lyric]
         except KeyError as e:
             print('KeyError in utaupy.convert.ust2otoini_romaji_cv----')
             print('ひらがなローマ字変換に失敗しました。そのままぶち込みます。')
