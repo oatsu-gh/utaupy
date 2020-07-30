@@ -9,8 +9,9 @@ UTAUのプラグイン用のモジュール
 """
 
 from pprint import pprint
+from sys import argv
 
-from . import ust as _ust
+from utaupy import ust as _ust
 
 
 def main():
@@ -24,14 +25,29 @@ def main():
         pprint(note.values, width=200)
 
 
+def run(your_function):
+    """
+    UTAUプラグインスクリプトファイルの入出力をする。
+    """
+    # UTAUから出力されるプラグインスクリプトのパスを取得
+    path = argv[1]
+    # up.utauplugin.Plugin オブジェクトとしてプラグインスクリプトを読み取る
+    plugin = load(path)
+    # 目的のノート処理を実行
+    your_function(plugin)
+    # プラグインスクリプトを上書き
+    plugin.write(path)
+
+
 def load(path, mode='r', encoding='shift-jis'):
     """
     UTAUプラグイン一時ファイルを読み取る
     USTのやつを一部改変
     """
-    ust = _ust.load(path, mode='r', encoding='shift-jis')
+    ust = _ust.load(path, mode=mode, encoding=encoding)
     notes = ust.values
-    plugin = PluginText()
+    # PluginScriptオブジェクト化
+    plugin = PluginScript()
     plugin.version = notes.pop(0)
     plugin.setting = notes.pop(0)
     if notes[0].tag == '[#PREV]':
@@ -41,15 +57,14 @@ def load(path, mode='r', encoding='shift-jis'):
     plugin.notes = notes
     return plugin
 
-
-class PluginText(_ust.Ust):
+class PluginScript(_ust.Ust):
     """
     UTAUプラグインの一時ファイル用のクラス
     UST用のクラスを継承
     """
 
     def __init__(self):
-        super().__init__()   # self._notes = []
+        super().__init__() # self._note = []
         self.version = None  # [#VERSION]
         self.setting = None  # [#SETTING]
         self.prev = None  # [#PREV] のNoteオブジェクト
@@ -57,11 +72,11 @@ class PluginText(_ust.Ust):
 
     @property
     def notes(self):
-        return self.__notes
+        return self._notes
 
     @notes.setter
     def notes(self, l):
-        self.__notes = l
+        self._notes = l
 
     def insert_note(self, i):
         """

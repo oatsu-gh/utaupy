@@ -226,7 +226,7 @@ def ust2otoini_romaji_cv(ust, name_wav, path_tablefile, dt=100, debug=False):
         try:
             phonemes = d[note.lyric]
         except KeyError as e:
-            print('\nKeyError in utaupy.convert.ust2otoini_romaji_cv----')
+            print('KeyError in utaupy.convert.ust2otoini_romaji_cv----')
             print('ひらがなローマ字変換に失敗しました。そのままぶち込みます。')
             print('変換前の歌詞(note.lyric):', note.lyric)
             print('エラー詳細(e)           :', e)

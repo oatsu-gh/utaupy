@@ -103,15 +103,15 @@ class Ust:
     def __init__(self):
         """インスタンス作成"""
         # ノート(クラスオブジェクト)からなるリスト
-        self.__notes = []
+        self._notes = []
 
     def __len__(self):
-        return len(self.__notes)
+        return len(self._notes)
 
     @property
     def values(self):
         """中身を見る"""
-        return self.__notes
+        return self._notes
 
     @values.setter
     def values(self, l):
@@ -120,34 +120,34 @@ class Ust:
         """
         if not isinstance(l, list):
             raise TypeError('argument \"l\" must be list instance')
-        self.__notes = l
+        self._notes = l
         return self
 
-    # @property
-    # def musicalnotes(self):
-    #     """
-    #     全セクションのうち、VERSION と SETTING TRACKEND を除いたノート部分を取得
-    #     """
-    #     return self.__notes[2:-1]
-    #
-    # @musicalnotes.setter
-    # def musicalnotes(self, l):
-    #     """
-    #     全セクションのうち、VERSION と SETTING TRACKEND を除いたノート部分を上書き
-    #     """
-    #     if not isinstance(l, list):
-    #         raise TypeError('argument \"l\" must be list instance')
-    #     self.__notes = self.__notes[:2] + l + self.__notes[-1:]
-    #     return self
+    @property
+    def notes(self):
+        """
+        全セクションのうち、VERSION と SETTING TRACKEND を除いたノート部分を取得
+        """
+        return self._notes[2:-1]
+
+    @notes.setter
+    def notes(self, l):
+        """
+        全セクションのうち、VERSION と SETTING TRACKEND を除いたノート部分を上書き
+        """
+        if not isinstance(l, list):
+            raise TypeError('argument \"l\" must be list instance')
+        self._notes = self._notes[:2] + l + self._notes[-1:]
+        return self
 
     @property
     def tempo(self):
         """全体のBPMを見る"""
         try:
-            project_tempo = self.__notes[1].tempo
+            project_tempo = self._notes[1].tempo
             return project_tempo
         except KeyError:
-            first_note_tempo = self.__notes[2].tempo
+            first_note_tempo = self._notes[2].tempo
             return first_note_tempo
 
         print('\n[ERROR]--------------------------------------------------')
@@ -158,36 +158,36 @@ class Ust:
     # NOTE: deepcopyすれば非破壊的処理にできそう。
     def replace_lyrics(self, before, after):
         """歌詞を一括置換（文字列指定・破壊的処理）"""
-        for note in self.__notes[2:-1]:
+        for note in self._notes[2:-1]:
             note.lyric = note.lyric.replace(before, after)
 
     # NOTE: deepcopyすれば非破壊的処理にできそう。
     def translate_lyrics(self, before, after):
         """歌詞を一括置換（複数文字指定・破壊的処理）"""
-        for note in self.__notes[2:-1]:
+        for note in self._notes[2:-1]:
             note.lyric = note.lyric.translate(before, after)
 
     def vcv2cv(self):
         """歌詞を平仮名連続音から単独音にする"""
-        for note in self.__notes[2:-1]:
+        for note in self._notes[2:-1]:
             note.lyric = note.lyric.split()[-1]
 
     def make_finalnote_R(self):
         """Ustの最後のノートが必ず休符 になるようにする"""
-        note = self.__notes[-2]
+        note = self._notes[-2]
         # Ust内の最後はTRACKENDなので後ろから2番目のノートで判定
         if note.lyric not in ('pau', 'sil', 'R'):
             print('  末尾に休符を自動追加しました。')
             extra_note = deepcopy(note)
             extra_note.lyric = 'R'
-            self.__notes.insert(-1, extra_note)
+            self._notes.insert(-1, extra_note)
 
     def write(self, path, mode='w', encoding='shift-jis'):
         """
         USTを保存
         """
         lines = []
-        for note in self.__notes:
+        for note in self._notes:
             # ノートを解体して行のリストにする
             d = note.values
             # DEBUG: popするせいでwriteのあとにTagを取得できなくなる
