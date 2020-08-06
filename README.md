@@ -32,7 +32,7 @@ LICENSE ファイルをご覧ください。
 
 ### ust, label, otoini, table
 
-```
+```Python
 from utaupy import ust
 
 ust_path = 'dirname/namae.ust'
@@ -41,13 +41,15 @@ u = ust.load(ust_path)
 
 で UST ファイルをクラス Ust() として扱えます。LAB, INI を扱いたいときは  label, otoini を import してください。Ust() は Note() を要素として持つリスト型です。
 
-```
+```Python
 for note in u.values:
     lyric = note.lyric
     print(lyric)
 ```
+
 property で getter と setter 設定してあるパラメータについては書き換えもできます。
-```
+
+```Python
 note.lyric = 'あ'
 print(note.lyric)  # 'あ'
 ```
@@ -56,7 +58,7 @@ print(note.lyric)  # 'あ'
 
 各ファイルを変換できます。こんなかんじ↓
 
-```
+```Python
 from utaupy import convert
 
 u = ust.load(ust_path)     # USTファイルを読み取り
