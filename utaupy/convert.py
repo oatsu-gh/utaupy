@@ -6,11 +6,12 @@ UTAU関連ファイルの相互変換
 # from pysnooper import snoop
 # from pprint import pprint
 
+
+# from . import reaper as _reaper
+# from . import reclist as _reclist
+# from . import table as _table
 from . import label as _label
 from . import otoini as _otoini
-from . import reaper as _reaper
-from . import reclist as _reclist
-from . import table as _table
 from . import ust as _ust
 
 
@@ -93,13 +94,12 @@ def ust2otoini_mono(ust, name_wav, d_table, dt=100, debug=False):
     """
     ust.make_finalnote_R()  # 最終ノートが休符じゃない場合を対策
     notes = ust.values
-    tempo = ust.tempo
 
     # UstのNoteオブジェクトごとにOtoオブジェクトを生成
     l = []  # simple_otoを入れるリスト
     t = 0  # ノート開始時刻を記録
     for note in notes[2:-1]:
-        length = note.get_length_ms(tempo)
+        length = note.length_ms
         simple_oto = _otoini.Oto()  # 各パラメータ位置を両端に集めたOto
         simple_oto.filename = name_wav
         simple_oto.alias = note.lyric
@@ -119,8 +119,8 @@ def ust2otoini_mono(ust, name_wav, d_table, dt=100, debug=False):
         try:
             phonemes = d_table[simple_oto.alias]
         except KeyError as e:
-            print('\nKeyError in utaupy.convert.ust2otoini_mono---------')
-            print('ひらがなローマ字変換に失敗しました。半角スペースで音素として分割してぶち込みます。')
+            print('KeyError in utaupy.convert.ust2otoini_mono---------')
+            print('ひらがなローマ字変換に失敗しました。半角スペースで音素分割してぶち込みます。')
             print('エラー詳細:', e)
             print('--------------------------------------\n')
             phonemes = simple_oto.alias.split()
@@ -211,7 +211,6 @@ def ust2otoini_romaji_cv(ust, name_wav, d_table, dt=100, replace=True, debug=Fal
     """
     ust.make_finalnote_R()  # 最終ノートが休符じゃない場合を対策
     notes = ust.values
-    tempo = ust.tempo
     l = []  # otoini生成元にするリスト
     t = 0  # ノート開始時刻を記録
 
@@ -225,7 +224,7 @@ def ust2otoini_romaji_cv(ust, name_wav, d_table, dt=100, replace=True, debug=Fal
             print(f'    [ERROR] KeyError in utaupy.convert.ust2otoini_romaji_cv : {e}')
             phonemes = note.lyric.split()
 
-        length = note.get_length_ms(tempo)
+        length = note.length_ms
         oto = _otoini.Oto()
         oto.filename = name_wav     # wavファイル名
         if replace:

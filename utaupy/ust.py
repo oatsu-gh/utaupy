@@ -43,12 +43,11 @@ def notenum_as_abc(notenum):
          '114': 'F#8', '115': 'G8', '116': 'G#8', '117': 'A8', '118': 'A#8', '119': 'B8'}
     if isinstance(notenum, str):
         return d[notenum]
-    elif isinstance(notenum, int):
+    if isinstance(notenum, int):
         return d[str(notenum)]
-    elif isinstance(notenum, (list, tuple)):
+    if isinstance(notenum, (list, tuple)):
         return [d[str(v)] for v in notenum]
-    else:
-        raise TypeError("argument 'notenum' must be in [str, int, list, tuple]")
+    raise TypeError("argument 'notenum' must be in [str, int, list, tuple]")
 
 
 def load(path, mode='r', encoding='shift-jis'):
@@ -94,6 +93,8 @@ def load(path, mode='r', encoding='shift-jis'):
     # Ustクラスオブジェクト化
     u = Ust()
     u.values = notes
+    # 隠しパラメータ _alternative_tempo を全ノートに設定
+    u.reload_tempo()
     return u
 
 
@@ -117,10 +118,12 @@ class Ust:
     def values(self, l):
         """
         中身を上書きする
+        テンポを正常に取得できるようにする
         """
         if not isinstance(l, list):
             raise TypeError('argument \"l\" must be list instance')
         self._notes = l
+        self.reload_tempo()
         return self
 
     @property
@@ -138,6 +141,7 @@ class Ust:
         if not isinstance(l, list):
             raise TypeError('argument \"l\" must be list instance')
         self._notes = self._notes[:2] + l + self._notes[-1:]
+        self.reload_tempo()
         return self
 
     @property
@@ -150,18 +154,30 @@ class Ust:
             first_note_tempo = self._notes[2].tempo
             return first_note_tempo
 
-        print('\n[ERROR]--------------------------------------------------')
+        print('[ERROR]--------------------------------------------------')
         print('USTのテンポが設定されていません。とりあえず120にします。')
         print('---------------------------------------------------------\n')
         return '120'
 
-    # NOTE: deepcopyすれば非破壊的処理にできそう。
+    def reload_tempo(self):
+        """
+        各ノートでBPMが取得できるように
+        独自パラメータ note._alternative_tempo を全ノートに仕込む
+        """
+        current_tempo = self.tempo
+        for note in self._notes[2:-1]:
+            try:
+                current_tempo = note.get_by_key('Tempo')
+            except KeyError:
+                pass
+            note._alternative_tempo = float(current_tempo)
+
+    # ノート一括編集系関数ここから----------------------------------------------
     def replace_lyrics(self, before, after):
         """歌詞を一括置換（文字列指定・破壊的処理）"""
         for note in self._notes[2:-1]:
             note.lyric = note.lyric.replace(before, after)
 
-    # NOTE: deepcopyすれば非破壊的処理にできそう。
     def translate_lyrics(self, before, after):
         """歌詞を一括置換（複数文字指定・破壊的処理）"""
         for note in self._notes[2:-1]:
@@ -171,6 +187,7 @@ class Ust:
         """歌詞を平仮名連続音から単独音にする"""
         for note in self._notes[2:-1]:
             note.lyric = note.lyric.split()[-1]
+    # ノート一括編集系関数ここまで----------------------------------------------
 
     def make_finalnote_R(self):
         """Ustの最後のノートが必ず休符 になるようにする"""
@@ -180,11 +197,12 @@ class Ust:
             print('  末尾に休符を自動追加しました。')
             extra_note = deepcopy(note)
             extra_note.lyric = 'R'
+            extra_note._alternative_tempo = note.tempo
             self._notes.insert(-1, extra_note)
 
     def write(self, path, mode='w', encoding='shift-jis'):
         """
-        USTを保存
+        USTをファイル出力
         """
         lines = []
         for note in self._notes:
@@ -209,6 +227,7 @@ class Note:
         self.__d = {}
         self.tag = '[#UNDEFINED]'
         self.lyric = None
+        self._alternative_tempo = None
 
     def __str__(self):
         return f'{self.tag} {self.lyric}\t<utaupy.ust.Note object>'
@@ -239,13 +258,23 @@ class Note:
 
     @property
     def length(self):
-        """ノート長を確認[samples]"""
+        """ノート長を確認[ticks]"""
         return int(self.__d['Length'])
 
     @length.setter
     def length(self, x):
-        """ノート長を上書き[samples]"""
+        """ノート長を上書き[ticks]"""
         self.__d['Length'] = str(x)
+
+    @property
+    def length_ms(self):
+        """ノート長を確認[ms]"""
+        return 125 * float(self.__d['Length']) / self.tempo
+
+    @length_ms.setter
+    def length_ms(self, x):
+        """ノート長を上書き[ms]"""
+        self.__d['Length'] = x * self.tempo // 125
 
     @property
     def lyric(self):
@@ -270,7 +299,10 @@ class Note:
     @property
     def tempo(self):
         """BPMを確認"""
-        return float(self.__d['Tempo'])
+        try:
+            return float(self.__d['Tempo'])
+        except KeyError:
+            return float(self._alternative_tempo)
 
     @tempo.setter
     def tempo(self, x):
@@ -281,23 +313,11 @@ class Note:
     # NOTE: msで長さ操作する二つ、テンポ取得を自動にしていい感じにしたい。
     def get_by_key(self, key):
         """ノートの特定の情報を上書きまたは登録"""
-        try:
-            return self.__d[key]
-        except KeyError as e:
-            print('KeyError Exception in get_by_key in ust.py line 284 : {}'.format(e))
-            return None
+        return self.__d[key]
 
     def set_by_key(self, key, x):
         """ノートの特定の情報を上書きまたは登録"""
         self.__d[key] = x
-
-    def get_length_ms(self, tempo):
-        """ノート長を確認[ms]"""
-        return 125 * float(self.__d['Length']) / float(tempo)
-
-    def set_length_ms(self, x, tempo):
-        """ノート長を上書き[ms]"""
-        self.__d['Length'] = x * tempo // 125
     # ここまでデータ操作系-----------------------------------------------------
 
     # ここからノート操作系-----------------------------------------------------
