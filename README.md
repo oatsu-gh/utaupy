@@ -9,18 +9,20 @@ LICENSE ファイルをご覧ください。
 ## 処理できるファイル
 
 - .ust (UTAU)
+- .txt (UTAU Plugin Script)
+- .txt (録音リスト)
 - .ini (setParam)
 - .lab (歌唱データベース用音素ラベル)
 - .table (ローマ字かな対応表)
-
-- UTAUプラグインの処理は準備中です（2020年3月26日時点）
+- .svp (Synthesizer V R2)
+- .csv (REAPER リージョン・マーカー用)
 
 
 
 ## 機能概要
 
 - INI, UST, LAB ファイルのデータをクラスオブジェクトとして扱います。
-- INI, UST, LAB ファイルを相互変換できます。ただし不可逆の処理が多いです。
+- INI, UST, LAB ファイルを変換できます。ただし不可逆の処理が多いです。
 
 
 
@@ -72,6 +74,3 @@ o.write(outpath, wav_name)    # ファイル出力
 - Twitter: @oatsu_c
 
 - GitHub: oatsu-gh
-
-
-
