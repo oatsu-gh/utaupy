@@ -46,8 +46,8 @@ def load(path, mode='r', encoding='shift-jis'):
     """
     ust = _ust.load(path, mode=mode, encoding=encoding)
     notes = ust.values
-    # PluginScriptオブジェクト化
-    plugin = PluginScript()
+    # UtauPluginオブジェクト化
+    plugin = UtauPlugin()
     plugin.version = notes.pop(0)
     plugin.setting = notes.pop(0)
     if notes[0].tag == '[#PREV]':
@@ -57,7 +57,7 @@ def load(path, mode='r', encoding='shift-jis'):
     plugin.notes = notes
     return plugin
 
-class PluginScript(_ust.Ust):
+class UtauPlugin(_ust.Ust):
     """
     UTAUプラグインの一時ファイル用のクラス
     UST用のクラスを継承
