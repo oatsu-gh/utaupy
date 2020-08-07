@@ -353,15 +353,15 @@ UTAUプラグインをつくるためのモジュール。utaupy.utauplugin.Utau
 使用例として半音上げプラグインを貼っておきます。
 
 ```Python
-import sys
 import utaupy
 
-def notenum_plus1(plugin):
+def notenum_plus1(utauplugin):
     """
+    utauplugin: utaupy.utauplugin.UtauPlugin class object
     全てのノートを半音上げる
     """
-    # Pluginオブジェクトのうちノート部分を取得
-    notes = plugin.notes
+    # UtauPluginオブジェクトのうちノート部分を取得
+    notes = utauplugin.notes
     # 半音上げ
     for note in notes:
         note.notenum += 1
