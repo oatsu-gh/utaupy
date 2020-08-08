@@ -160,6 +160,15 @@ class Ust:
         print('---------------------------------------------------------\n')
         return '120'
 
+    @tempo.setter
+    def tempo(self, tempo):
+        """
+        グローバルBPMを上書きする
+        """
+        self._notes[1].tempo = tempo
+        self._notes[2].tempo = tempo
+        self.reload_tempo()
+
     def reload_tempo(self):
         """
         各ノートでBPMが取得できるように
@@ -259,12 +268,12 @@ class Note:
 
     @property
     def length(self):
-        """ノート長を確認[ticks]"""
+        """ノート長を確認[Ticks]"""
         return int(self.__d['Length'])
 
     @length.setter
     def length(self, x):
-        """ノート長を上書き[ticks]"""
+        """ノート長を上書き[Ticks]"""
         self.__d['Length'] = str(x)
 
     @property
@@ -299,7 +308,7 @@ class Note:
 
     @property
     def tempo(self):
-        """BPMを確認"""
+        """ローカルBPMを取得"""
         try:
             return float(self.__d['Tempo'])
         except KeyError:
@@ -313,7 +322,7 @@ class Note:
     @property
     def pbs(self):
         """
-        PBS (mode2ピッチ開始位置) を取得
+        PBS (mode2ピッチ開始位置[ms]) を取得
         例) PBS=-104;20.0
         """
         # 辞書には文字列で登録してある
@@ -326,21 +335,19 @@ class Note:
     @pbs.setter
     def pbs(self, list_pbs):
         """
-        PBS (mode2ピッチ開始位置) を登録
+        PBS (mode2ピッチ開始位置[ms]) を登録
         例) PBS=-104;20.0
         """
-        # s1 = f'{int(list_pbs[0])};'
-        # s2 = ','.join(list_pbs[1:])
-        # str_pbs = s1 + s2
-        # self.__d['PBS'] = str_pbs
-        # まとめるとこうなる↓
-        str_pbs = f"{int(list_pbs[0])};{','.join(list_pbs[1:])}"
+        s1 = f'{int(list_pbs[0])};'
+        s2 = ','.join(map(str, list_pbs[1:]))
+
+        str_pbs = s1 + s2
         self.__d['PBS'] = str_pbs
 
     @property
     def pbw(self):
         """
-        PBW (mode2ピッチ点の間隔) を取得
+        PBW (mode2ピッチ点の間隔[ms]) を取得
         例) PBW=77,163
         """
         # 辞書には文字列で登録してある
@@ -353,17 +360,17 @@ class Note:
     @pbw.setter
     def pbw(self, list_pbw):
         """
-        PBW (mode2ピッチ点の間隔) を登録
+        PBW (mode2ピッチ点の間隔[ms]) を登録
         例) PBW=77,163
         """
         # リストを整数の文字列に変換
-        str_pbw = ','.join(list(map(int, list_pbw)))
+        str_pbw = ','.join(list(map(str, map(int, list_pbw))))
         self.__d['PBW'] = str_pbw
 
     @property
     def pby(self):
         """
-        PBY (mode2ピッチ点の間隔) を取得
+        PBY (mode2ピッチ点の高さ) を取得
         例) PBY=-10.6,0.0
         """
         # 辞書には文字列で登録してある
@@ -380,7 +387,7 @@ class Note:
         例) PBY=-10.6,0.0
         """
         # リストを小数の文字列に変換
-        str_pby = ','.join(list(map(float, list_pby)))
+        str_pby = ','.join(list(map(str, map(float, list_pby))))
         self.__d['PBY'] = str_pby
 
     @property
