@@ -3,6 +3,7 @@
 """
 USTファイルとデータを扱うモジュールです。
 """
+import re
 from copy import deepcopy
 
 
@@ -93,7 +94,7 @@ def load(path, mode='r', encoding='shift-jis'):
     # Ustクラスオブジェクト化
     u = Ust()
     u.values = notes
-    # 隠しパラメータ _alternative_tempo を全ノートに設定
+    # 隠しパラメータ alternative_tempo を全ノートに設定
     u.reload_tempo()
     return u
 
@@ -162,7 +163,7 @@ class Ust:
     def reload_tempo(self):
         """
         各ノートでBPMが取得できるように
-        独自パラメータ note._alternative_tempo を全ノートに仕込む
+        独自パラメータ note.alternative_tempo を全ノートに仕込む
         """
         current_tempo = self.tempo
         for note in self._notes[2:-1]:
@@ -170,7 +171,7 @@ class Ust:
                 current_tempo = note.get_by_key('Tempo')
             except KeyError:
                 pass
-            note._alternative_tempo = float(current_tempo)
+            note.alternative_tempo = float(current_tempo)
 
     # ノート一括編集系関数ここから----------------------------------------------
     def replace_lyrics(self, before, after):
@@ -197,7 +198,7 @@ class Ust:
             print('  末尾に休符を自動追加しました。')
             extra_note = deepcopy(note)
             extra_note.lyric = 'R'
-            extra_note._alternative_tempo = note.tempo
+            extra_note.alternative_tempo = note.tempo
             self._notes.insert(-1, extra_note)
 
     def write(self, path, mode='w', encoding='shift-jis'):
@@ -227,7 +228,7 @@ class Note:
         self.__d = {}
         self.tag = '[#UNDEFINED]'
         self.lyric = None
-        self._alternative_tempo = None
+        self.alternative_tempo = None
 
     def __str__(self):
         return f'{self.tag} {self.lyric}\t<utaupy.ust.Note object>'
@@ -302,15 +303,110 @@ class Note:
         try:
             return float(self.__d['Tempo'])
         except KeyError:
-            return float(self._alternative_tempo)
+            return float(self.alternative_tempo)
 
     @tempo.setter
     def tempo(self, x):
         """BPMを上書き"""
         self.__d['Tempo'] = x
 
+    @property
+    def pbs(self):
+        """
+        PBS (mode2ピッチ開始位置) を取得
+        例) PBS=-104;20.0
+        """
+        # 辞書には文字列で登録してある
+        str_pbs = self.__d['PBS']
+        # 浮動小数のリストに変換
+        list_pbs = list(map(float, re.split('[;,]', str_pbs)))
+        # PBSの値をリストで返す
+        return list_pbs
+
+    @pbs.setter
+    def pbs(self, list_pbs):
+        """
+        PBS (mode2ピッチ開始位置) を登録
+        例) PBS=-104;20.0
+        """
+        # s1 = f'{int(list_pbs[0])};'
+        # s2 = ','.join(list_pbs[1:])
+        # str_pbs = s1 + s2
+        # self.__d['PBS'] = str_pbs
+        # まとめるとこうなる↓
+        str_pbs = f"{int(list_pbs[0])};{','.join(list_pbs[1:])}"
+        self.__d['PBS'] = str_pbs
+
+    @property
+    def pbw(self):
+        """
+        PBW (mode2ピッチ点の間隔) を取得
+        例) PBW=77,163
+        """
+        # 辞書には文字列で登録してある
+        s_pbw = self.__d['PBW']
+        # 整数のリストに変換
+        l_pbw = list(map(int, s_pbw.split(',')))
+        # PBWの値をリストで返す
+        return l_pbw
+
+    @pbw.setter
+    def pbw(self, list_pbw):
+        """
+        PBW (mode2ピッチ点の間隔) を登録
+        例) PBW=77,163
+        """
+        # リストを整数の文字列に変換
+        str_pbw = ','.join(list(map(int, list_pbw)))
+        self.__d['PBW'] = str_pbw
+
+    @property
+    def pby(self):
+        """
+        PBY (mode2ピッチ点の間隔) を取得
+        例) PBY=-10.6,0.0
+        """
+        # 辞書には文字列で登録してある
+        s_pby = self.__d['PBY']
+        # 整数のリストに変換
+        l_pby = list(map(float, s_pby.split(',')))
+        # PBYの値をリストで返す
+        return l_pby
+
+    @pby.setter
+    def pby(self, list_pby):
+        """
+        PBY (mode2ピッチ点の高さ) を登録
+        例) PBY=-10.6,0.0
+        """
+        # リストを小数の文字列に変換
+        str_pby = ','.join(list(map(float, list_pby)))
+        self.__d['PBY'] = str_pby
+
+    @property
+    def pbm(self):
+        """
+        PBM (mode2ピッチ点の形状) を取得
+        例) PBY=-10.6,0.0
+        """
+        # 辞書には文字列で登録してある
+        s_pby = self.__d['PBM']
+        # 整数のリストに変換
+        l_pbm = s_pby.split(',')
+        # PBYの値をリストで返す
+        return l_pbm
+
+    @pbm.setter
+    def pbm(self, list_pbm):
+        """
+        PBM (mode2ピッチ点の形状) を登録
+        例) PBM=,r,j,s
+        """
+        # リストを文字列に変換
+        str_pbm = ','.join(list_pbm)
+        self.__d['PBM'] = str_pbm
+
     # ここからデータ操作系-----------------------------------------------------
-    # NOTE: msで長さ操作する二つ、テンポ取得を自動にしていい感じにしたい。
     def get_by_key(self, key):
         """ノートの特定の情報を上書きまたは登録"""
         return self.__d[key]
