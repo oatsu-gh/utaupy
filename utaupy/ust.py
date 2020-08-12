@@ -199,6 +199,23 @@ class Ust:
             note.lyric = note.lyric.split()[-1]
     # ノート一括編集系関数ここまで----------------------------------------------
 
+    def insert_note(self, i):
+        """
+        i 番目の区切りに新規ノートを挿入する。
+        このときの i は音符のみのインデックス。
+        編集するために、挿入したノートを返す。
+        """
+        note = Note()
+        note.tag = '[#INSERT]'
+        self.notes.insert(i, note)
+        return note
+
+    def delete_note(self, i):
+        """
+        i 番目のノートを [#DELETE] する。
+        """
+        self.notes[i].tag = '[#DELETE]'
+
     def make_finalnote_R(self):
         """Ustの最後のノートが必ず休符 になるようにする"""
         note = self._notes[-2]
@@ -429,10 +446,10 @@ class Note:
         self.tag = '[#DELETE]'
         return self
 
-    def insert(self):
-        """ノートを挿入(したい)"""
-        self.tag = '[#INSERT]'
-        return self
+    # def insert(self):
+    #     """ノートを挿入(したい)"""
+    #     self.tag = '[#INSERT]'
+    #     return self
 
     def refresh(self):
         """

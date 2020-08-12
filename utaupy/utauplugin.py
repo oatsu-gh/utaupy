@@ -57,6 +57,7 @@ def load(path, mode='r', encoding='shift-jis'):
     plugin.notes = notes
     return plugin
 
+
 class UtauPlugin(_ust.Ust):
     """
     UTAUプラグインの一時ファイル用のクラス
@@ -64,7 +65,7 @@ class UtauPlugin(_ust.Ust):
     """
 
     def __init__(self):
-        super().__init__() # self._note = []
+        super().__init__()  # self._note = []
         self.version = None  # [#VERSION]
         self.setting = None  # [#SETTING]
         self.prev = None  # [#PREV] のNoteオブジェクト
@@ -77,23 +78,6 @@ class UtauPlugin(_ust.Ust):
     @notes.setter
     def notes(self, l):
         self._notes = l
-
-    def insert_note(self, i):
-        """
-        i 番目の区切りに新規ノートを挿入する。
-        このときの i は音符のみのインデックス。
-        編集するために、挿入したノートを返す。
-        """
-        note = _ust.Note()
-        note.tag = '[#INSERT]'
-        self.notes.insert(i, note)
-        return note
-
-    def delete_note(self, i):
-        """
-        i 番目のノートを [#DELETE] する。
-        """
-        self.notes[i].tag = '[#DELETE]'
 
 
 if __name__ == '__main__':
