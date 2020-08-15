@@ -5,3 +5,4 @@ dist
 utaupy.egg-info
 *.lnk
 __pycache__*
+PyPIに投げるやつ.bat
