@@ -1,4 +1,5 @@
 desktop.ini
 test.py
+*.bat
 *.lnk
 __pycache__*

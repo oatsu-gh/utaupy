@@ -129,7 +129,7 @@ class Phoneme:
         値を確認する用に一応実装
         setterは用意しない
         """
-        d = {'self.start':self.start,
+        d = {'self.start': self.start,
              'self.end': self.end,
              'self.symbol': self.symbol}
         return d
