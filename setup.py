@@ -4,9 +4,9 @@
 """
 Python script for PyPI registation
 """
-from setuptools import setup
+from setuptools import find_packages, setup
 
-version = '1.6.0.0'
+version = '1.6.1'
 
 try:
     with open("README.md", mode='r') as f:
@@ -26,6 +26,7 @@ setup(
     maintainer='oatsu',
     maintainer_email='panchi.psp@gmail.com',
     url='https://github.com/oatsu-gh/utaupy',
+    packages=find_packages(),
     install_requires=['pprint'],
     classifiers=[
         'Programming Language :: Python :: 3'
