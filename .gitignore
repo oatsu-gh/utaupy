@@ -3,6 +3,5 @@ desktop.ini
 test.py
 dist
 utaupy.egg-info
-*.bat
 *.lnk
 __pycache__*
