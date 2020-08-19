@@ -18,9 +18,9 @@ def load(path, mode='r', encoding='shift-jis'):
     # otoiniファイルを読み取る
     with open(path, mode=mode, encoding=encoding) as f:
         l = [re.split('[=,]', s.strip()) for s in f.readlines()]
-    # 入力ファイル末尾の空白行を除去
-    while l[-1] == ['']:
-        del l[-1]
+    # # 入力ファイル末尾の空白行を除去
+    # while l[-1] == ['']:
+    #     del l[-1]
 
     # Otoクラスオブジェクトのリストを作る
     otolist = []
@@ -150,6 +150,9 @@ class Oto:
                 'Consonant', 'Cutoff', 'Preutterance', 'Overlap')
         tpl = (None, None, 0, 0, 0, 0, 0, 0)
         self.__d = dict(zip(keys, tpl))
+
+    def __str__(self):
+        return f'\'{self.alias}\'\t<utaupy.otoini.Oto object at {id(self)}>'
 
     def from_otoini(self, l):
         """1音分のリストをもらってクラスオブジェクトにする"""
