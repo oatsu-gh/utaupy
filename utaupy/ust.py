@@ -94,6 +94,8 @@ def load(path, mode='r', encoding='shift-jis'):
     # Ustクラスオブジェクト化
     u = Ust()
     u.values = notes
+    u.version = notes[0]
+    u.setting = notes[1]
     # 隠しパラメータ alternative_tempo を全ノートに設定
     u.reload_tempo()
     return u
@@ -106,6 +108,8 @@ class Ust:
         """インスタンス作成"""
         # ノート(クラスオブジェクト)からなるリスト
         self._notes = []
+        self.version = None
+        self.setting = None
 
     def __len__(self):
         return len(self._notes)
