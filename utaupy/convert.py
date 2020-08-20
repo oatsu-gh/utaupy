@@ -316,6 +316,7 @@ def otoini2label(otoini, mode='auto', debug=False):
     phoneme = _label.Phoneme()
     phoneme.start = int(time_order_ratio * (oto.offset + oto.preutterance))
     phoneme.end = int(time_order_ratio * oto.cutoff2)  # 発声終了位置は右ブランク
+    phoneme.symbol = tmp[-1][1]
     phonemes.append(phoneme)
 
     # Labelクラスオブジェクト化
