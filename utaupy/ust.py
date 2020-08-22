@@ -235,8 +235,9 @@ class Ust:
         """
         USTをファイル出力
         """
+        duplicated_self = deepcopy(self)
         lines = []
-        for note in self._notes:
+        for note in duplicated_self.values:
             # ノートを解体して行のリストにする
             d = note.values
             # DEBUG: popするせいでwriteのあとにTagを取得できなくなる
@@ -254,11 +255,11 @@ class Ust:
 class Note:
     """UST内のノート"""
 
-    def __init__(self):
+    def __init__(self, tag='[#UNDEFINED]', lyric=None):
         self.__d = {}
-        self.tag = '[#UNDEFINED]'
-        self.lyric = None
-        self.alternative_tempo = None
+        self.tag = tag
+        self.lyric = lyric
+        self.alternative_tempo = 120
 
     def __str__(self):
         return f'{self.tag} {self.lyric}\t<utaupy.ust.Note object>'
