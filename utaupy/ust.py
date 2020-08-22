@@ -240,10 +240,12 @@ class Ust:
         for note in duplicated_self.values:
             # ノートを解体して行のリストにする
             d = note.values
-            # DEBUG: popするせいでwriteのあとにTagを取得できなくなる
+            # DELETE なノートはファイル出力しない
+            if d['Tag'] == '[#DELETE]':
+                continue
             lines.append(d.pop('Tag'))
             for k, v in d.items():
-                lines.append('{}={}'.format(str(k), str(v)))
+                lines.append(f'{str(k)}={str(v)}')
         # 出力用の文字列
         s = '\n'.join(lines)
         # ファイル出力

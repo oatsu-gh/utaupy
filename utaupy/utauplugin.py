@@ -8,6 +8,7 @@ UTAUのプラグイン用のモジュール
 【注意】本スクリプトは開発初期なため仕様変更が激しいです。
 """
 
+from copy import deepcopy
 from pprint import pprint
 from sys import argv
 
@@ -78,6 +79,26 @@ class UtauPlugin(_ust.Ust):
     @notes.setter
     def notes(self, l):
         self._notes = l
+
+    def write(self, path, mode='w', encoding='shift-jis'):
+        """
+        プラグイン用のテキストをファイル出力する。
+        UST と違って[#DELETE]でも書き込む。
+        """
+        duplicated_self = deepcopy(self)
+        lines = []
+        for note in duplicated_self.values:
+            # ノートを解体して行のリストにする
+            d = note.values
+            lines.append(d.pop('Tag'))
+            for k, v in d.items():
+                lines.append('{}={}'.format(str(k), str(v)))
+        # 出力用の文字列
+        s = '\n'.join(lines)
+        # ファイル出力
+        with open(path, mode=mode, encoding=encoding) as f:
+            f.write(s)
+        return s
 
 
 if __name__ == '__main__':
