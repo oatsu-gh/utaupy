@@ -62,9 +62,17 @@ class OtoIni:
         モノフォン形式のエイリアスになっているか判定する。
         返り値はbool。
         """
-        return all(len(v.alias.split()) == 1 for v in self.values)
+        return all(len(v.alias.split()) == 1 for v in self.__values)
 
-    def kana2romaji(self, d_table, replace=True):
+    def as_dict(self):
+        """
+        辞書に変換して返す。
+        エイリアスが重複していると古いほうは消される。
+        """
+        d = {oto.alias: oto for oto in self.__values}
+        return d
+
+    def kana2romaji(self, d_table):
         """
         エイリアスをローマ字にする
         replace:
@@ -205,6 +213,26 @@ class Oto:
     def offset(self, x):
         """左ブランクを上書きする"""
         self.__d['Offset'] = x
+
+    @property
+    def offset2(self):
+        """左ブランクの値を取得する"""
+        return self.__d['Offset']
+
+    @offset2.setter
+    def offset2(self, x):
+        """
+        左ブランクの値を上書きする
+        左ブランクが変化した分だけほかのパラメータの数値を調整するため、
+        ほかの値の絶対時刻を変化させず、左ブランクだけを移動できる。
+        """
+        original_offset = self.__d['Offset']
+        self.__d['Offset'] = x
+        dt = self.__d['Offset'] - original_offset
+        self.__d['Overlap'] += dt
+        self.__d['Preutterance'] += dt
+        self.__d['Consonant'] += dt
+        self.cutoff2 += dt
 
     @property
     def consonant(self):
