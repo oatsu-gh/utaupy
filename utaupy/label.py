@@ -94,21 +94,42 @@ class Label:
         値を登録
         """
         if not isinstance(phonemes, list):
-            raise TypeError('argument \'phonemes\' must be list instance (values.setter in utaupy.label.py)')
+            raise TypeError(
+                'argument \'phonemes\' must be list instance (values.setter in utaupy.label.py)')
         self.__phonemes = phonemes
 
-    def write(self, path, mode='w', encoding='utf-8', newline='\n', delimiter=' ', kiritan=False):
+    def check_invalid_time(self, threshold=1):
+        """
+        発声時間が一定未満な音素ラベル行を検出
+        threshold: 許容される最小の発声時間(ms)
+        """
+        threshold_100ns = int(threshold * (10**4))
+        for i, phoneme in enumerate(self.__phonemes):
+            duration = phoneme.end - phoneme.start
+            if duration < threshold_100ns:
+                start = phoneme.start
+                end = phoneme.end
+                s_now = phoneme.symbol
+                s_prev = phoneme.values[i - 1].symbol
+                s_next = phoneme.values[i + 1].symbol
+                print(
+                    f'    [ERROR] 発声時間が {threshold_100ns}ms 未満か負です : {start} {end} ({s_prev}) {s_now} ({s_next})')
+
+    def write(self, path_out, mode='w',
+              encoding='utf-8', newline='\n', delimiter=' ', kiritan=False):
         """
         LABファイルを書き出し
         """
         # 出力用の文字列
-        phonemes = self.values
+        phonemes = self.__phonemes
         if kiritan:
-            lines = ['{:.7f} {:.7f} {}'.format(ph.start, ph.end, ph.symbol) for ph in phonemes]  # 100ns -> 1s 表記変換
+            lines = ['{:.7f} {:.7f} {}'.format(ph.start, ph.end, ph.symbol)
+                     for ph in phonemes]  # 100ns -> 1s 表記変換
         else:
-            lines = ['{0}{3}{1}{3}{2}'.format(ph.start, ph.end, ph.symbol, delimiter) for ph in phonemes]
+            lines = ['{0}{3}{1}{3}{2}'.format(
+                ph.start, ph.end, ph.symbol, delimiter) for ph in phonemes]
         # ファイル出力
-        with open(path, mode=mode, encoding=encoding, newline=newline) as f:
+        with open(path_out, mode=mode, encoding=encoding, newline=newline) as f:
             f.write('\n'.join(lines))
         return lines
 
@@ -122,6 +143,9 @@ class Phoneme:
         self.start = None   # 発声開始位置
         self.end = None     # 発声終了位置
         self.symbol = None  # 発音記号
+
+    def __str__(self):
+        return f'{self.start} {self.end} {self.symbol} \t<utaupy.label.Phoneme class object>'
 
     @property
     def values(self):
