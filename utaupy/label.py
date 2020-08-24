@@ -98,7 +98,7 @@ class Label:
                 'argument \'phonemes\' must be list instance (values.setter in utaupy.label.py)')
         self.__phonemes = phonemes
 
-    def check_invalid_time(self, threshold=1):
+    def check_invalid_time(self, threshold=0):
         """
         発声時間が一定未満な音素ラベル行を検出
         threshold: 許容される最小の発声時間(ms)
