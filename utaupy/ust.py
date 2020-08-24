@@ -257,14 +257,16 @@ class Ust:
 class Note:
     """UST内のノート"""
 
-    def __init__(self, tag='[#UNDEFINED]', lyric=None):
+    def __init__(self, tag='[#UNDEFINED]'):
         self.__d = {}
         self.tag = tag
-        self.lyric = lyric
         self.alternative_tempo = 120
 
     def __str__(self):
-        return f'{self.tag} {self.lyric}\t<utaupy.ust.Note object>'
+        try:
+            return f'{self.tag} {self.lyric}\t<utaupy.ust.Note object>'
+        except KeyError:
+            return f'{self.tag} {None}\t<utaupy.ust.Note object>'
 
     @property
     def values(self):
