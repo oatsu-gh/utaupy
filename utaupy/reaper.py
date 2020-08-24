@@ -1,4 +1,4 @@
-#!python3
+#! /usr/bin/env python3
 # coding: utf-8
 # Copyright (c) oatsu
 """
@@ -91,11 +91,9 @@ class RegionCsv:
         """
         self.__l = l
 
-
     def append(self, region):
         """Regionオブジェクトを末尾に追加"""
         self.__l.append(region)
-
 
     def write(self, path, mode='w'):
         """

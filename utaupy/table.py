@@ -1,4 +1,4 @@
-#!python3
+#! /usr/bin/env python3
 # coding: utf-8
 """
 日本語とアルファベットの対応表を扱うモジュールです。

@@ -1,4 +1,4 @@
-#!python3
+#! /usr/bin/env python33
 # coding: utf-8
 """
 歌唱データベース用のLABファイルとデータを扱うモジュールです。

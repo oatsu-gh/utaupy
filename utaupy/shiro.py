@@ -1,4 +1,4 @@
-#!python3
+#! /usr/bin/env python3
 # coding: utf-8
 """
 SHIRO (https://github.com/Sleepwalking/SHIRO) 関連のファイルを扱う。
