@@ -104,16 +104,14 @@ class Label:
         threshold: 許容される最小の発声時間(ms)
         """
         threshold_100ns = int(threshold * (10**4))
-        for i, phoneme in enumerate(self.__phonemes):
+        for phoneme in self.__phonemes:
             duration = phoneme.end - phoneme.start
             if duration < threshold_100ns:
                 start = phoneme.start
                 end = phoneme.end
                 s_now = phoneme.symbol
-                s_prev = phoneme.values[i - 1].symbol
-                s_next = phoneme.values[i + 1].symbol
                 print(
-                    f'    [ERROR] 発声時間が {threshold_100ns}ms 未満か負です : {start} {end} ({s_prev}) {s_now} ({s_next})')
+                    f'    [ERROR] 発声時間が {threshold_100ns}ms 未満か負です : {phoneme}')
 
     def write(self, path_out, mode='w',
               encoding='utf-8', newline='\n', delimiter=' ', kiritan=False):
