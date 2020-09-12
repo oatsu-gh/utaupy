@@ -34,26 +34,17 @@ def load(path, mode='r', encoding='shift-jis'):
     return o
 
 
-class OtoIni:
+class OtoIni(list):
     """oto.iniを想定したクラス"""
-
-    def __init__(self):
-        # 'Oto'クラスからなるリスト
-        self.__values = []
 
     @property
     def values(self):
         """中身を確認する"""
-        return self.__values
-
-    @values.setter
-    def values(self, list_of_oto):
-        """中身を上書きする"""
-        self.__values = list_of_oto
+        return self
 
     def replace_aliases(self, before, after):
         """エイリアスを置換する"""
-        for oto in self.__values:
+        for oto in self:
             oto.alias = oto.alias.replace(before, after)
         return self
 
@@ -62,14 +53,14 @@ class OtoIni:
         モノフォン形式のエイリアスになっているか判定する。
         返り値はbool。
         """
-        return all(len(v.alias.split()) == 1 for v in self.__values)
+        return all(len(v.alias.split()) == 1 for v in self)
 
     def as_dict(self):
         """
         辞書に変換して返す。
         エイリアスが重複していると古いほうは消される。
         """
-        d = {oto.alias: oto for oto in self.__values}
+        d = {oto.alias: oto for oto in self}
         return d
 
     def kana2romaji(self, d_table):
@@ -79,7 +70,7 @@ class OtoIni:
           Trueのときエイリアスをローマ字に書き換え
           Falseのときエイリアスは平仮名のまま
         """
-        for oto in self.__values:
+        for oto in self:
             try:
                 oto.alias = ' '.join(d_table[oto.alias])
             except KeyError as e:
@@ -92,11 +83,10 @@ class OtoIni:
         音素の発声開始位置: 左ブランク=先行発声
         """
         # 新規OtoIniを作るために、otoを入れるリスト
-        l = []
-        for oto in self.__values:
+        for oto in self:
             phonemes = oto.alias.split()
             if len(phonemes) == 1:
-                l.append(oto)
+                self.append(oto)
             elif len(phonemes) in [2, 3]:
                 name_wav = oto.filename
                 # 1文字目(オーバーラップから先行発声まで)------------
@@ -105,14 +95,14 @@ class OtoIni:
                 mono_oto.alias = phonemes[0]
                 mono_oto.offset = oto.offset + oto.overlap  # オーバーラップの位置に左ブランクを移動
                 mono_oto.preutterance = 0
-                l.append(mono_oto)
+                self.append(mono_oto)
                 # 2文字目(先行発声から固定範囲まで)----------------
                 mono_oto = Oto()
                 mono_oto.filename = name_wav
                 mono_oto.alias = phonemes[1]
                 mono_oto.offset = oto.offset + oto.preutterance  # 先行発声の位置に左ブランクを移動
                 mono_oto.preutterance = 0
-                l.append(mono_oto)
+                self.append(mono_oto)
                 if len(phonemes) == 3:
                     # 3文字目(固定範囲から右ブランクまで)----------------
                     mono_oto = Oto()
@@ -120,20 +110,21 @@ class OtoIni:
                     mono_oto.alias = phonemes[2]
                     mono_oto.offset = oto.offset + oto.consonant  # 固定範囲の位置に左ブランクを移動
                     mono_oto.preutterance = 0
-                    l.append(mono_oto)
+                    self.append(mono_oto)
             else:
                 print('\n[ERROR in otoini.monophonize()]----------------')
                 print('  エイリアスの音素数は 1, 2, 3 以外対応していません。')
                 print('  phonemes: {}'.format(phonemes))
                 print('  文字を連結して処理を続行します。')
                 print('-----------------------------------------------\n')
-                l.append(oto)
-        self.__values = l
+                self.append(oto)
+        return self
+
 
     def write(self, path, mode='w', encoding='shift-jis'):
         """OtoIniクラスオブジェクトをINIファイルに出力"""
         s = ''
-        for oto in self.__values:
+        for oto in self:
             l = []
             l.append(oto.filename)
             l.append(oto.alias)
