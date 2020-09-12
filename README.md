@@ -322,9 +322,9 @@ UTAUの原音設定ファイルを扱うモジュール。setParamでの利用�
 
 ---
 
-### OtoIni
+### OtoIni(*list*)
 
-oto.ini ファイルを扱うためのクラス。
+oto.ini ファイルを扱うためのクラス。list を継承。
 
 ---
 
