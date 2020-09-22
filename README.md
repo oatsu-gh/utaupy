@@ -1,7 +1,7 @@
 # utaupy
+[![PyPI](https://img.shields.io/pypi/v/utaupy.svg)](https://pypi.python.org/pypi/utaupy)
 
-UTAU周辺のデータ処理を行うPythonのパッケージです。READMEは書いてる途中です。
-
+UTAU周辺のデータ処理を行うPythonのパッケージです。READMEは書いてる途中です。  
 PythonでUTAUプラグインを作りたい場合は、C# 用の **[utauPlugin](https://github.com/delta-kimigatame/utauPlugin)** をPythonに移植した **[pyUtau](https://github.com/UtaUtaUtau/pyUtau)** のほうがいいかもしれません。ビブラートやピッチの扱いが便利そうです。
 
 ## 利用規約
@@ -53,7 +53,7 @@ print(s)  # C4
 
 ---
 
-### Ust
+### Ust(*list*)
 
 UST ファイルを取り扱うための class
 
@@ -83,17 +83,6 @@ Ust オブジェクトをファイル出力にする。出力した文字列を�
 ```Python
 ust.write(path)  # type(path): str
 # return strings written in ustfile
-```
-
-#### property: _values_
-
-トラック情報を含む全ノートをリストで取得または登録する。
-
-```Python
-# Getter
-l = ust.values  # l: [Note, Note, Note, ..., Note] <list of utaupy.ust.Note objects>
-# Setter
-ust.values = l  # l: [Note, Note, Note, ..., Note] <list of utaupy.ust.Note objects>
 ```
 
 #### property: _notes_
