@@ -66,7 +66,7 @@ def load(path, mode='r', encoding='shift-jis'):
     l = [v.split('\n') for v in l]
 
     # ノートのリストを作る
-    notes = []
+    ust = Ust()
     for lines in l:
         note = Note()
         # ノートの種類
@@ -82,42 +82,39 @@ def load(path, mode='r', encoding='shift-jis'):
             for line in lines[1:]:
                 key, value = line.split('=', 1)
                 note.set_by_key(key, value)
-        notes.append(note)
+        ust.append(note)
 
     # 旧形式の場合にタグの数を合わせる
-    if notes[0].tag != r'[#VERSION]':
-        version = notes[0].get_by_key('UstVersion')
+    if ust[0].tag != r'[#VERSION]':
+        version = ust[0].get_by_key('UstVersion')
         note = Note()
         note.tag = '[#VERSION]'
         note.set_by_key('UstVersion', version)
-        notes.insert(0, note)  # リスト先頭に挿入
+        ust.insert(0, note)  # リスト先頭に挿入
     # Ustクラスオブジェクト化
-    u = Ust()
-    u.values = notes
-    u.version = notes[0]
-    u.setting = notes[1]
+    ust.version = ust[0]
+    ust.setting = ust[1]
     # 隠しパラメータ alternative_tempo を全ノートに設定
-    u.reload_tempo()
-    return u
+    ust.reload_tempo()
+    return ust
 
 
-class Ust:
+class Ust(list):
     """UST"""
 
     def __init__(self):
-        """インスタンス作成"""
+        super().__init__()
         # ノート(クラスオブジェクト)からなるリスト
-        self._notes = []
         self.version = None
         self.setting = None
 
     def __len__(self):
-        return len(self._notes)
+        return len(self)
 
     @property
     def values(self):
         """中身を見る"""
-        return self._notes
+        return self
 
     @values.setter
     def values(self, l):
@@ -127,7 +124,7 @@ class Ust:
         """
         if not isinstance(l, list):
             raise TypeError('argument \"l\" must be list instance')
-        self._notes = l
+        self = l
         self.reload_tempo()
         return self
 
@@ -136,7 +133,7 @@ class Ust:
         """
         全セクションのうち、VERSION と SETTING TRACKEND を除いたノート部分を取得
         """
-        return self._notes[2:-1]
+        return self[2:-1]
 
     @notes.setter
     def notes(self, l):
@@ -145,7 +142,7 @@ class Ust:
         """
         if not isinstance(l, list):
             raise TypeError('argument \"l\" must be list instance')
-        self._notes = self._notes[:2] + l + self._notes[-1:]
+        self = self[:2] + l + self[-1:]
         self.reload_tempo()
         return self
 
@@ -153,10 +150,10 @@ class Ust:
     def tempo(self):
         """全体のBPMを見る"""
         try:
-            project_tempo = self._notes[1].tempo
+            project_tempo = self[1].tempo
             return project_tempo
         except KeyError:
-            first_note_tempo = self._notes[2].tempo
+            first_note_tempo = self[2].tempo
             return first_note_tempo
 
         print('[ERROR]--------------------------------------------------')
@@ -169,8 +166,8 @@ class Ust:
         """
         グローバルBPMを上書きする
         """
-        self._notes[1].tempo = tempo
-        self._notes[2].tempo = tempo
+        self[1].tempo = tempo
+        self[2].tempo = tempo
         self.reload_tempo()
 
     def reload_tempo(self):
@@ -179,7 +176,7 @@ class Ust:
         独自パラメータ note.alternative_tempo を全ノートに仕込む
         """
         current_tempo = self.tempo
-        for note in self._notes[2:-1]:
+        for note in self[2:-1]:
             try:
                 current_tempo = note.get_by_key('Tempo')
             except KeyError:
@@ -189,17 +186,17 @@ class Ust:
     # ノート一括編集系関数ここから----------------------------------------------
     def replace_lyrics(self, before, after):
         """歌詞を一括置換（文字列指定・破壊的処理）"""
-        for note in self._notes[2:-1]:
+        for note in self[2:-1]:
             note.lyric = note.lyric.replace(before, after)
 
     def translate_lyrics(self, before, after):
         """歌詞を一括置換（複数文字指定・破壊的処理）"""
-        for note in self._notes[2:-1]:
+        for note in self[2:-1]:
             note.lyric = note.lyric.translate(before, after)
 
     def vcv2cv(self):
         """歌詞を平仮名連続音から単独音にする"""
-        for note in self._notes[2:-1]:
+        for note in self[2:-1]:
             note.lyric = note.lyric.split()[-1]
     # ノート一括編集系関数ここまで----------------------------------------------
 
@@ -222,14 +219,14 @@ class Ust:
 
     def make_finalnote_R(self):
         """Ustの最後のノートが必ず休符 になるようにする"""
-        note = self._notes[-2]
+        note = self[-2]
         # Ust内の最後はTRACKENDなので後ろから2番目のノートで判定
         if note.lyric not in ('pau', 'sil', 'R'):
             print('  末尾に休符を自動追加しました。')
             extra_note = deepcopy(note)
             extra_note.lyric = 'R'
             extra_note.alternative_tempo = note.tempo
-            self._notes.insert(-1, extra_note)
+            self.insert(-1, extra_note)
 
     def write(self, path, mode='w', encoding='shift-jis'):
         """
