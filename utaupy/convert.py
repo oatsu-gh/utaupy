@@ -27,32 +27,29 @@ def svp2ust(svp, debug=False):
     svnotes = svp['tracks'][0]['mainGroup']['notes']
 
     # ust.Noteを入れておくリスト
-    l = []
+    ust = _ust.Ust()
     # バージョン情報の空ノートを追加
     utaunote = _ust.Note()
-    l.append(utaunote)
+    ust.append(utaunote)
     # プロジェクト設定のノートを追加
     utaunote = _ust.Note()
     utaunote.set_by_key('Tempo', svp['time']['tempo'][0]['bpm'])
-    l.append(utaunote)
+    ust.append(utaunote)
 
     # 前奏の休符を追加
     utaunote = _ust.Note()
     utaunote.lyric = 'R'
     utaunote.length = svnotes[0]['onset'] // 1470000
-    l.append(utaunote)
+    ust.append(utaunote)
 
     # DEBUG: 休符が挟まってるかどうかを判定して、休符を追加する処理を実装する必要がある。
     for svnote in svnotes:
         utaunote = _ust.Note()
         utaunote.lyric = svnote['lyrics']
         utaunote.length = svnote['duration'] // 1470000
-        l.append(utaunote)
+        ust.append(utaunote)
         if debug:
             print(utaunote.values)
-
-    ust = _ust.Ust()
-    ust.values = l
     return ust
 
 
@@ -93,12 +90,11 @@ def ust2otoini_mono(ust, name_wav, d_table, dt=100, debug=False):
     -------------------------------------------------------------------------
     """
     ust.make_finalnote_R()  # 最終ノートが休符じゃない場合を対策
-    notes = ust.values
 
     # UstのNoteオブジェクトごとにOtoオブジェクトを生成
     kana_otoini = _otoini.OtoIni()  # simple_otoを入れるリスト
     t = 0  # ノート開始時刻を記録
-    for note in notes[2:-1]:
+    for note in ust[2:-1]:
         length = note.length_ms
         simple_oto = _otoini.Oto()  # 各パラメータ位置を両端に集めたOto
         simple_oto.filename = name_wav
@@ -208,14 +204,13 @@ def ust2otoini_romaji_cv(ust, name_wav, d_table, dt=100, replace=True, debug=Fal
       |   (dt)ms   |    (dt)ms    |  (dt)ms  |  (dt)ms  | (length-2dt)ms |
     """
     ust.make_finalnote_R()  # 最終ノートが休符じゃない場合を対策
-    notes = ust.values
     otoini = _otoini.OtoIni()
     t = 0  # ノート開始時刻を記録
 
     # NOTE: ここnotes[2:-1]とust.values[2:-1]で処理時間に差は出る？
-    for note in notes[2:-1]:
+    for note in ust[2:-1]:
         if debug:
-            print(f'    {note.values}')
+            print(f'    {ust}')
         try:
             phonemes = d_table[note.lyric]
         except KeyError as e:
@@ -283,7 +278,7 @@ def otoini2label(otoini, mode='auto', debug=False):
     if mode == 'romaji_cv':
         print('  mode: OtoIni(romaji_cv) -> Label(mono)')
         # モノフォン化
-        otoini.monophonize()
+        otoini = otoini.monophonize()
     elif mode == 'mono':
         print('  mode: OtoIni(mono) -> Label(mono)')
     else:
@@ -291,8 +286,7 @@ def otoini2label(otoini, mode='auto', debug=False):
 
     # 計算の重複を避けるために [[発音開始時刻, 発音記号], ...] の仮リストにする
     tmp = []
-    otoini_values = otoini.values
-    for oto in otoini_values:
+    for oto in otoini:
         if debug:
             print(f'    {oto.values}')
         t_start = int(time_order_ratio * (oto.offset + oto.preutterance))
@@ -308,7 +302,7 @@ def otoini2label(otoini, mode='auto', debug=False):
         label.append(phoneme)
 
     # 最終Otoだけ終了位置が必要なので 特別な処理
-    oto = otoini_values[-1]
+    oto = otoini[-1]
     phoneme = _label.Phoneme()
     phoneme.start = int(time_order_ratio * (oto.offset + oto.preutterance))
     phoneme.end = int(time_order_ratio * oto.cutoff2)  # 発声終了位置は右ブランク
@@ -330,7 +324,7 @@ def label2otoini(label, name_wav):
 
     otoini = _otoini.OtoIni()
     # 各音素PhonemeオブジェクトをOtoオブジェクトに変換して、OtoIniに格納する。
-    for phoneme in label.values:
+    for phoneme in label:
         oto = _otoini.Oto()
         oto.filename = name_wav
         oto.alias = phoneme.symbol
