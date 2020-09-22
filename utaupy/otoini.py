@@ -23,15 +23,13 @@ def load(path, mode='r', encoding='shift-jis'):
     #     del l[-1]
 
     # Otoクラスオブジェクトのリストを作る
-    otolist = []
+    otoini = OtoIni()
     for v in l:
         oto = Oto()
         oto.from_otoini(v)
-        otolist.append(oto)
+        otoini.append(oto)
     # OtoIniクラスオブジェクト化
-    o = OtoIni()
-    o.values = otolist
-    return o
+    return otoini
 
 
 class OtoIni(list):
@@ -83,10 +81,11 @@ class OtoIni(list):
         音素の発声開始位置: 左ブランク=先行発声
         """
         # 新規OtoIniを作るために、otoを入れるリスト
+        mono_otoini = OtoIni()
         for oto in self:
             phonemes = oto.alias.split()
             if len(phonemes) == 1:
-                self.append(oto)
+                mono_otoini.append(oto)
             elif len(phonemes) in [2, 3]:
                 name_wav = oto.filename
                 # 1文字目(オーバーラップから先行発声まで)------------
@@ -95,14 +94,14 @@ class OtoIni(list):
                 mono_oto.alias = phonemes[0]
                 mono_oto.offset = oto.offset + oto.overlap  # オーバーラップの位置に左ブランクを移動
                 mono_oto.preutterance = 0
-                self.append(mono_oto)
+                mono_otoini.append(mono_oto)
                 # 2文字目(先行発声から固定範囲まで)----------------
                 mono_oto = Oto()
                 mono_oto.filename = name_wav
                 mono_oto.alias = phonemes[1]
                 mono_oto.offset = oto.offset + oto.preutterance  # 先行発声の位置に左ブランクを移動
                 mono_oto.preutterance = 0
-                self.append(mono_oto)
+                mono_otoini.append(mono_oto)
                 if len(phonemes) == 3:
                     # 3文字目(固定範囲から右ブランクまで)----------------
                     mono_oto = Oto()
@@ -110,15 +109,15 @@ class OtoIni(list):
                     mono_oto.alias = phonemes[2]
                     mono_oto.offset = oto.offset + oto.consonant  # 固定範囲の位置に左ブランクを移動
                     mono_oto.preutterance = 0
-                    self.append(mono_oto)
+                    mono_otoini.append(mono_oto)
             else:
                 print('\n[ERROR in otoini.monophonize()]----------------')
                 print('  エイリアスの音素数は 1, 2, 3 以外対応していません。')
                 print('  phonemes: {}'.format(phonemes))
                 print('  文字を連結して処理を続行します。')
                 print('-----------------------------------------------\n')
-                self.append(oto)
-        return self
+                mono_otoini.append(oto)
+        return mono_otoini
 
 
     def write(self, path, mode='w', encoding='shift-jis'):
@@ -205,25 +204,25 @@ class Oto:
         """左ブランクを上書きする"""
         self.__d['Offset'] = x
 
-    @property
-    def offset2(self):
-        """左ブランクの値を取得する"""
-        return self.__d['Offset']
-
-    @offset2.setter
-    def offset2(self, x):
-        """
-        左ブランクの値を上書きする
-        左ブランクが変化した分だけほかのパラメータの数値を調整するため、
-        ほかの値の絶対時刻を変化させず、左ブランクだけを移動できる。
-        """
-        original_offset = self.__d['Offset']
-        self.__d['Offset'] = x
-        dt = self.__d['Offset'] - original_offset
-        self.__d['Overlap'] += dt
-        self.__d['Preutterance'] += dt
-        self.__d['Consonant'] += dt
-        self.cutoff2 += dt
+    # @property
+    # def offset2(self):
+    #     """左ブランクの値を取得する"""
+    #     return self.__d['Offset']
+    #
+    # @offset2.setter
+    # def offset2(self, x):
+    #     """
+    #     左ブランクの値を上書きする
+    #     左ブランクが変化した分だけほかのパラメータの数値を調整するため、
+    #     ほかの値の絶対時刻を変化させず、左ブランクだけを移動できる。
+    #     """
+    #     original_offset = self.__d['Offset']
+    #     self.__d['Offset'] = x
+    #     dt = self.__d['Offset'] - original_offset
+    #     self.__d['Overlap'] += dt
+    #     self.__d['Preutterance'] += dt
+    #     self.__d['Consonant'] += dt
+    #     self.cutoff2 += dt
 
     @property
     def consonant(self):
