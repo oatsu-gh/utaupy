@@ -1,8 +1,9 @@
+__pycache__*
 build
 desktop.ini
-test.py
 dist
+PyPIに投げるやつ.bat
+setparam.py
+test.py
 utaupy.egg-info
 *.lnk
-__pycache__*
-PyPIに投げるやつ.bat
