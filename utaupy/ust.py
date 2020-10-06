@@ -86,7 +86,11 @@ def load(path, mode='r', encoding='shift-jis'):
 
     # 旧形式の場合にタグの数を合わせる
     if ust[0].tag != r'[#VERSION]':
-        version = ust[0].get_by_key('UstVersion')
+        try:
+            version = ust[0].get_by_key('UstVersion')
+        except KeyError:
+            print('WARN: USTのバージョンが古いのでUTAUをアップデートしてください。')
+            version = 'older_than_1.19'
         note = Note()
         note.tag = '[#VERSION]'
         note.set_by_key('UstVersion', version)
