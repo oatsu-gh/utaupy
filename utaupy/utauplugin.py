@@ -46,16 +46,15 @@ def load(path, mode='r', encoding='shift-jis'):
     USTのやつを一部改変
     """
     ust = _ust.load(path, mode=mode, encoding=encoding)
-    notes = ust.values
     # UtauPluginオブジェクト化
     plugin = UtauPlugin()
-    plugin.version = notes.pop(0)
-    plugin.setting = notes.pop(0)
-    if notes[0].tag == '[#PREV]':
-        plugin.prev = notes.pop(0)
-    if notes[-1].tag == '[#NEXT]':
-        plugin.next = notes.pop(-1)
-    plugin.notes = notes
+    plugin.version = ust.pop(0)
+    plugin.setting = ust.pop(0)
+    if ust[0].tag == '[#PREV]':
+        plugin.prev = ust.pop(0)
+    if ust[-1].tag == '[#NEXT]':
+        plugin.next = ust.pop(-1)
+    plugin.notes = ust
     return plugin
 
 
@@ -73,12 +72,12 @@ class UtauPlugin(_ust.Ust):
         self.next = None  # [#NEXT] のNoteオブジェクト
 
     @property
-    def notes(self):
-        return self._notes
+    def ust(self):
+        return self._ust
 
-    @notes.setter
-    def notes(self, l):
-        self._notes = l
+    @ust.setter
+    def ust(self, l):
+        self._ust = l
 
     def write(self, path, mode='w', encoding='shift-jis'):
         """
