@@ -22,8 +22,8 @@ def main():
     print('UTAUプラグイン一時ファイルの読み取りテストをします。')
     path = input('テキストファイルのパスを入力してください。\n>>> ')
     plugin = load(path)
-    for note in plugin.values:
-        pprint(note.values, width=200)
+    for note in plugin:
+        pprint(note, width=200)
 
 
 def run(your_function):
@@ -48,13 +48,13 @@ def load(path, mode='r', encoding='shift-jis'):
     ust = _ust.load(path, mode=mode, encoding=encoding)
     # UtauPluginオブジェクト化
     plugin = UtauPlugin()
-    plugin.version = ust.pop(0)
-    plugin.setting = ust.pop(0)
-    if ust[0].tag == '[#PREV]':
-        plugin.prev = ust.pop(0)
+    if ust[2].tag == '[#PREV]':
+        plugin.prev = ust.pop(2)
     if ust[-1].tag == '[#NEXT]':
         plugin.next = ust.pop(-1)
-    plugin.notes = ust
+    plugin.version = ust.version
+    plugin.setting = ust.setting
+    plugin.notes = ust[2:]
     return plugin
 
 
@@ -65,19 +65,12 @@ class UtauPlugin(_ust.Ust):
     """
 
     def __init__(self):
-        super().__init__()  # self._note = []
+        super().__init__()
         self.version = None  # [#VERSION]
         self.setting = None  # [#SETTING]
         self.prev = None  # [#PREV] のNoteオブジェクト
+        self.__notes = []  # Noteオブジェクトのリスト
         self.next = None  # [#NEXT] のNoteオブジェクト
-
-    @property
-    def ust(self):
-        return self._ust
-
-    @ust.setter
-    def ust(self, l):
-        self._ust = l
 
     def write(self, path, mode='w', encoding='shift-jis'):
         """
@@ -86,7 +79,7 @@ class UtauPlugin(_ust.Ust):
         """
         duplicated_self = deepcopy(self)
         lines = []
-        for note in duplicated_self.values:
+        for note in duplicated_self.notes:
             # ノートを解体して行のリストにする
             d = note.values
             lines.append(d.pop('Tag'))
@@ -98,6 +91,20 @@ class UtauPlugin(_ust.Ust):
         with open(path, mode=mode, encoding=encoding) as f:
             f.write(s)
         return s
+
+    @property
+    def notes(self):
+        """
+        ノート部分を返す。Ustのままだと、さらに縮まってしまうため上書き。
+        """
+        return self.__notes
+
+    @notes.setter
+    def notes(self, x):
+        """
+        ノート部分を上書き。
+        """
+        self.__notes = list(x)
 
 
 if __name__ == '__main__':
