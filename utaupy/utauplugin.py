@@ -12,18 +12,7 @@ from copy import deepcopy
 from pprint import pprint
 from sys import argv
 
-from utaupy import ust as _ust
-
-
-def main():
-    """
-    直接実行されたときのやつ
-    """
-    print('UTAUプラグイン一時ファイルの読み取りテストをします。')
-    path = input('テキストファイルのパスを入力してください。\n>>> ')
-    plugin = load(path)
-    for note in plugin:
-        pprint(note, width=200)
+from . import ust as _ust
 
 
 def run(your_function):
