@@ -164,9 +164,9 @@ def __str__(self):
     # '[#0000] か    <utaupy.ust.Note object>'
 ```
 
-#### property: _values_
+#### ~~property: _values_~~
 
-ノートの各種パラメータを辞書で取得または上書きする。
+~~ノートの各種パラメータを辞書で取得または上書きする。~~
 
 ```Python
 # Getter
