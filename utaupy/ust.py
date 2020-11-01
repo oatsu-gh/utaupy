@@ -264,10 +264,8 @@ class Note:
         self.alternative_tempo = 120
 
     def __str__(self):
-        try:
-            return f'{self.tag} {self.lyric}\t<utaupy.ust.Note object>'
-        except KeyError:
-            return f'{self.tag} {None}\t<utaupy.ust.Note object>'
+        lines = [self.__d['Tag']] + [f'{k}={v}' for (k, v) in self.__d.items() if (k != 'Tag')]
+        return '\n'.join(lines)
 
     @property
     def values(self):
