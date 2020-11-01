@@ -35,6 +35,10 @@ def load(path, mode='r', encoding='shift-jis'):
 class OtoIni(list):
     """oto.iniを想定したクラス"""
 
+    def __dict__(self):
+        d = {oto.alias: oto for oto in self}
+        return d
+
     @property
     def values(self):
         """中身を確認する"""
