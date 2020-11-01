@@ -73,7 +73,7 @@ class UtauVoiceBank():
             self.otoini.update(each_otoini.as_dict())
 
 
-def autoselect_alias(voicebank, utaupy_ust_note, use_atalias=False):
+def autoselect_alias(voicebank, utaupy_ust_note):
     """
     voicebank       : utaupy.utau.UtauVoiceBank オブジェクト
     utaupy_ust_note : utaupy.Ust.Note オブジェクト
@@ -88,20 +88,15 @@ def autoselect_alias(voicebank, utaupy_ust_note, use_atalias=False):
     lyric = utaupy_ust_note.lyric
     if lyric == 'R':
         return 'R'
-    if use_atalias is True:
-        # USTでエイリアスを強制指定している場合
-        if lyric.startswith('?'):
-            return lyric.lstrip('?')
-        try:
-            alias = utaupy_ust_note.get_by_key(r'@alias')
-        except KeyError:
-            alias = lyric + voicebank.prefixmap[str(utaupy_ust_note.notenum)]
+    # USTでエイリアスを強制指定している場合
+    elif lyric.startswith('?'):
+        return lyric.lstrip('?')
     else:
         alias = lyric + voicebank.prefixmap[str(utaupy_ust_note.notenum)]
     return alias
 
 
-def get_oto(voicebank, utaupy_ust_note, use_atalias=False, suffix_exists=False):
+def get_oto(voicebank, utaupy_ust_note, suffix_exists=False):
     """
     voicebank       : utaupy.utau.UtauVoiceBank オブジェクト
     utaupy_ust_note : utaupy.Ust.Note オブジェクト
@@ -110,8 +105,8 @@ def get_oto(voicebank, utaupy_ust_note, use_atalias=False, suffix_exists=False):
                       Falseにするほうがよい。
     Noteオブジェクトに対応する原音設定の値を取得する。
     """
-    if use_atalias is False and suffix_exists is False:
-        alias = autoselect_alias(voicebank, utaupy_ust_note, use_atalias=use_atalias)
+    if suffix_exists is False:
+        alias = autoselect_alias(voicebank, utaupy_ust_note)
     else:
         alias = utaupy_ust_note.lyric
     # 原音にちゃんとあるかどうか
