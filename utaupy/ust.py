@@ -92,8 +92,8 @@ def load(path, mode='r', encoding='shift-jis'):
         try:
             version = ust[0].get_by_key('UstVersion')
         except KeyError:
-            print('WARN: USTのバージョンが古いのでUTAUをアップデートしてください。')
-            version = 'older_than_1.19'
+            print('WARN: USTファイルに [#VERSION] のエントリがありません。UTAU Ver 0.4.18 未満の場合はアップデートしてください。')
+            version = 'older_than_1.20'
         note = Note()
         note.tag = '[#VERSION]'
         note.set_by_key('UstVersion', version)
