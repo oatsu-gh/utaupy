@@ -13,7 +13,7 @@ LICENSE ファイルをご覧ください。
 - .ust (UTAU)
 - .txt (UTAU Plugin Script)
 - .txt (録音リスト)
-- .ini (setParam)
+- .ini (setParam および UTAU音源原音設定)
 - .lab (歌唱データベース用音素ラベル)
 - .table (ローマ字かな対応表)
 - .svp (Synthesizer V R2)
@@ -53,7 +53,7 @@ print(s)  # C4
 
 ---
 
-### Ust(*list*)
+### Ust(collections.UserList)
 
 UST ファイルを取り扱うための class
 
@@ -107,7 +107,7 @@ x = ust.tempo  # x: float
 ust.tempo = x  # x: float
 ```
 
-#### property: _reload_tempo_
+#### _reload_tempo_
 
 self._notes 内の全 Note にローカルテンポ取得用のパラメータ \_alternative_tempo を設定する。
 
@@ -117,6 +117,15 @@ self.values や self.values の setter を使うと自動的にで実行され�
 ust.reload_tempo()
 # no return
 ```
+
+#### *reload_tag_number*
+
+全ノートのエントリ番号（タグ）を振りなおす。ファイル出力時に実行することを想定。
+```Python
+ust.reload_tag_number()
+# no return
+```
+
 
 #### property: _replace_lyrics(str old_lyric, str new_lyric)_
 
@@ -140,7 +149,7 @@ ust.make_finalenote_R()
 
 ---
 
-### Note
+### Note(collections.UserDict)
 
 #### _\_\_init\_\__
 
@@ -311,13 +320,13 @@ UTAUの原音設定ファイルを扱うモジュール。setParamでの利用�
 
 ---
 
-### OtoIni(*list*)
+### OtoIni(collections.UserList)
 
 oto.ini ファイルを扱うためのクラス。list を継承。
 
 ---
 
-### Oto
+### Oto(collections.UserDict)
 
 oto.ini に含まれる各原音のパラメータを扱うクラス。
 
@@ -334,6 +343,10 @@ Ust オブジェクト、OtoIni オブジェクト、Label オブジェクトな
 ## utaupy.reaper
 
 REAPER (DAW) のリージョン・マーカー用CSVファイルを扱うモジュール。
+
+## utaupy.utau
+
+UTAUエディタで行う操作の代替と、UTAU音源の原音値取得などをするモジュール。「パラメータ自動調整」などができる。
 
 ## utaupy.utauplugin
 
