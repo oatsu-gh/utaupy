@@ -37,10 +37,12 @@ def load(path, mode='r', encoding='shift-jis'):
     ust = _ust.load(path, mode=mode, encoding=encoding)
     # UtauPluginオブジェクト化
     plugin = UtauPlugin()
+    plugin.data = ust.data
+
     if ust[2].tag == '[#PREV]':
-        plugin.prev = ust.pop(2)
+        plugin.previous_note = ust.pop(2)
     if ust[-1].tag == '[#NEXT]':
-        plugin.next = ust.pop(-1)
+        plugin.next_note = ust.pop(-1)
     plugin.version = ust.version
     plugin.setting = ust.setting
     plugin.notes = ust[2:]
@@ -57,9 +59,9 @@ class UtauPlugin(_ust.Ust):
         super().__init__()
         self.version = None  # [#VERSION]
         self.setting = None  # [#SETTING]
-        self.prev = None  # [#PREV] のNoteオブジェクト
+        self.previous_note = None  # [#PREV] のNoteオブジェクト
         self.__notes = []  # Noteオブジェクトのリスト
-        self.next = None  # [#NEXT] のNoteオブジェクト
+        self.next_note = None  # [#NEXT] のNoteオブジェクト
 
     def write(self, path, mode='w', encoding='shift-jis'):
         """
@@ -94,7 +96,3 @@ class UtauPlugin(_ust.Ust):
         ノート部分を上書き。
         """
         self.__notes = list(x)
-
-
-if __name__ == '__main__':
-    main()
