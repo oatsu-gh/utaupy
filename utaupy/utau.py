@@ -89,10 +89,10 @@ def autoselect_alias(voicebank, utaupy_ust_note):
     if lyric == 'R':
         return 'R'
     # USTでエイリアスを強制指定している場合
-    elif lyric.startswith('?'):
+    if lyric.startswith('?'):
         return lyric.lstrip('?')
-    else:
-        alias = lyric + voicebank.prefixmap[str(utaupy_ust_note.notenum)]
+    # 普通の歌詞の場合はprefixmapを参照してサフィックス追加
+    alias = lyric + voicebank.prefixmap[str(utaupy_ust_note.notenum)]
     return alias
 
 
