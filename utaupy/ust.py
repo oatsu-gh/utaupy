@@ -4,6 +4,7 @@
 USTファイルとデータを扱うモジュールです。
 """
 import re
+from collections import UserDict, UserList
 from copy import deepcopy
 
 
@@ -17,7 +18,7 @@ def main():
     print()
 
     for note in ust.values:
-        print(note.values)
+        print(note)
 
     input('\nPress Enter to exit.')
 
@@ -52,7 +53,9 @@ def notenum_as_abc(notenum):
 
 
 def load(path, mode='r', encoding='shift-jis'):
-    """USTを読み取り"""
+    """
+    USTを読み取り
+    """
     # USTを文字列として取得
     try:
         with open(path, mode=mode, encoding=encoding) as f:
@@ -75,7 +78,7 @@ def load(path, mode='r', encoding='shift-jis'):
         # print('Making "Note" instance from UST: {}'.format(tag))
         # タグ以外の行の処理
         if tag == '[#VERSION]':
-            note.set_by_key('Version', lines[1])
+            note['UstVersion'] = lines[1]
         elif tag == '[#TRACKEND]':
             pass
         else:
@@ -103,7 +106,7 @@ def load(path, mode='r', encoding='shift-jis'):
     return ust
 
 
-class Ust(list):
+class Ust(UserList):
     """UST"""
 
     def __init__(self):
@@ -111,9 +114,6 @@ class Ust(list):
         # ノート(クラスオブジェクト)からなるリスト
         self.version = None
         self.setting = None
-
-    def __len__(self):
-        return len(self)
 
     @property
     def values(self):
@@ -128,36 +128,36 @@ class Ust(list):
         """
         if not isinstance(l, list):
             raise TypeError('argument \"l\" must be list instance')
-        self = l
+        self.data = l
         self.reload_tempo()
-        return self
+        return self.data
 
     @property
     def notes(self):
         """
-        全セクションのうち、VERSION と SETTING TRACKEND を除いたノート部分を取得
+        全セクションのうち、[#VERSION] と [#SETTING] [#TRACKEND] を除いたノート部分を取得
         """
-        return self[2:-1]
+        return self.data[2:-1]
 
     @notes.setter
     def notes(self, l):
         """
-        全セクションのうち、VERSION と SETTING TRACKEND を除いたノート部分を上書き
+        全セクションのうち、[#VERSION] と [#SETTING] [#TRACKEND] を除いたノート部分を上書き
         """
         if not isinstance(l, list):
             raise TypeError('argument \"l\" must be list instance')
-        self = self[:2] + l + self[-1:]
+        self.data = self.data[:2] + l + self.data[-1:]
         self.reload_tempo()
-        return self
+        return self.data
 
     @property
     def tempo(self):
         """全体のBPMを見る"""
         try:
-            project_tempo = self[1].tempo
+            project_tempo = self.data[1].tempo
             return project_tempo
         except KeyError:
-            first_note_tempo = self[2].tempo
+            first_note_tempo = self.data[2].tempo
             return first_note_tempo
 
         print('[ERROR]--------------------------------------------------')
@@ -170,8 +170,8 @@ class Ust(list):
         """
         グローバルBPMを上書きする
         """
-        self[1].tempo = tempo
-        self[2].tempo = tempo
+        self.data[1].tempo = tempo
+        self.data[2].tempo = tempo
         self.reload_tempo()
 
     def reload_tempo(self):
@@ -180,27 +180,35 @@ class Ust(list):
         独自パラメータ note.alternative_tempo を全ノートに仕込む
         """
         current_tempo = self.tempo
-        for note in self[2:-1]:
+        for note in self.notes:
             try:
                 current_tempo = note.get_by_key('Tempo')
             except KeyError:
                 pass
             note.alternative_tempo = float(current_tempo)
 
+    def reload_tag_number(self):
+        """
+        各ノートのノート番号を振りなおす。
+        ファイル出力時に実行することを想定。
+        """
+        for i, note in enumerate(self.notes):
+            note.tag = f'[#{str(i).zfill(4)}]'
+
     # ノート一括編集系関数ここから----------------------------------------------
     def replace_lyrics(self, before, after):
         """歌詞を一括置換（文字列指定・破壊的処理）"""
-        for note in self[2:-1]:
+        for note in self.notes:
             note.lyric = note.lyric.replace(before, after)
 
     def translate_lyrics(self, before, after):
         """歌詞を一括置換（複数文字指定・破壊的処理）"""
-        for note in self[2:-1]:
+        for note in self.notes:
             note.lyric = note.lyric.translate(before, after)
 
     def vcv2cv(self):
         """歌詞を平仮名連続音から単独音にする"""
-        for note in self[2:-1]:
+        for note in self.notes:
             note.lyric = note.lyric.split()[-1]
     # ノート一括編集系関数ここまで----------------------------------------------
 
@@ -223,7 +231,7 @@ class Ust(list):
 
     def make_finalnote_R(self):
         """Ustの最後のノートが必ず休符 になるようにする"""
-        note = self[-2]
+        note = self.data[-2]
         # Ust内の最後はTRACKENDなので後ろから2番目のノートで判定
         if note.lyric not in ('pau', 'sil', 'R'):
             print('  末尾に休符を自動追加しました。')
@@ -237,15 +245,20 @@ class Ust(list):
         USTをファイル出力
         """
         duplicated_self = deepcopy(self)
+        # [#DELETE] なノートをファイル出力しないために削除
+        notes = [note for note in duplicated_self.notes if note.tag!='[#DELETE]']
+        duplicated_self.notes = notes
+        # ノート番号を振りなおす
+        duplicated_self.reload_tag_number()
+        # ノートのリストを文字列のリストに変換
         lines = []
-        for note in duplicated_self.values:
-            # ノートを解体して行のリストにする
-            d = note.values
-            # DELETE なノートはファイル出力しない
-            if d['Tag'] == '[#DELETE]':
+        for note in duplicated_self:
+            if note.tag == '[#VERSION]':
+                lines.append('[#VERSION]')
+                lines.append(note['UstVersion'])
                 continue
-            lines.append(d.pop('Tag'))
-            for k, v in d.items():
+            lines.append(note.pop('Tag'))
+            for k, v in note.items():
                 lines.append(f'{str(k)}={str(v)}')
         # 出力用の文字列
         s = '\n'.join(lines)
@@ -255,22 +268,22 @@ class Ust(list):
         return s
 
 
-class Note:
+class Note(UserDict):
     """UST内のノート"""
 
     def __init__(self, tag='[#UNDEFINED]'):
-        self.__d = {}
-        self.tag = tag
+        super().__init__()
+        self['Tag'] = tag
         self.alternative_tempo = 120
 
     def __str__(self):
-        lines = [self.__d['Tag']] + [f'{k}={v}' for (k, v) in self.__d.items() if (k != 'Tag')]
+        lines = [self['Tag']] + [f'{k}={v}' for (k, v) in self.items() if k != 'Tag']
         return '\n'.join(lines)
 
     @property
     def values(self):
         """ノートの中身を見る"""
-        return self.__d
+        return self.data
 
     @values.setter
     def values(self, d):
@@ -279,70 +292,70 @@ class Note:
         """
         if not isinstance(d, dict):
             raise TypeError('argument \"d\" must be dictionary instance')
-        self.__d = d
+        self.data = d
 
     @property
     def tag(self):
         """タグを確認"""
-        return self.__d['Tag']
+        return self['Tag']
 
     @tag.setter
     def tag(self, s):
         """タグを上書き"""
-        self.__d['Tag'] = s
+        self['Tag'] = s
 
     @property
     def length(self):
         """ノート長を確認[Ticks]"""
-        return int(self.__d['Length'])
+        return int(self['Length'])
 
     @length.setter
     def length(self, x):
         """ノート長を上書き[Ticks]"""
-        self.__d['Length'] = str(x)
+        self['Length'] = str(x)
 
     @property
     def length_ms(self):
         """ノート長を確認[ms]"""
-        return 125 * float(self.__d['Length']) / self.tempo
+        return 125 * float(self['Length']) / self.tempo
 
     @length_ms.setter
     def length_ms(self, x):
         """ノート長を上書き[ms]"""
-        self.__d['Length'] = x * self.tempo // 125
+        self['Length'] = x * self.tempo // 125
 
     @property
     def lyric(self):
         """歌詞を確認"""
-        return self.__d['Lyric']
+        return self['Lyric']
 
     @lyric.setter
     def lyric(self, x):
         """歌詞を上書き"""
-        self.__d['Lyric'] = x
+        self['Lyric'] = x
 
     @property
     def notenum(self):
         """音階番号を確認"""
-        return int(self.__d['NoteNum'])
+        return int(self['NoteNum'])
 
     @notenum.setter
     def notenum(self, x):
         """音階番号を上書き"""
-        self.__d['NoteNum'] = str(x)
+        self['NoteNum'] = str(x)
 
     @property
     def tempo(self):
         """ローカルBPMを取得"""
         try:
-            return float(self.__d['Tempo'])
+            return float(self['Tempo'])
         except KeyError:
             return float(self.alternative_tempo)
 
     @tempo.setter
     def tempo(self, x):
         """BPMを上書き"""
-        self.__d['Tempo'] = x
+        self['Tempo'] = x
 
     @property
     def pbs(self):
@@ -351,7 +364,7 @@ class Note:
         例) PBS=-104;20.0
         """
         # 辞書には文字列で登録してある
-        str_pbs = self.__d['PBS']
+        str_pbs = self['PBS']
         # 浮動小数のリストに変換
         list_pbs = list(map(float, re.split('[;,]', str_pbs)))
         # PBSの値をリストで返す
@@ -367,7 +380,7 @@ class Note:
         s2 = ','.join(map(str, list_pbs[1:]))
 
         str_pbs = s1 + s2
-        self.__d['PBS'] = str_pbs
+        self['PBS'] = str_pbs
 
     @property
     def pbw(self):
@@ -376,7 +389,7 @@ class Note:
         例) PBW=77,163
         """
         # 辞書には文字列で登録してある
-        s_pbw = self.__d['PBW']
+        s_pbw = self['PBW']
         # 整数のリストに変換
         l_pbw = list(map(int, s_pbw.split(',')))
         # PBWの値をリストで返す
@@ -390,7 +403,7 @@ class Note:
         """
         # リストを整数の文字列に変換
         str_pbw = ','.join(list(map(str, map(int, list_pbw))))
-        self.__d['PBW'] = str_pbw
+        self['PBW'] = str_pbw
 
     @property
     def pby(self):
@@ -399,7 +412,7 @@ class Note:
         例) PBY=-10.6,0.0
         """
         # 辞書には文字列で登録してある
-        s_pby = self.__d['PBY']
+        s_pby = self['PBY']
         # 整数のリストに変換
         l_pby = list(map(float, s_pby.split(',')))
         # PBYの値をリストで返す
@@ -413,7 +426,7 @@ class Note:
         """
         # リストを小数の文字列に変換
         str_pby = ','.join(list(map(str, map(float, list_pby))))
-        self.__d['PBY'] = str_pby
+        self['PBY'] = str_pby
 
     @property
     def pbm(self):
@@ -422,7 +435,7 @@ class Note:
         例) PBY=-10.6,0.0
         """
         # 辞書には文字列で登録してある
-        s_pby = self.__d['PBM']
+        s_pby = self['PBM']
         # 整数のリストに変換
         l_pbm = s_pby.split(',')
         # PBYの値をリストで返す
@@ -436,16 +449,16 @@ class Note:
         """
         # リストを文字列に変換
         str_pbm = ','.join(list_pbm)
-        self.__d['PBM'] = str_pbm
+        self['PBM'] = str_pbm
 
     # ここからデータ操作系-----------------------------------------------------
     def get_by_key(self, key):
         """ノートの特定の情報を上書きまたは登録"""
-        return self.__d[key]
+        return self[key]
 
     def set_by_key(self, key, x):
         """ノートの特定の情報を上書きまたは登録"""
-        self.__d[key] = x
+        self[key] = x
     # ここまでデータ操作系-----------------------------------------------------
 
     # ここからノート操作系-----------------------------------------------------
@@ -474,7 +487,7 @@ class Note:
         new_note['Lyric'] = self.lyric
         new_note['Length'] = self.length
         new_note['NoteNum'] = self.notenum
-        self.__d = new_note
+        self.data = new_note
     # ここまでノート操作系-----------------------------------------------------
 
     # ここからデータ出力系-----------------------------------------------------
@@ -482,7 +495,7 @@ class Note:
     # -------------------------------------------------------------------------
     # def as_lines(self):
     #     """出力用のリストを返す"""
-    #     d = self.__d
+    #     d = self
     #     lines = []
     #     lines.append(d.pop('Tag'))
     #     for k, v in d.items():
@@ -494,6 +507,3 @@ class Note:
 
 if __name__ == '__main__':
     main()
-
-if __name__ == '__init__':
-    pass
