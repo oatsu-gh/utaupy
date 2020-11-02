@@ -88,7 +88,7 @@ def load(path, mode='r', encoding='shift-jis'):
         ust.append(note)
 
     # 旧形式の場合にタグの数を合わせる
-    if ust[0].tag != r'[#VERSION]':
+    if ust[0].tag != '[#VERSION]':
         try:
             version = ust[0].get_by_key('UstVersion')
         except KeyError:
@@ -98,7 +98,12 @@ def load(path, mode='r', encoding='shift-jis'):
         note.tag = '[#VERSION]'
         note.set_by_key('UstVersion', version)
         ust.insert(0, note)  # リスト先頭に挿入
-    # Ustクラスオブジェクト化
+    # UTAUプラグイン用のファイルとかで[#SETTING]がない場合にずれるのを対策
+    if ust[1].tag != '[#SETTING]':
+        note = Note()
+        note.tag = '[#SETTING]'
+        ust.insert(0, note)
+    # インスタンス変数に代入
     ust.version = ust[0]
     ust.setting = ust[1]
     # 隠しパラメータ alternative_tempo を全ノートに設定
@@ -246,7 +251,7 @@ class Ust(UserList):
         """
         duplicated_self = deepcopy(self)
         # [#DELETE] なノートをファイル出力しないために削除
-        notes = [note for note in duplicated_self.notes if note.tag!='[#DELETE]']
+        notes = [note for note in duplicated_self.notes if note.tag != '[#DELETE]']
         duplicated_self.notes = notes
         # ノート番号を振りなおす
         duplicated_self.reload_tag_number()
