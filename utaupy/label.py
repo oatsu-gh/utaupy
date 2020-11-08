@@ -3,6 +3,7 @@
 """
 歌唱データベース用のLABファイルとデータを扱うモジュールです。
 """
+from collections import UserList
 
 
 def main():
@@ -54,35 +55,35 @@ def load(path, mode='r', encoding='utf-8', time_unit='100ns'):
     if time_unit in ('s', 'sec', 'second'):
         label = Label()
         for v in lines:
-            monolabel = Phoneme()
-            monolabel.start = int(10000000 * float(v[0]))
-            monolabel.end = int(10000000 * float(v[1]))
-            monolabel.symbol = v[2]
-            label.append(monolabel)
+            phoneme = Phoneme()
+            phoneme.start = int(10000000 * float(v[0]))
+            phoneme.end = int(10000000 * float(v[1]))
+            phoneme.symbol = v[2]
+            label.append(phoneme)
 
     # Sinsyのモノラベル形式の場合、時刻が 1234567[100ns] なのでintにする。
     elif time_unit in ('100ns', 'subus', 'subμs'):
         label = Label()
         for v in lines:
-            monolabel = Phoneme()
-            monolabel.start = int(v[0])
-            monolabel.end = int(v[1])
-            monolabel.symbol = v[2]
-            label.append(monolabel)
+            phoneme = Phoneme()
+            phoneme.start = int(v[0])
+            phoneme.end = int(v[1])
+            phoneme.symbol = v[2]
+            label.append(phoneme)
     else:
         raise ValueError(
             'function argument "time_unit" must be in ["100ns" (recommended), "s"]')
     return label
 
 
-class Label(list):
+class Label(UserList):
     """
     歌唱ラベルLABファイルを想定したクラス(2019/04/19から)
     """
 
     def __str__(self):
         """文字列として扱うときのフォーマット"""
-        label_as_str = '\n'.join(str(monolabel) for monolabel in self)
+        label_as_str = '\n'.join(str(phoneme) for phoneme in self)
         return label_as_str
 
     def check_invalid_time(self, threshold=0):
@@ -91,11 +92,30 @@ class Label(list):
         threshold: 許容される最小の発声時間(ms)
         """
         threshold_100ns = int(threshold * (10**4))
-        for monolabel in self:
-            duration = monolabel.end - monolabel.start
+        for phoneme in self:
+            duration = phoneme.end - phoneme.start
             if duration < threshold_100ns:
                 print(
-                    f'    [ERROR] 発声時間が {threshold}ms 未満か負です : {monolabel}')
+                    f'    [ERROR] 発声時間が {threshold}ms 未満か負です : {phoneme}')
+        for i, current_phoneme in enumerate(self[1:-1], 1):
+            previous_phoneme = self[i - 1]
+            next_phoneme = self[i + 1]
+            if current_phoneme.start != previous_phoneme.end:
+                print('    [ERROR] 発声開始時刻が直前の発声終了時刻と一致しません')
+                print('            previous_phoneme:', str(previous_phoneme))
+                print('            current_phoneme :', str(current_phoneme))
+            if current_phoneme.end != next_phoneme.start:
+                print('    [ERROR] 発声終了時刻が直後の発声開始時刻と一致しません')
+                print('            current_phoneme :', str(current_phoneme))
+                print('            next_phoneme    :', str(next_phoneme))
+
+    def reload(self):
+        """
+        発音開始時刻を参照して、発音終了時刻を自動補完する。
+        ただし最終行の発音狩猟時刻だけは補完できないため、そのままにする。
+        """
+        for i, phoneme in enumerate(self[:-1]):
+            phoneme.end = self[i + 1].start
 
     def write(self, path_out, mode='w',
               encoding='utf-8', newline='\n', delimiter=' ', kiritan=False):
