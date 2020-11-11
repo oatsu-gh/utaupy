@@ -2,8 +2,10 @@ __pycache__*
 build
 desktop.ini
 dist
-PyPIに投げるやつ.bat
 setparam.py
 test.py
+test
 utaupy.egg-info
 *.lnk
+PyPIに投げるやつ.bat
+HTSフルコンテキストラベルの仕様
