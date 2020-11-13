@@ -1,0 +1,239 @@
+
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>utaupy.utau &#8212; utaupy  ドキュメント</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/translations.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">utaupy  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">モジュールコード</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">utaupy.utau</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>utaupy.utau のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python3</span>
+<span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) 2020 oatsu</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">UTAU音源を扱うモジュール</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">UserDict</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">otoini</span> <span class="k">as</span> <span class="n">_otoini</span>
+
+
+<div class="viewcode-block" id="PrefixMap"><a class="viewcode-back" href="../../utaupy.html#utaupy.utau.PrefixMap">[ドキュメント]</a><span class="k">class</span> <span class="nc">PrefixMap</span><span class="p">(</span><span class="n">UserDict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    UTAUの多音階音源用の prefixmap ファイルを扱うクラス。</span>
+<span class="sd">    prefixmap_obj[音階名] または prefixmap_obj[音階番号] で</span>
+<span class="sd">    サフィックス文字列を取得できるようにしたい。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comment_lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">prefixmap_file</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">prefixmap_file</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+        <span class="c1"># 改行文字を削除、コメント行を無視</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;//&#39;</span><span class="p">)]</span>
+        <span class="c1"># 空白で区切って {音程: suffix文字列} の辞書にする</span>
+        <span class="n">lines_2d</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">]</span>
+        <span class="c1"># 音程表記をUSTでの音階番号に変換</span>
+        <span class="n">abc_to_notenum</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;C1&#39;</span><span class="p">:</span> <span class="s1">&#39;24&#39;</span><span class="p">,</span> <span class="s1">&#39;C#1&#39;</span><span class="p">:</span> <span class="s1">&#39;25&#39;</span><span class="p">,</span> <span class="s1">&#39;D1&#39;</span><span class="p">:</span> <span class="s1">&#39;26&#39;</span><span class="p">,</span> <span class="s1">&#39;D#1&#39;</span><span class="p">:</span> <span class="s1">&#39;27&#39;</span><span class="p">,</span> <span class="s1">&#39;E1&#39;</span><span class="p">:</span> <span class="s1">&#39;28&#39;</span><span class="p">,</span> <span class="s1">&#39;F1&#39;</span><span class="p">:</span> <span class="s1">&#39;29&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;F#1&#39;</span><span class="p">:</span> <span class="s1">&#39;30&#39;</span><span class="p">,</span> <span class="s1">&#39;G1&#39;</span><span class="p">:</span> <span class="s1">&#39;31&#39;</span><span class="p">,</span> <span class="s1">&#39;G#1&#39;</span><span class="p">:</span> <span class="s1">&#39;32&#39;</span><span class="p">,</span> <span class="s1">&#39;A1&#39;</span><span class="p">:</span> <span class="s1">&#39;33&#39;</span><span class="p">,</span> <span class="s1">&#39;A#1&#39;</span><span class="p">:</span> <span class="s1">&#39;34&#39;</span><span class="p">,</span> <span class="s1">&#39;B1&#39;</span><span class="p">:</span> <span class="s1">&#39;35&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;C2&#39;</span><span class="p">:</span> <span class="s1">&#39;36&#39;</span><span class="p">,</span> <span class="s1">&#39;C#2&#39;</span><span class="p">:</span> <span class="s1">&#39;37&#39;</span><span class="p">,</span> <span class="s1">&#39;D2&#39;</span><span class="p">:</span> <span class="s1">&#39;38&#39;</span><span class="p">,</span> <span class="s1">&#39;D#2&#39;</span><span class="p">:</span> <span class="s1">&#39;39&#39;</span><span class="p">,</span> <span class="s1">&#39;E2&#39;</span><span class="p">:</span> <span class="s1">&#39;40&#39;</span><span class="p">,</span> <span class="s1">&#39;F2&#39;</span><span class="p">:</span> <span class="s1">&#39;41&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;F#2&#39;</span><span class="p">:</span> <span class="s1">&#39;42&#39;</span><span class="p">,</span> <span class="s1">&#39;G2&#39;</span><span class="p">:</span> <span class="s1">&#39;43&#39;</span><span class="p">,</span> <span class="s1">&#39;G#2&#39;</span><span class="p">:</span> <span class="s1">&#39;44&#39;</span><span class="p">,</span> <span class="s1">&#39;A2&#39;</span><span class="p">:</span> <span class="s1">&#39;45&#39;</span><span class="p">,</span> <span class="s1">&#39;A#2&#39;</span><span class="p">:</span> <span class="s1">&#39;46&#39;</span><span class="p">,</span> <span class="s1">&#39;B2&#39;</span><span class="p">:</span> <span class="s1">&#39;47&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;C3&#39;</span><span class="p">:</span> <span class="s1">&#39;48&#39;</span><span class="p">,</span> <span class="s1">&#39;C#3&#39;</span><span class="p">:</span> <span class="s1">&#39;49&#39;</span><span class="p">,</span> <span class="s1">&#39;D3&#39;</span><span class="p">:</span> <span class="s1">&#39;50&#39;</span><span class="p">,</span> <span class="s1">&#39;D#3&#39;</span><span class="p">:</span> <span class="s1">&#39;51&#39;</span><span class="p">,</span> <span class="s1">&#39;E3&#39;</span><span class="p">:</span> <span class="s1">&#39;52&#39;</span><span class="p">,</span> <span class="s1">&#39;F3&#39;</span><span class="p">:</span> <span class="s1">&#39;53&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;F#3&#39;</span><span class="p">:</span> <span class="s1">&#39;54&#39;</span><span class="p">,</span> <span class="s1">&#39;G3&#39;</span><span class="p">:</span> <span class="s1">&#39;55&#39;</span><span class="p">,</span> <span class="s1">&#39;G#3&#39;</span><span class="p">:</span> <span class="s1">&#39;56&#39;</span><span class="p">,</span> <span class="s1">&#39;A3&#39;</span><span class="p">:</span> <span class="s1">&#39;57&#39;</span><span class="p">,</span> <span class="s1">&#39;A#3&#39;</span><span class="p">:</span> <span class="s1">&#39;58&#39;</span><span class="p">,</span> <span class="s1">&#39;B3&#39;</span><span class="p">:</span> <span class="s1">&#39;59&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;C4&#39;</span><span class="p">:</span> <span class="s1">&#39;60&#39;</span><span class="p">,</span> <span class="s1">&#39;C#4&#39;</span><span class="p">:</span> <span class="s1">&#39;61&#39;</span><span class="p">,</span> <span class="s1">&#39;D4&#39;</span><span class="p">:</span> <span class="s1">&#39;62&#39;</span><span class="p">,</span> <span class="s1">&#39;D#4&#39;</span><span class="p">:</span> <span class="s1">&#39;63&#39;</span><span class="p">,</span> <span class="s1">&#39;E4&#39;</span><span class="p">:</span> <span class="s1">&#39;64&#39;</span><span class="p">,</span> <span class="s1">&#39;F4&#39;</span><span class="p">:</span> <span class="s1">&#39;65&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;F#4&#39;</span><span class="p">:</span> <span class="s1">&#39;66&#39;</span><span class="p">,</span> <span class="s1">&#39;G4&#39;</span><span class="p">:</span> <span class="s1">&#39;67&#39;</span><span class="p">,</span> <span class="s1">&#39;G#4&#39;</span><span class="p">:</span> <span class="s1">&#39;68&#39;</span><span class="p">,</span> <span class="s1">&#39;A4&#39;</span><span class="p">:</span> <span class="s1">&#39;69&#39;</span><span class="p">,</span> <span class="s1">&#39;A#4&#39;</span><span class="p">:</span> <span class="s1">&#39;70&#39;</span><span class="p">,</span> <span class="s1">&#39;B4&#39;</span><span class="p">:</span> <span class="s1">&#39;71&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;C5&#39;</span><span class="p">:</span> <span class="s1">&#39;72&#39;</span><span class="p">,</span> <span class="s1">&#39;C#5&#39;</span><span class="p">:</span> <span class="s1">&#39;73&#39;</span><span class="p">,</span> <span class="s1">&#39;D5&#39;</span><span class="p">:</span> <span class="s1">&#39;74&#39;</span><span class="p">,</span> <span class="s1">&#39;D#5&#39;</span><span class="p">:</span> <span class="s1">&#39;75&#39;</span><span class="p">,</span> <span class="s1">&#39;E5&#39;</span><span class="p">:</span> <span class="s1">&#39;76&#39;</span><span class="p">,</span> <span class="s1">&#39;F5&#39;</span><span class="p">:</span> <span class="s1">&#39;77&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;F#5&#39;</span><span class="p">:</span> <span class="s1">&#39;78&#39;</span><span class="p">,</span> <span class="s1">&#39;G5&#39;</span><span class="p">:</span> <span class="s1">&#39;79&#39;</span><span class="p">,</span> <span class="s1">&#39;G#5&#39;</span><span class="p">:</span> <span class="s1">&#39;80&#39;</span><span class="p">,</span> <span class="s1">&#39;A5&#39;</span><span class="p">:</span> <span class="s1">&#39;81&#39;</span><span class="p">,</span> <span class="s1">&#39;A#5&#39;</span><span class="p">:</span> <span class="s1">&#39;82&#39;</span><span class="p">,</span> <span class="s1">&#39;B5&#39;</span><span class="p">:</span> <span class="s1">&#39;83&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;C6&#39;</span><span class="p">:</span> <span class="s1">&#39;84&#39;</span><span class="p">,</span> <span class="s1">&#39;C#6&#39;</span><span class="p">:</span> <span class="s1">&#39;85&#39;</span><span class="p">,</span> <span class="s1">&#39;D6&#39;</span><span class="p">:</span> <span class="s1">&#39;86&#39;</span><span class="p">,</span> <span class="s1">&#39;D#6&#39;</span><span class="p">:</span> <span class="s1">&#39;87&#39;</span><span class="p">,</span> <span class="s1">&#39;E6&#39;</span><span class="p">:</span> <span class="s1">&#39;88&#39;</span><span class="p">,</span> <span class="s1">&#39;F6&#39;</span><span class="p">:</span> <span class="s1">&#39;89&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;F#6&#39;</span><span class="p">:</span> <span class="s1">&#39;90&#39;</span><span class="p">,</span> <span class="s1">&#39;G6&#39;</span><span class="p">:</span> <span class="s1">&#39;91&#39;</span><span class="p">,</span> <span class="s1">&#39;G#6&#39;</span><span class="p">:</span> <span class="s1">&#39;92&#39;</span><span class="p">,</span> <span class="s1">&#39;A6&#39;</span><span class="p">:</span> <span class="s1">&#39;93&#39;</span><span class="p">,</span> <span class="s1">&#39;A#6&#39;</span><span class="p">:</span> <span class="s1">&#39;94&#39;</span><span class="p">,</span> <span class="s1">&#39;B6&#39;</span><span class="p">:</span> <span class="s1">&#39;95&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;C7&#39;</span><span class="p">:</span> <span class="s1">&#39;96&#39;</span><span class="p">,</span> <span class="s1">&#39;C#7&#39;</span><span class="p">:</span> <span class="s1">&#39;97&#39;</span><span class="p">,</span> <span class="s1">&#39;D7&#39;</span><span class="p">:</span> <span class="s1">&#39;98&#39;</span><span class="p">,</span> <span class="s1">&#39;D#7&#39;</span><span class="p">:</span> <span class="s1">&#39;99&#39;</span><span class="p">,</span> <span class="s1">&#39;E7&#39;</span><span class="p">:</span> <span class="s1">&#39;100&#39;</span><span class="p">,</span> <span class="s1">&#39;F7&#39;</span><span class="p">:</span> <span class="s1">&#39;101&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;F#7&#39;</span><span class="p">:</span> <span class="s1">&#39;102&#39;</span><span class="p">,</span> <span class="s1">&#39;G7&#39;</span><span class="p">:</span> <span class="s1">&#39;103&#39;</span><span class="p">,</span> <span class="s1">&#39;G#7&#39;</span><span class="p">:</span> <span class="s1">&#39;104&#39;</span><span class="p">,</span> <span class="s1">&#39;A7&#39;</span><span class="p">:</span> <span class="s1">&#39;105&#39;</span><span class="p">,</span> <span class="s1">&#39;A#7&#39;</span><span class="p">:</span> <span class="s1">&#39;106&#39;</span><span class="p">,</span> <span class="s1">&#39;B7&#39;</span><span class="p">:</span> <span class="s1">&#39;107&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;C8&#39;</span><span class="p">:</span> <span class="s1">&#39;108&#39;</span><span class="p">,</span> <span class="s1">&#39;C#8&#39;</span><span class="p">:</span> <span class="s1">&#39;109&#39;</span><span class="p">,</span> <span class="s1">&#39;D8&#39;</span><span class="p">:</span> <span class="s1">&#39;110&#39;</span><span class="p">,</span> <span class="s1">&#39;D#8&#39;</span><span class="p">:</span> <span class="s1">&#39;111&#39;</span><span class="p">,</span> <span class="s1">&#39;E8&#39;</span><span class="p">:</span> <span class="s1">&#39;112&#39;</span><span class="p">,</span> <span class="s1">&#39;F8&#39;</span><span class="p">:</span> <span class="s1">&#39;113&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;F#8&#39;</span><span class="p">:</span> <span class="s1">&#39;114&#39;</span><span class="p">,</span> <span class="s1">&#39;G8&#39;</span><span class="p">:</span> <span class="s1">&#39;115&#39;</span><span class="p">,</span> <span class="s1">&#39;G#8&#39;</span><span class="p">:</span> <span class="s1">&#39;116&#39;</span><span class="p">,</span> <span class="s1">&#39;A8&#39;</span><span class="p">:</span> <span class="s1">&#39;117&#39;</span><span class="p">,</span> <span class="s1">&#39;A#8&#39;</span><span class="p">:</span> <span class="s1">&#39;118&#39;</span><span class="p">,</span> <span class="s1">&#39;B8&#39;</span><span class="p">:</span> <span class="s1">&#39;119&#39;</span>
+        <span class="p">}</span>
+        <span class="c1"># {音階番号: suffix文字列} の辞書になる</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines_2d</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">abc_to_notenum</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]]:</span> <span class="s1">&#39;&#39;</span><span class="p">})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">abc_to_notenum</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="mi">0</span><span class="p">]]:</span> <span class="n">line</span><span class="p">[</span><span class="mi">1</span><span class="p">]})</span></div>
+
+
+<div class="viewcode-block" id="UtauVoiceBank"><a class="viewcode-back" href="../../utaupy.html#utaupy.utau.UtauVoiceBank">[ドキュメント]</a><span class="k">class</span> <span class="nc">UtauVoiceBank</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    UTAU音源の原音設定を扱うクラス。</span>
+<span class="sd">    音階と歌詞（連続音）を指定したら、原音設定を返すようにしたい。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefixmap</span> <span class="o">=</span> <span class="n">PrefixMap</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s1">/prefix.map&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">otoini</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># 原音設定ファイルを取得</span>
+        <span class="n">all_otoini_paths</span> <span class="o">=</span> <span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">/**/oto.ini&#39;</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">path_otoini</span> <span class="ow">in</span> <span class="n">all_otoini_paths</span><span class="p">:</span>
+            <span class="n">each_otoini</span> <span class="o">=</span> <span class="n">_otoini</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path_otoini</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">otoini</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">each_otoini</span><span class="o">.</span><span class="n">as_dict</span><span class="p">())</span></div>
+
+
+<div class="viewcode-block" id="autoselect_alias"><a class="viewcode-back" href="../../utaupy.html#utaupy.utau.autoselect_alias">[ドキュメント]</a><span class="k">def</span> <span class="nf">autoselect_alias</span><span class="p">(</span><span class="n">voicebank</span><span class="p">,</span> <span class="n">utaupy_ust_note</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    voicebank       : utaupy.utau.UtauVoiceBank オブジェクト</span>
+<span class="sd">    utaupy_ust_note : utaupy.Ust.Note オブジェクト</span>
+<span class="sd">    use_atalias     : Noteオブジェクトの &#39;@alias&#39; を使用するかどうか。</span>
+<span class="sd">                      voicebankで指定しているUTAU音源が 対象USTのUTAU音源とは違う場合、</span>
+<span class="sd">                      Falseにするほうがよい。</span>
+
+<span class="sd">    Noteオブジェクトの歌詞と音程から、使用する原音に対応するエイリアスを決定する。</span>
+<span class="sd">    ノート情報に @alias があればそのエイリアスを使用し、</span>
+<span class="sd">    無い場合は prefix.map を使って決定する。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lyric</span> <span class="o">=</span> <span class="n">utaupy_ust_note</span><span class="o">.</span><span class="n">lyric</span>
+    <span class="k">if</span> <span class="n">lyric</span> <span class="o">==</span> <span class="s1">&#39;R&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s1">&#39;R&#39;</span>
+    <span class="c1"># USTでエイリアスを強制指定している場合</span>
+    <span class="k">if</span> <span class="n">lyric</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">lyric</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">)</span>
+    <span class="c1"># 普通の歌詞の場合はprefixmapを参照してサフィックス追加</span>
+    <span class="n">alias</span> <span class="o">=</span> <span class="n">lyric</span> <span class="o">+</span> <span class="n">voicebank</span><span class="o">.</span><span class="n">prefixmap</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">utaupy_ust_note</span><span class="o">.</span><span class="n">notenum</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">alias</span></div>
+
+
+<div class="viewcode-block" id="get_oto"><a class="viewcode-back" href="../../utaupy.html#utaupy.utau.get_oto">[ドキュメント]</a><span class="k">def</span> <span class="nf">get_oto</span><span class="p">(</span><span class="n">voicebank</span><span class="p">,</span> <span class="n">utaupy_ust_note</span><span class="p">,</span> <span class="n">suffix_exists</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    voicebank       : utaupy.utau.UtauVoiceBank オブジェクト</span>
+<span class="sd">    utaupy_ust_note : utaupy.Ust.Note オブジェクト</span>
+<span class="sd">    use_atparam     : Noteオブジェクトの &#39;@alias&#39; などを使用するかどうか。</span>
+<span class="sd">                      voicebankで指定しているUTAU音源が 対象USTのUTAU音源とは違う場合、</span>
+<span class="sd">                      Falseにするほうがよい。</span>
+<span class="sd">    Noteオブジェクトに対応する原音設定の値を取得する。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">suffix_exists</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="n">alias</span> <span class="o">=</span> <span class="n">autoselect_alias</span><span class="p">(</span><span class="n">voicebank</span><span class="p">,</span> <span class="n">utaupy_ust_note</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">alias</span> <span class="o">=</span> <span class="n">utaupy_ust_note</span><span class="o">.</span><span class="n">lyric</span>
+    <span class="c1"># 原音にちゃんとあるかどうか</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">oto_for_the_alias</span> <span class="o">=</span> <span class="n">voicebank</span><span class="o">.</span><span class="n">otoini</span><span class="p">[</span><span class="n">alias</span><span class="p">]</span>
+    <span class="c1"># なければ全部の数値がゼロの原音設定値を返す</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[WARN] KeyError: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">oto_for_the_alias</span> <span class="o">=</span> <span class="n">_otoini</span><span class="o">.</span><span class="n">Oto</span><span class="p">()</span>
+        <span class="n">oto_for_the_alias</span><span class="o">.</span><span class="n">Alias</span> <span class="o">=</span> <span class="n">alias</span>
+    <span class="k">return</span> <span class="n">oto_for_the_alias</span></div>
+
+
+<div class="viewcode-block" id="autoadjust_parameters"><a class="viewcode-back" href="../../utaupy.html#utaupy.utau.autoadjust_parameters">[ドキュメント]</a><span class="k">def</span> <span class="nf">autoadjust_parameters</span><span class="p">(</span><span class="n">voicebank</span><span class="p">,</span> <span class="n">utaupy_ust_ust</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    voicebank       : utaupy.utau.UtauVoiceBank オブジェクト</span>
+<span class="sd">    utaupy_ust_ust  : utaupy.Ust.Ust オブジェクト</span>
+
+<span class="sd">    # TODO: プラグイン用に&#39;@&#39;パラメータに対応させる。</span>
+<span class="sd">    UTAUの「パラメータ自動調整」機能に相当するメソッド。</span>
+<span class="sd">    ・エイリアス(@alias)</span>
+<span class="sd">    ・STP(StartPoint)</span>
+<span class="sd">    ・オーバーラップ(VoiceOverlap)</span>
+<span class="sd">    ・先行発声(PreUtterance)</span>
+<span class="sd">    の4つの値を調整する。</span>
+
+<span class="sd">    # TODO: 子音速度100以外に対応させる。</span>
+<span class="sd">    仕様</span>
+<span class="sd">    前のノートが休符な時は、原音値をそのまま入力する。</span>
+<span class="sd">    前のノートが休符でない場合</span>
+<span class="sd">        前のノートの長さの半分が、oto.overlapからoto.preutteranceまでの長さよりも短い場合</span>
+<span class="sd">            差分をSTPで削る</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">notes</span> <span class="o">=</span> <span class="n">utaupy_ust_ust</span><span class="o">.</span><span class="n">notes</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">note</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tqdm</span><span class="p">(</span><span class="n">notes</span><span class="p">[</span><span class="mi">1</span><span class="p">:]),</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">halflen</span> <span class="o">=</span> <span class="n">notes</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">length_ms</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">oto</span> <span class="o">=</span> <span class="n">get_oto</span><span class="p">(</span><span class="n">voicebank</span><span class="p">,</span> <span class="n">note</span><span class="p">,</span> <span class="n">suffix_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">halflen</span> <span class="o">&lt;</span> <span class="n">oto</span><span class="o">.</span><span class="n">preutterance</span> <span class="o">-</span> <span class="n">oto</span><span class="o">.</span><span class="n">overlap</span><span class="p">:</span>
+            <span class="n">at_preuttr</span> <span class="o">=</span> <span class="n">halflen</span> <span class="o">*</span> <span class="n">oto</span><span class="o">.</span><span class="n">preutterance</span> <span class="o">/</span> <span class="p">(</span><span class="n">oto</span><span class="o">.</span><span class="n">preutterance</span> <span class="o">-</span> <span class="n">oto</span><span class="o">.</span><span class="n">overlap</span><span class="p">)</span>
+            <span class="n">at_overlap</span> <span class="o">=</span> <span class="n">halflen</span> <span class="o">*</span> <span class="n">oto</span><span class="o">.</span><span class="n">overlap</span> <span class="o">/</span> <span class="p">(</span><span class="n">oto</span><span class="o">.</span><span class="n">preutterance</span> <span class="o">-</span> <span class="n">oto</span><span class="o">.</span><span class="n">overlap</span><span class="p">)</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">set_by_key</span><span class="p">(</span><span class="s1">&#39;StartPoint&#39;</span><span class="p">,</span> <span class="n">oto</span><span class="o">.</span><span class="n">preutterance</span> <span class="o">-</span> <span class="n">at_preuttr</span><span class="p">)</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">set_by_key</span><span class="p">(</span><span class="s1">&#39;PreUtterance&#39;</span><span class="p">,</span> <span class="n">at_preuttr</span><span class="p">)</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">set_by_key</span><span class="p">(</span><span class="s1">&#39;VoiceOverlap&#39;</span><span class="p">,</span> <span class="n">at_overlap</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;adjust&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">set_by_key</span><span class="p">(</span><span class="s1">&#39;StartPoint&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">set_by_key</span><span class="p">(</span><span class="s1">&#39;PreUtterance&#39;</span><span class="p">,</span> <span class="n">oto</span><span class="o">.</span><span class="n">preutterance</span><span class="p">)</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">set_by_key</span><span class="p">(</span><span class="s1">&#39;VoiceOverlap&#39;</span><span class="p">,</span> <span class="n">oto</span><span class="o">.</span><span class="n">overlap</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">utaupy  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >モジュールコード</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">utaupy.utau</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Author.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.3.1.
+    </div>
+  </body>
+</html>

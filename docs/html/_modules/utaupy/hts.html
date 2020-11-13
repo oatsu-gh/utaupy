@@ -1,0 +1,625 @@
+
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>utaupy.hts &#8212; utaupy  ドキュメント</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/translations.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">utaupy  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">モジュールコード</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">utaupy.hts</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>utaupy.hts のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python3</span>
+<span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) 2020 oatsu</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Python3 module for HTS-full-label.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="c1"># from collections import UserList</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+
+<span class="c1"># import itertools</span>
+
+
+<div class="viewcode-block" id="HTSFullLabel"><a class="viewcode-back" href="../../utaupy.html#utaupy.hts.HTSFullLabel">[ドキュメント]</a><span class="k">class</span> <span class="nc">HTSFullLabel</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    HTSのフルコンテキストラベルの1行を扱うクラス</span>
+<span class="sd">    OneLine からなる list</span>
+<span class="sd">    [OneLine, OneLine, ..., OneLine]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">song</span> <span class="o">=</span> <span class="n">Song</span><span class="p">()</span>
+
+<div class="viewcode-block" id="HTSFullLabel.write"><a class="viewcode-back" href="../../utaupy.html#utaupy.hts.HTSFullLabel.write">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ファイル出力する</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">oneline</span><span class="p">)</span> <span class="k">for</span> <span class="n">oneline</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">])</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+<div class="viewcode-block" id="HTSFullLabel.load"><a class="viewcode-back" href="../../utaupy.html#utaupy.hts.HTSFullLabel.load">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ファイル、文字列、文字列のリスト、Songオブジェクトのいずれかより値を取得して登録する。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_path</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="o">==</span> <span class="n">Song</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_songobj</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">source</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_lines</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Type of the argument &quot;source&quot; must be str, list or </span><span class="si">{</span><span class="n">Song</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="nf">_load_from_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ファイルをもとに値を登録する。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># パスに半角スペースが入っている場合に出現する引用符を除去</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+        <span class="c1"># ファイルを読み取って行のリストにする</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()]</span>
+        <span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;sjis&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()]</span>
+        <span class="c1"># 行ごとに分割したリストをもとに情報を登録する。</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_load_from_lines</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">_load_from_lines</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        文字列のリスト(行のリスト)をもとに値を登録する。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 各行を解析してHTSFullLabelに追加する。</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+            <span class="c1"># 1行分の情報用のオブジェクトを生成</span>
+            <span class="n">oneline</span> <span class="o">=</span> <span class="n">_OneLine</span><span class="p">()</span>
+            <span class="c1"># 空白で分割して、時刻情報とそれ以外のコンテキストに分ける</span>
+            <span class="n">line_split</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">maxsplit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">oneline</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line_split</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">oneline</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">line_split</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">str_contexts</span> <span class="o">=</span> <span class="n">line_split</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="c1"># コンテキスト文字列を /A: などの文字列で区切って一次元リストにする</span>
+            <span class="n">l_contexts</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/.:&#39;</span><span class="p">,</span> <span class="n">str_contexts</span><span class="p">)</span>
+            <span class="c1"># 特定の文字でさらに区切って二次元リストにする</span>
+            <span class="n">l_contexts_2d</span> <span class="o">=</span> \
+                <span class="p">[</span>
+                    <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;[</span><span class="si">{}</span><span class="s1">]&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="s1">&#39;=+-~!@#$%^&amp;;_|[]&#39;</span><span class="p">)),</span> <span class="n">s</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">l_contexts</span>
+                <span class="p">]</span>
+            <span class="c1"># 1行分の情報用のオブジェクトに、各種コンテキストを登録する</span>
+            <span class="n">oneline</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="n">l_contexts_2d</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">oneline</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">l_contexts_2d</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">oneline</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">l_contexts_2d</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+            <span class="n">oneline</span><span class="o">.</span><span class="n">c</span> <span class="o">=</span> <span class="n">l_contexts_2d</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+            <span class="n">oneline</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">l_contexts_2d</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+            <span class="n">oneline</span><span class="o">.</span><span class="n">e</span> <span class="o">=</span> <span class="n">l_contexts_2d</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+            <span class="n">oneline</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">l_contexts_2d</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+            <span class="n">oneline</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">l_contexts_2d</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
+            <span class="n">oneline</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="n">l_contexts_2d</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+            <span class="n">oneline</span><span class="o">.</span><span class="n">i</span> <span class="o">=</span> <span class="n">l_contexts_2d</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
+            <span class="n">oneline</span><span class="o">.</span><span class="n">j</span> <span class="o">=</span> <span class="n">l_contexts_2d</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+            <span class="c1"># 1行分の情報用のオブジェクトを HTSFullLabel オブジェクトに追加する。</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oneline</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">_load_from_songobj</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">songobj</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        hts.Song オブジェクトをもとにコンテキストを登録する。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">song</span> <span class="o">=</span> <span class="n">songobj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fill_contexts_from_songobj</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="HTSFullLabel.fill_contexts_from_songobj"><a class="viewcode-back" href="../../utaupy.html#utaupy.hts.HTSFullLabel.fill_contexts_from_songobj">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">fill_contexts_from_songobj</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        自身が持つSongオブジェクトをもとにコンテキスト情報を埋める。</span>
+<span class="sd">        {objectname}_current 系のオブジェクトのみから前後を補完する。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">song</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">song</span>
+        <span class="n">phrases</span> <span class="o">=</span> <span class="p">[</span><span class="n">Phrase</span><span class="p">()]</span> <span class="o">+</span> <span class="n">song</span> <span class="o">+</span> <span class="p">[</span><span class="n">Phrase</span><span class="p">()]</span>
+        <span class="k">for</span> <span class="n">i_p</span><span class="p">,</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">phrases</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">notes</span> <span class="o">=</span> <span class="n">phrases</span><span class="p">[</span><span class="n">i_p</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">phrase</span> <span class="o">+</span> <span class="n">phrases</span><span class="p">[</span><span class="n">i_p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">i_n</span><span class="p">,</span> <span class="n">note</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">notes</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">syllables</span> <span class="o">=</span> <span class="n">notes</span><span class="p">[</span><span class="n">i_n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">phrase</span> <span class="o">+</span> <span class="n">notes</span><span class="p">[</span><span class="n">i_n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">i_s</span><span class="p">,</span> <span class="n">syllable</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">syllables</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">phoneme</span> <span class="ow">in</span> <span class="n">syllable</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="p">[</span><span class="n">phoneme</span><span class="p">,</span> <span class="n">note</span><span class="p">,</span> <span class="n">syllable</span><span class="p">,</span> <span class="n">phoneme</span><span class="p">])))</span>
+                        <span class="n">ol</span> <span class="o">=</span> <span class="n">_OneLine</span><span class="p">()</span>
+                        <span class="c1"># 音素情報を登録(現在の音素のみ)</span>
+                        <span class="n">ol</span><span class="o">.</span><span class="n">phoneme_current</span> <span class="o">=</span> <span class="n">phoneme</span>
+                        <span class="c1"># 音節情報を登録</span>
+                        <span class="n">ol</span><span class="o">.</span><span class="n">syllable_current</span> <span class="o">=</span> <span class="n">syllable</span>
+                        <span class="n">ol</span><span class="o">.</span><span class="n">syllable_previous</span> <span class="o">=</span> <span class="n">syllables</span><span class="p">[</span><span class="n">i_s</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="n">ol</span><span class="o">.</span><span class="n">syllable_next</span> <span class="o">=</span> <span class="n">syllables</span><span class="p">[</span><span class="n">i_s</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="c1"># 音符情報を登録</span>
+                        <span class="n">ol</span><span class="o">.</span><span class="n">note_current</span> <span class="o">=</span> <span class="n">note</span>
+                        <span class="n">ol</span><span class="o">.</span><span class="n">note_previous</span> <span class="o">=</span> <span class="n">notes</span><span class="p">[</span><span class="n">i_n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="n">ol</span><span class="o">.</span><span class="n">note_next</span> <span class="o">=</span> <span class="n">notes</span><span class="p">[</span><span class="n">i_n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="c1"># 楽節情報を登録</span>
+                        <span class="n">ol</span><span class="o">.</span><span class="n">phrase_current</span> <span class="o">=</span> <span class="n">phrase</span>
+                        <span class="n">ol</span><span class="o">.</span><span class="n">phrase_previous</span> <span class="o">=</span> <span class="n">phrases</span><span class="p">[</span><span class="n">i_p</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="n">ol</span><span class="o">.</span><span class="n">phrase_next</span> <span class="o">=</span> <span class="n">phrases</span><span class="p">[</span><span class="n">i_p</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="c1"># 楽曲情報を登録</span>
+                        <span class="n">ol</span><span class="o">.</span><span class="n">song</span> <span class="o">=</span> <span class="n">song</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fill_phoneme_contexts</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="nf">_fill_phoneme_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        phoneme_current をもとに、前後の音素に関する項を埋める。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">extended_self</span> <span class="o">=</span> <span class="p">[</span><span class="n">_OneLine</span><span class="p">(),</span> <span class="n">_OneLine</span><span class="p">()]</span> <span class="o">+</span> <span class="bp">self</span> <span class="o">+</span> <span class="p">[</span><span class="n">_OneLine</span><span class="p">(),</span> <span class="n">_OneLine</span><span class="p">()]</span>
+        <span class="c1"># ol is OneLine object</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ol</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">extended_self</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">ol</span><span class="o">.</span><span class="n">phoneme_before_previous</span> <span class="o">=</span> <span class="n">extended_self</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">phoneme_current</span>
+            <span class="n">ol</span><span class="o">.</span><span class="n">phoneme_previous</span> <span class="o">=</span> <span class="n">extended_self</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">phoneme_current</span>
+            <span class="n">ol</span><span class="o">.</span><span class="n">phoneme_next</span> <span class="o">=</span> <span class="n">extended_self</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">phoneme_current</span>
+            <span class="n">ol</span><span class="o">.</span><span class="n">phoneme_after_next</span> <span class="o">=</span> <span class="n">extended_self</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">phoneme_current</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="HTSFullLabel.generate_songobj_from_contexts"><a class="viewcode-back" href="../../utaupy.html#utaupy.hts.HTSFullLabel.generate_songobj_from_contexts">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">generate_songobj_from_contexts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        フルコンテキストラベルの情報をもとにSongオブジェクトをつくる。</span>
+<span class="sd">        self.song に格納する。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Song は1つの HTSFullLabel につき1つだけなので、ループする必要がない。</span>
+        <span class="c1"># 一番最初の行の情報がすべての行に通用すると考える。</span>
+        <span class="n">song</span> <span class="o">=</span> <span class="n">Song</span><span class="p">()</span>
+        <span class="n">song</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">j</span>
+        <span class="c1"># 一時的に登録するための変数</span>
+        <span class="n">temp_phrase</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">phrase_current</span>
+        <span class="n">temp_note</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">note_current</span>
+        <span class="n">temp_syllable</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">syllable_current</span>
+        <span class="n">phoneme</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">phoneme_current</span>
+        <span class="n">song</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_phrase</span><span class="p">)</span>
+        <span class="n">temp_phrase</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_note</span><span class="p">)</span>
+        <span class="n">temp_syllable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phoneme</span><span class="p">)</span>
+        <span class="c1"># 値が変わったときだけ新しいオブジェクトを作る。</span>
+        <span class="k">for</span> <span class="n">ol</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">phrase</span> <span class="o">=</span> <span class="n">ol</span><span class="o">.</span><span class="n">phrase_current</span>
+            <span class="n">note</span> <span class="o">=</span> <span class="n">ol</span><span class="o">.</span><span class="n">note_current</span>
+            <span class="n">syllable</span> <span class="o">=</span> <span class="n">ol</span><span class="o">.</span><span class="n">syllable_current</span>
+            <span class="n">phoneme</span> <span class="o">=</span> <span class="n">ol</span><span class="o">.</span><span class="n">phoneme_current</span>
+            <span class="c1"># 直前の行とフレーズが異なるとき</span>
+            <span class="k">if</span> <span class="n">phrase</span> <span class="o">!=</span> <span class="n">temp_phrase</span><span class="p">:</span>
+                <span class="n">song</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_phrase</span><span class="p">)</span>
+                <span class="n">temp_phrase</span> <span class="o">=</span> <span class="n">phrase</span>
+            <span class="c1"># 直前の行とノートが異なるとき</span>
+            <span class="k">if</span> <span class="n">note</span> <span class="o">!=</span> <span class="n">temp_note</span><span class="p">:</span>
+                <span class="n">temp_phrase</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_note</span><span class="p">)</span>
+                <span class="n">temp_note</span> <span class="o">=</span> <span class="n">note</span>
+            <span class="c1"># 直前の行と音節が異なるとき</span>
+            <span class="k">if</span> <span class="n">syllable</span> <span class="o">!=</span> <span class="n">temp_syllable</span><span class="p">:</span>
+                <span class="n">temp_note</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp_syllable</span><span class="p">)</span>
+                <span class="n">temp_syllable</span> <span class="o">=</span> <span class="n">syllable</span>
+            <span class="n">temp_syllable</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">phoneme</span><span class="p">)</span>
+        <span class="c1"># 完成したやつを返す</span>
+        <span class="k">return</span> <span class="n">song</span></div></div>
+
+
+
+<span class="k">class</span> <span class="nc">_OneLine</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    HTSのフルコンテキストラベルの1行を扱うクラス</span>
+<span class="sd">    ファイルを読み取って HTSFullLabel を生成するときと、</span>
+<span class="sd">    HTSFullLabel をファイル出力するときに使う。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_before_previous</span> <span class="o">=</span> <span class="n">Phoneme</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_previous</span> <span class="o">=</span> <span class="n">Phoneme</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span> <span class="o">=</span> <span class="n">Phoneme</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_next</span> <span class="o">=</span> <span class="n">Phoneme</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_after_next</span> <span class="o">=</span> <span class="n">Phoneme</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">syllable_previous</span> <span class="o">=</span> <span class="n">Syllable</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">syllable_current</span> <span class="o">=</span> <span class="n">Syllable</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">syllable_next</span> <span class="o">=</span> <span class="n">Syllable</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">note_previous</span> <span class="o">=</span> <span class="n">Note</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">note_current</span> <span class="o">=</span> <span class="n">Note</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">note_next</span> <span class="o">=</span> <span class="n">Note</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phrase_previous</span> <span class="o">=</span> <span class="n">Phrase</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phrase_current</span> <span class="o">=</span> <span class="n">Phrase</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phrase_next</span> <span class="o">=</span> <span class="n">Phrase</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">song</span> <span class="o">=</span> <span class="n">Song</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">str_time</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="si">}</span><span class="s1"> &#39;</span>
+        <span class="c1"># Phoneme 関連</span>
+        <span class="n">str_p</span> <span class="o">=</span> \
+            <span class="s1">&#39;</span><span class="si">{0}</span><span class="s1">@</span><span class="si">{1}</span><span class="s1">ˆ</span><span class="si">{2}</span><span class="s1">-</span><span class="si">{3}</span><span class="s1">+</span><span class="si">{4}</span><span class="s1">=</span><span class="si">{5}</span><span class="s1">_</span><span class="si">{6}</span><span class="s1">%</span><span class="si">{7}</span><span class="s1">ˆ</span><span class="si">{8}</span><span class="s1">_</span><span class="si">{9}</span><span class="s1">∼</span><span class="si">{10}</span><span class="s1">-</span><span class="si">{11}</span><span class="s1">!</span><span class="si">{12}</span><span class="s1">[</span><span class="si">{13}</span><span class="s1">$</span><span class="si">{14}</span><span class="s1">]</span><span class="si">{15}</span><span class="s1">&#39;</span> \
+            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">)</span>
+        <span class="c1"># Syllable 関連</span>
+        <span class="n">str_a</span> <span class="o">=</span> <span class="s1">&#39;/A:</span><span class="si">{0}</span><span class="s1">-</span><span class="si">{1}</span><span class="s1">-</span><span class="si">{2}</span><span class="s1">@</span><span class="si">{3}</span><span class="s1">~</span><span class="si">{4}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">str_b</span> <span class="o">=</span> <span class="s1">&#39;/B:</span><span class="si">{0}</span><span class="s1">_</span><span class="si">{1}</span><span class="s1">_</span><span class="si">{2}</span><span class="s1">@</span><span class="si">{3}</span><span class="s1">|</span><span class="si">{4}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+        <span class="n">str_c</span> <span class="o">=</span> <span class="s1">&#39;/C:</span><span class="si">{0}</span><span class="s1">+</span><span class="si">{1}</span><span class="s1">+</span><span class="si">{2}</span><span class="s1">@</span><span class="si">{3}</span><span class="s1">&amp;</span><span class="si">{4}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">c</span><span class="p">)</span>
+        <span class="c1"># Note 関連</span>
+        <span class="n">str_d</span> <span class="o">=</span> <span class="s1">&#39;/D:</span><span class="si">{0}</span><span class="s1">!</span><span class="si">{1}</span><span class="s1">#</span><span class="si">{2}</span><span class="s1">$</span><span class="si">{3}</span><span class="s1">%</span><span class="si">{4}</span><span class="s1">|</span><span class="si">{5}</span><span class="s1">&amp;</span><span class="si">{6}</span><span class="s1">;</span><span class="si">{7}</span><span class="s1">-</span><span class="si">{8}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">str_e</span> <span class="o">=</span> \
+            <span class="s1">&#39;/E:</span><span class="si">{0}</span><span class="s1">]</span><span class="si">{1}</span><span class="s1">ˆ</span><span class="si">{2}</span><span class="s1">=</span><span class="si">{3}</span><span class="s1">∼</span><span class="si">{4}</span><span class="s1">!</span><span class="si">{5}</span><span class="s1">@</span><span class="si">{6}</span><span class="s1">#</span><span class="si">{7}</span><span class="s1">+</span><span class="si">{8}</span><span class="s1">]</span><span class="si">{9}</span><span class="s1">$</span><span class="si">{10}</span><span class="s1">|</span><span class="si">{11}</span><span class="s1">[</span><span class="si">{12}</span><span class="s1">&amp;</span><span class="si">{13}</span><span class="s1">]</span><span class="si">{14}</span><span class="s1">=</span><span class="si">{15}</span><span class="s1">ˆ</span><span class="si">{16}</span><span class="s1">∼</span><span class="si">{17}</span><span class="s1">#</span><span class="si">{18}</span><span class="s1">_</span><span class="si">{19}</span><span class="s1">;</span><span class="si">{20}</span><span class="s1">$</span><span class="si">{21}</span><span class="s1">&amp;</span><span class="si">{22}</span><span class="s1">%</span><span class="si">{23}</span><span class="s1">[</span><span class="si">{24}</span><span class="s1">|</span><span class="si">{25}</span><span class="s1">]</span><span class="si">{26}</span><span class="s1">-</span><span class="si">{27}</span><span class="s1">ˆ</span><span class="si">{28}</span><span class="s1">+</span><span class="si">{29}</span><span class="s1">∼</span><span class="si">{30}</span><span class="s1">=</span><span class="si">{31}</span><span class="s1">@</span><span class="si">{32}</span><span class="s1">$</span><span class="si">{33}</span><span class="s1">!</span><span class="si">{34}</span><span class="s1">%</span><span class="si">{35}</span><span class="s1">#</span><span class="si">{36}</span><span class="s1">|</span><span class="si">{37}</span><span class="s1">|</span><span class="si">{38}</span><span class="s1">-</span><span class="si">{39}</span><span class="s1">&amp;</span><span class="si">{40}</span><span class="s1">&amp;</span><span class="si">{41}</span><span class="s1">+</span><span class="si">{42}</span><span class="s1">[</span><span class="si">{43}</span><span class="s1">;</span><span class="si">{44}</span><span class="s1">]</span><span class="si">{45}</span><span class="s1">;</span><span class="si">{46}</span><span class="s1">∼</span><span class="si">{47}</span><span class="s1">∼</span><span class="si">{48}</span><span class="s1">ˆ</span><span class="si">{49}</span><span class="s1">ˆ</span><span class="si">{50}</span><span class="s1">@</span><span class="si">{51}</span><span class="s1">[</span><span class="si">{52}</span><span class="s1">#</span><span class="si">{53}</span><span class="s1">=</span><span class="si">{54}</span><span class="s1">!</span><span class="si">{55}</span><span class="s1">∼</span><span class="si">{56}</span><span class="s1">+</span><span class="si">{57}</span><span class="s1">!</span><span class="si">{58}</span><span class="s1">ˆ</span><span class="si">{59}</span><span class="s1">&#39;</span> \
+            <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">str_f</span> <span class="o">=</span> <span class="s1">&#39;/F:</span><span class="si">{0}</span><span class="s1">#</span><span class="si">{1}</span><span class="s1">#</span><span class="si">{2}</span><span class="s1">-</span><span class="si">{3}</span><span class="s1">$</span><span class="si">{4}</span><span class="s1">$</span><span class="si">{5}</span><span class="s1">+</span><span class="si">{6}</span><span class="s1">%</span><span class="si">{7}</span><span class="s1">;</span><span class="si">{8}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">)</span>
+        <span class="c1"># Phrase 関連</span>
+        <span class="n">str_g</span> <span class="o">=</span> <span class="s1">&#39;/G:</span><span class="si">{0}</span><span class="s1">_</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">)</span>
+        <span class="n">str_h</span> <span class="o">=</span> <span class="s1">&#39;/H:</span><span class="si">{0}</span><span class="s1">_</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">)</span>
+        <span class="n">str_i</span> <span class="o">=</span> <span class="s1">&#39;/I:</span><span class="si">{0}</span><span class="s1">_</span><span class="si">{1}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">i</span><span class="p">)</span>
+        <span class="c1"># Song 関連</span>
+        <span class="n">str_j</span> <span class="o">=</span> <span class="s1">&#39;/J:</span><span class="si">{0}</span><span class="s1">~</span><span class="si">{1}</span><span class="s1">@</span><span class="si">{2}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">j</span><span class="p">)</span>
+        <span class="c1"># 各パラメータの文字列を結合</span>
+        <span class="n">str_self</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">str_time</span><span class="p">,</span> <span class="n">str_p</span><span class="p">,</span> <span class="n">str_a</span><span class="p">,</span> <span class="n">str_b</span><span class="p">,</span> <span class="n">str_c</span><span class="p">,</span> <span class="n">str_d</span><span class="p">,</span>
+                            <span class="n">str_e</span><span class="p">,</span> <span class="n">str_f</span><span class="p">,</span> <span class="n">str_g</span><span class="p">,</span> <span class="n">str_h</span><span class="p">,</span> <span class="n">str_i</span><span class="p">,</span> <span class="n">str_j</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">str_self</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        発声開始時刻</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+
+    <span class="nd">@start</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_time</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_time</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        発声終了時刻</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+
+    <span class="nd">@end</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end_time</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">end_time</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        音素に関するコンテキスト</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">language_independent_identity</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_before_previous</span><span class="o">.</span><span class="n">identity</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_previous</span><span class="o">.</span><span class="n">identity</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">identity</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_next</span><span class="o">.</span><span class="n">identity</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_after_next</span><span class="o">.</span><span class="n">identity</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_before_previous</span><span class="o">.</span><span class="n">flag</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_previous</span><span class="o">.</span><span class="n">flag</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">flag</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_next</span><span class="o">.</span><span class="n">flag</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_after_next</span><span class="o">.</span><span class="n">flag</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">position_forward</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">position_backward</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">distance_from_previous_vowel</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">distance_to_next_vowel</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">undefined_context</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">p</span>
+
+    <span class="nd">@p</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">p</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phoneme_contexts</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">language_independent_identity</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_before_previous</span><span class="o">.</span><span class="n">identity</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_previous</span><span class="o">.</span><span class="n">identity</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">identity</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_next</span><span class="o">.</span><span class="n">identity</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_after_next</span><span class="o">.</span><span class="n">identity</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_before_previous</span><span class="o">.</span><span class="n">flag</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_previous</span><span class="o">.</span><span class="n">flag</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">flag</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_next</span><span class="o">.</span><span class="n">flag</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_after_next</span><span class="o">.</span><span class="n">flag</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">10</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">position_forward</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">position_backward</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">12</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">distance_from_previous_vowel</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">13</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">distance_to_next_vowel</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">14</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phoneme_current</span><span class="o">.</span><span class="n">undefined_context</span> <span class="o">=</span> <span class="n">phoneme_contexts</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">a</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        直前の音節のコンテキスト</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">syllable_previous</span><span class="o">.</span><span class="n">contexts</span>
+
+    <span class="nd">@a</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">a</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">syllable_contexts</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">syllable_previous</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="n">syllable_contexts</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">b</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        現在の音節のコンテキスト</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">syllable_current</span><span class="o">.</span><span class="n">contexts</span>
+
+    <span class="nd">@b</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">b</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">syllable_contexts</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">syllable_current</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="n">syllable_contexts</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">c</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        直後の音節のコンテキスト</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">syllable_next</span><span class="o">.</span><span class="n">contexts</span>
+
+    <span class="nd">@c</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">c</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">syllable_contexts</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">syllable_next</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="n">syllable_contexts</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">d</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        直前の音符のコンテキスト</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">note_previous</span><span class="o">.</span><span class="n">contexts</span>
+
+    <span class="nd">@d</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">d</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note_contexts</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">note_previous</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="n">note_contexts</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">e</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        現在の音符のコンテキスト</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">note_current</span><span class="o">.</span><span class="n">contexts</span>
+
+    <span class="nd">@e</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">e</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note_contexts</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">note_current</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="n">note_contexts</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        直後の音符のコンテキスト</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">note_next</span><span class="o">.</span><span class="n">contexts</span>
+
+    <span class="nd">@f</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">note_contexts</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">note_next</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="n">note_contexts</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">g</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        直前の楽節のコンテキスト</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">phrase_previous</span><span class="o">.</span><span class="n">contexts</span>
+
+    <span class="nd">@g</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">g</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phrase_contexts</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phrase_previous</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="n">phrase_contexts</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        現在の楽節のコンテキスト</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">phrase_current</span><span class="o">.</span><span class="n">contexts</span>
+
+    <span class="nd">@h</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phrase_contexts</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phrase_current</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="n">phrase_contexts</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">i</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        直後の楽節のコンテキスト</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">phrase_next</span><span class="o">.</span><span class="n">contexts</span>
+
+    <span class="nd">@i</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">i</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">phrase_contexts</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phrase_next</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="n">phrase_contexts</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">j</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        (現在の)楽曲のコンテキスト</span>
+<span class="sd">        1ファイル1曲。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">song</span><span class="o">.</span><span class="n">contexts</span>
+
+    <span class="nd">@j</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">j</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song_contexts</span><span class="p">:</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">song</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="n">song_contexts</span>
+
+
+<div class="viewcode-block" id="Song"><a class="viewcode-back" href="../../utaupy.html#utaupy.hts.Song">[ドキュメント]</a><span class="k">class</span> <span class="nc">Song</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    曲を扱うクラス</span>
+<span class="sd">    今日の曲(j1-j3)</span>
+<span class="sd">    [Phrase, Phrase, ..., Phrase]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;xx&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">number_of_measures</span> <span class="o">=</span> <span class="s1">&#39;xx&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all_phrases</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Phraseをすべて並べたリストを返す。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all_notes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Noteをすべて並べたリストを返す。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">notes_2d</span> <span class="o">=</span> <span class="p">[</span><span class="n">phrase</span><span class="o">.</span><span class="n">notes</span> <span class="k">for</span> <span class="n">phrase</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_phrases</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">notes_2d</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all_syllables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Syllableをすべて並べたリストを返す。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">syllables_2d</span> <span class="o">=</span> <span class="p">[</span><span class="n">note</span><span class="o">.</span><span class="n">syllables</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_notes</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">syllables_2d</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all_phonemes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Phonemeをすべて並べたリストを返す。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">phonemes_2d</span> <span class="o">=</span> <span class="p">[</span><span class="n">syllable</span><span class="o">.</span><span class="n">phonemes</span> <span class="k">for</span> <span class="n">syllable</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_syllables</span><span class="p">]</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">phonemes_2d</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Phrase"><a class="viewcode-back" href="../../utaupy.html#utaupy.hts.Phrase">[ドキュメント]</a><span class="k">class</span> <span class="nc">Phrase</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    フレーズを扱うクラス</span>
+<span class="sd">    昨日のフレーズ G (g1~g2)</span>
+<span class="sd">    今日のフレーズ H (h1~h2)</span>
+<span class="sd">    明日のフレーズ I (i1~i2)</span>
+<span class="sd">    基本的にはHのみを操作する。</span>
+<span class="sd">    [Note, Note, Note, ..., Note]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;xx&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span></div>
+
+
+<div class="viewcode-block" id="Note"><a class="viewcode-back" href="../../utaupy.html#utaupy.hts.Note">[ドキュメント]</a><span class="k">class</span> <span class="nc">Note</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    音符または休符を扱うクラス</span>
+<span class="sd">    1ノート（音符と休符）を扱うクラス</span>
+<span class="sd">    昨日のノート D (d1~d5)</span>
+<span class="sd">    今日のノート E (e1~e60)</span>
+<span class="sd">    明日のノート F (f1~f5)</span>
+<span class="sd">    基本的にはEのみを操作する。</span>
+<span class="sd">    [Syllable, Syllable, ..., Syllable]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;xx&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">60</span></div>
+
+
+<div class="viewcode-block" id="Syllable"><a class="viewcode-back" href="../../utaupy.html#utaupy.hts.Syllable">[ドキュメント]</a><span class="k">class</span> <span class="nc">Syllable</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    1音節を扱うクラス</span>
+<span class="sd">    昨日の音節 A (a1~a5)</span>
+<span class="sd">    今日の音節 B (b1~b5)</span>
+<span class="sd">    明日の音節 C (c1~c5)</span>
+<span class="sd">    [Phoneme, Phoneme, ..., Phoneme]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contexts</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;xx&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">5</span></div>
+
+
+<div class="viewcode-block" id="Phoneme"><a class="viewcode-back" href="../../utaupy.html#utaupy.hts.Phoneme">[ドキュメント]</a><span class="k">class</span> <span class="nc">Phoneme</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    音素を扱うクラス</span>
+<span class="sd">    p1~p16</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># 発声開始時刻</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># 発声終了時刻</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># p1: 言語非依存の音素記号(p, c, v など)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">language_independent_identity</span> <span class="o">=</span> <span class="s1">&#39;xx&#39;</span>
+        <span class="c1"># p4: 音素記号</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">identity</span> <span class="o">=</span> <span class="s1">&#39;xx&#39;</span>
+        <span class="c1"># p9: フラグ</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag</span> <span class="o">=</span> <span class="s1">&#39;xx&#39;</span>
+        <span class="c1"># p12: 音節(Syllable)内の、先頭から数えた位置</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position_forward</span> <span class="o">=</span> <span class="s1">&#39;xx&#39;</span>
+        <span class="c1"># p13: 音節(Syllable)内の、末尾から数えた位置</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position_backward</span> <span class="o">=</span> <span class="s1">&#39;xx&#39;</span>
+        <span class="c1"># p14: 今が子音のときのみに定義される、直前の母音からの距離</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance_from_previous_vowel</span> <span class="o">=</span> <span class="s1">&#39;xx&#39;</span>
+        <span class="c1"># p15: 今が子音のときのみに定義される、直後の母音までの距離</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance_to_next_vowel</span> <span class="o">=</span> <span class="s1">&#39;xx&#39;</span>
+        <span class="c1"># 未定義のコンテキスト</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">undefined_context</span> <span class="o">=</span> <span class="s1">&#39;xx&#39;</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">utaupy  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >モジュールコード</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">utaupy.hts</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Author.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.3.1.
+    </div>
+  </body>
+</html>

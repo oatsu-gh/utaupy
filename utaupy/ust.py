@@ -132,7 +132,7 @@ class Ust(UserList):
         テンポを正常に取得できるようにする
         """
         if not isinstance(l, list):
-            raise TypeError('argument \"l\" must be list instance')
+            raise TypeError('argument "l" must be list instance')
         self.data = l
         self.reload_tempo()
         return self.data
@@ -150,7 +150,7 @@ class Ust(UserList):
         全セクションのうち、[#VERSION] と [#SETTING] [#TRACKEND] を除いたノート部分を上書き
         """
         if not isinstance(l, list):
-            raise TypeError('argument \"l\" must be list instance')
+            raise TypeError('argument "l" must be list instance')
         self.data = self.data[:2] + l + self.data[-1:]
         self.reload_tempo()
         return self.data
@@ -296,7 +296,7 @@ class Note(UserDict):
         ノートの中身を上書き
         """
         if not isinstance(d, dict):
-            raise TypeError('argument \"d\" must be dictionary instance')
+            raise TypeError('argument "d" must be dictionary instance')
         self.data = d
 
     @property

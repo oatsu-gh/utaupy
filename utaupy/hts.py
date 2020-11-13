@@ -6,7 +6,7 @@ Python3 module for HTS-full-label.
 """
 
 import re
-from collections import UserList
+# from collections import UserList
 from itertools import chain
 
 # import itertools
@@ -32,26 +32,21 @@ class HTSFullLabel(list):
             f.write(s)
         return s
 
-    def load(self, path=None, strings=None, lines=None, songobj=None, encoding='utf-8') -> list:
+    def load(self, source, encoding='utf-8'):
         """
         ファイル、文字列、文字列のリスト、Songオブジェクトのいずれかより値を取得して登録する。
         """
-        arguments = (path, strings, lines, songobj)
-        assert not all(arg is None for arg in arguments
-                       ), 'One arguments in "path", "lines" or "songobj" is needed to load.'
-        assert not all(arg is None for arg in arguments
-                       ), 'Only one arguments in "path", "lines" or "songobj" can be loaded.'
-        if path is not None:
-            self._load_from_path(path)
-        elif lines is not None:
-            self._load_from_lines(lines)
-        elif songobj is not None:
-            self._load_from_songobj(songobj)
+        if isinstance(source, str):
+            self._load_from_path(source, encoding=encoding)
+        elif type(source) == Song:
+            self._load_from_songobj(source)
+        elif type(source) == list:
+            self._load_from_lines(source)
         else:
-            raise Exception('An unexpected error occurred.')
+            raise TypeError(f'Type of the argument "source" must be str, list or {Song}.')
         return self
 
-    def _load_from_path(self, path, encoding='utf-8') -> list:
+    def _load_from_path(self, path, encoding='utf-8'):
         """
         ファイルをもとに値を登録する。
         """
@@ -68,7 +63,7 @@ class HTSFullLabel(list):
         self._load_from_lines(lines)
         return self
 
-    def _load_from_lines(self, lines: list) -> list:
+    def _load_from_lines(self, lines: list):
         """
         文字列のリスト(行のリスト)をもとに値を登録する。
         """
@@ -105,7 +100,7 @@ class HTSFullLabel(list):
             self.append(oneline)
         return self
 
-    def _load_from_songobj(self, songobj: list) -> list:
+    def _load_from_songobj(self, songobj: list):
         """
         hts.Song オブジェクトをもとにコンテキストを登録する。
         """
@@ -113,16 +108,17 @@ class HTSFullLabel(list):
         self.fill_contexts_from_songobj()
         return self
 
-    def fill_contexts_from_songobj(self) -> list:
+    def fill_contexts_from_songobj(self):
         """
         自身が持つSongオブジェクトをもとにコンテキスト情報を埋める。
+        {objectname}_current 系のオブジェクトのみから前後を補完する。
         """
         song = self.song
         phrases = [Phrase()] + song + [Phrase()]
         for i_p, phrase in enumerate(phrases[1:-1], 1):
-            notes = [Note()] + phrase + [Note()]
+            notes = phrases[i_p - 1][-1] + phrase + phrases[i_p + 1][0]
             for i_n, note in enumerate(notes[1:-1], 1):
-                syllables = [Note()] + phrase + [Note()]
+                syllables = notes[i_n - 1][-1] + phrase + notes[i_n + 1][0]
                 for i_s, syllable in enumerate(syllables[1:-1], 1):
                     for phoneme in syllable:
                         print(list(map(id, [phoneme, note, syllable, phoneme])))
@@ -146,11 +142,10 @@ class HTSFullLabel(list):
         self._fill_phoneme_contexts()
         return self
 
-    def _fill_phoneme_contexts(self) -> list:
+    def _fill_phoneme_contexts(self):
         """
         phoneme_current をもとに、前後の音素に関する項を埋める。
         """
-        # fill previous phoneme
         extended_self = [_OneLine(), _OneLine()] + self + [_OneLine(), _OneLine()]
         # ol is OneLine object
         for i, ol in enumerate(extended_self[2:-2], 2):
@@ -159,6 +154,46 @@ class HTSFullLabel(list):
             ol.phoneme_next = extended_self[i + 1].phoneme_current
             ol.phoneme_after_next = extended_self[i + 2].phoneme_current
         return self
+
+    def generate_songobj_from_contexts(self):
+        """
+        フルコンテキストラベルの情報をもとにSongオブジェクトをつくる。
+        self.song に格納する。
+        """
+        # Song は1つの HTSFullLabel につき1つだけなので、ループする必要がない。
+        # 一番最初の行の情報がすべての行に通用すると考える。
+        song = Song()
+        song.contexts = self[0].j
+        # 一時的に登録するための変数
+        temp_phrase = self[0].phrase_current
+        temp_note = self[0].note_current
+        temp_syllable = self[0].syllable_current
+        phoneme = self[0].phoneme_current
+        song.append(temp_phrase)
+        temp_phrase.append(temp_note)
+        temp_syllable.append(phoneme)
+        # 値が変わったときだけ新しいオブジェクトを作る。
+        for ol in self[1:]:
+            phrase = ol.phrase_current
+            note = ol.note_current
+            syllable = ol.syllable_current
+            phoneme = ol.phoneme_current
+            # 直前の行とフレーズが異なるとき
+            if phrase != temp_phrase:
+                song.append(temp_phrase)
+                temp_phrase = phrase
+            # 直前の行とノートが異なるとき
+            if note != temp_note:
+                temp_phrase.append(temp_note)
+                temp_note = note
+            # 直前の行と音節が異なるとき
+            if syllable != temp_syllable:
+                temp_note.append(temp_syllable)
+                temp_syllable = syllable
+            temp_syllable.append(phoneme)
+        # 完成したやつを返す
+        return song
+
 
 
 class _OneLine:
@@ -201,10 +236,11 @@ class _OneLine:
             '/E:{0}]{1}ˆ{2}={3}∼{4}!{5}@{6}#{7}+{8}]{9}${10}|{11}[{12}&{13}]{14}={15}ˆ{16}∼{17}#{18}_{19};{20}${21}&{22}%{23}[{24}|{25}]{26}-{27}ˆ{28}+{29}∼{30}={31}@{32}${33}!{34}%{35}#{36}|{37}|{38}-{39}&{40}&{41}+{42}[{43};{44}]{45};{46}∼{47}∼{48}ˆ{49}ˆ{50}@{51}[{52}#{53}={54}!{55}∼{56}+{57}!{58}ˆ{59}' \
             .format(*self.e)
         str_f = '/F:{0}#{1}#{2}-{3}${4}${5}+{6}%{7};{8}'.format(*self.f)
-        #
+        # Phrase 関連
         str_g = '/G:{0}_{1}'.format(*self.g)
         str_h = '/H:{0}_{1}'.format(*self.h)
         str_i = '/I:{0}_{1}'.format(*self.i)
+        # Song 関連
         str_j = '/J:{0}~{1}@{2}'.format(*self.j)
         # 各パラメータの文字列を結合
         str_self = ''.join((str_time, str_p, str_a, str_b, str_c, str_d,
@@ -399,6 +435,7 @@ class Song(list):
     def __init__(self):
         super().__init__()
         self.contexts = ['xx'] * 3
+        self.number_of_measures = 'xx'
 
     @property
     def all_phrases(self):

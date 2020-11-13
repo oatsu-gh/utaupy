@@ -1,0 +1,596 @@
+
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>utaupy.ust &#8212; utaupy  ドキュメント</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/translations.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">utaupy  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">モジュールコード</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">utaupy.ust</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>utaupy.ust のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python3</span>
+<span class="c1"># coding: utf-8</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">USTファイルとデータを扱うモジュールです。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">UserDict</span><span class="p">,</span> <span class="n">UserList</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.main">[ドキュメント]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;実行されたときの挙動&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;デフォ子かわいいよデフォ子</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ust読み取りテストをします。&#39;</span><span class="p">)</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;ustのパスを入力してください。</span><span class="se">\n</span><span class="s1">&gt;&gt;&gt; &#39;</span><span class="p">)</span>
+    <span class="n">ust</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">ust</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+
+    <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Press Enter to exit.&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="notenum_as_abc"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.notenum_as_abc">[ドキュメント]</a><span class="k">def</span> <span class="nf">notenum_as_abc</span><span class="p">(</span><span class="n">notenum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    音階番号をABC表記に変更する(C1=24, C4=)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;24&#39;</span><span class="p">:</span> <span class="s1">&#39;C1&#39;</span><span class="p">,</span> <span class="s1">&#39;25&#39;</span><span class="p">:</span> <span class="s1">&#39;C#1&#39;</span><span class="p">,</span> <span class="s1">&#39;26&#39;</span><span class="p">:</span> <span class="s1">&#39;D1&#39;</span><span class="p">,</span> <span class="s1">&#39;27&#39;</span><span class="p">:</span> <span class="s1">&#39;D#1&#39;</span><span class="p">,</span> <span class="s1">&#39;28&#39;</span><span class="p">:</span> <span class="s1">&#39;E1&#39;</span><span class="p">,</span> <span class="s1">&#39;29&#39;</span><span class="p">:</span> <span class="s1">&#39;F1&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;30&#39;</span><span class="p">:</span> <span class="s1">&#39;F#1&#39;</span><span class="p">,</span> <span class="s1">&#39;31&#39;</span><span class="p">:</span> <span class="s1">&#39;G1&#39;</span><span class="p">,</span> <span class="s1">&#39;32&#39;</span><span class="p">:</span> <span class="s1">&#39;G#1&#39;</span><span class="p">,</span> <span class="s1">&#39;33&#39;</span><span class="p">:</span> <span class="s1">&#39;A1&#39;</span><span class="p">,</span> <span class="s1">&#39;34&#39;</span><span class="p">:</span> <span class="s1">&#39;A#1&#39;</span><span class="p">,</span> <span class="s1">&#39;35&#39;</span><span class="p">:</span> <span class="s1">&#39;B1&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;36&#39;</span><span class="p">:</span> <span class="s1">&#39;C2&#39;</span><span class="p">,</span> <span class="s1">&#39;37&#39;</span><span class="p">:</span> <span class="s1">&#39;C#2&#39;</span><span class="p">,</span> <span class="s1">&#39;38&#39;</span><span class="p">:</span> <span class="s1">&#39;D2&#39;</span><span class="p">,</span> <span class="s1">&#39;39&#39;</span><span class="p">:</span> <span class="s1">&#39;D#2&#39;</span><span class="p">,</span> <span class="s1">&#39;40&#39;</span><span class="p">:</span> <span class="s1">&#39;E2&#39;</span><span class="p">,</span> <span class="s1">&#39;41&#39;</span><span class="p">:</span> <span class="s1">&#39;F2&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;42&#39;</span><span class="p">:</span> <span class="s1">&#39;F#2&#39;</span><span class="p">,</span> <span class="s1">&#39;43&#39;</span><span class="p">:</span> <span class="s1">&#39;G2&#39;</span><span class="p">,</span> <span class="s1">&#39;44&#39;</span><span class="p">:</span> <span class="s1">&#39;G#2&#39;</span><span class="p">,</span> <span class="s1">&#39;45&#39;</span><span class="p">:</span> <span class="s1">&#39;A2&#39;</span><span class="p">,</span> <span class="s1">&#39;46&#39;</span><span class="p">:</span> <span class="s1">&#39;A#2&#39;</span><span class="p">,</span> <span class="s1">&#39;47&#39;</span><span class="p">:</span> <span class="s1">&#39;B2&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;48&#39;</span><span class="p">:</span> <span class="s1">&#39;C3&#39;</span><span class="p">,</span> <span class="s1">&#39;49&#39;</span><span class="p">:</span> <span class="s1">&#39;C#3&#39;</span><span class="p">,</span> <span class="s1">&#39;50&#39;</span><span class="p">:</span> <span class="s1">&#39;D3&#39;</span><span class="p">,</span> <span class="s1">&#39;51&#39;</span><span class="p">:</span> <span class="s1">&#39;D#3&#39;</span><span class="p">,</span> <span class="s1">&#39;52&#39;</span><span class="p">:</span> <span class="s1">&#39;E3&#39;</span><span class="p">,</span> <span class="s1">&#39;53&#39;</span><span class="p">:</span> <span class="s1">&#39;F3&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;54&#39;</span><span class="p">:</span> <span class="s1">&#39;F#3&#39;</span><span class="p">,</span> <span class="s1">&#39;55&#39;</span><span class="p">:</span> <span class="s1">&#39;G3&#39;</span><span class="p">,</span> <span class="s1">&#39;56&#39;</span><span class="p">:</span> <span class="s1">&#39;G#3&#39;</span><span class="p">,</span> <span class="s1">&#39;57&#39;</span><span class="p">:</span> <span class="s1">&#39;A3&#39;</span><span class="p">,</span> <span class="s1">&#39;58&#39;</span><span class="p">:</span> <span class="s1">&#39;A#3&#39;</span><span class="p">,</span> <span class="s1">&#39;59&#39;</span><span class="p">:</span> <span class="s1">&#39;B3&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;60&#39;</span><span class="p">:</span> <span class="s1">&#39;C4&#39;</span><span class="p">,</span> <span class="s1">&#39;61&#39;</span><span class="p">:</span> <span class="s1">&#39;C#4&#39;</span><span class="p">,</span> <span class="s1">&#39;62&#39;</span><span class="p">:</span> <span class="s1">&#39;D4&#39;</span><span class="p">,</span> <span class="s1">&#39;63&#39;</span><span class="p">:</span> <span class="s1">&#39;D#4&#39;</span><span class="p">,</span> <span class="s1">&#39;64&#39;</span><span class="p">:</span> <span class="s1">&#39;E4&#39;</span><span class="p">,</span> <span class="s1">&#39;65&#39;</span><span class="p">:</span> <span class="s1">&#39;F4&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;66&#39;</span><span class="p">:</span> <span class="s1">&#39;F#4&#39;</span><span class="p">,</span> <span class="s1">&#39;67&#39;</span><span class="p">:</span> <span class="s1">&#39;G4&#39;</span><span class="p">,</span> <span class="s1">&#39;68&#39;</span><span class="p">:</span> <span class="s1">&#39;G#4&#39;</span><span class="p">,</span> <span class="s1">&#39;69&#39;</span><span class="p">:</span> <span class="s1">&#39;A4&#39;</span><span class="p">,</span> <span class="s1">&#39;70&#39;</span><span class="p">:</span> <span class="s1">&#39;A#4&#39;</span><span class="p">,</span> <span class="s1">&#39;71&#39;</span><span class="p">:</span> <span class="s1">&#39;B4&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;72&#39;</span><span class="p">:</span> <span class="s1">&#39;C5&#39;</span><span class="p">,</span> <span class="s1">&#39;73&#39;</span><span class="p">:</span> <span class="s1">&#39;C#5&#39;</span><span class="p">,</span> <span class="s1">&#39;74&#39;</span><span class="p">:</span> <span class="s1">&#39;D5&#39;</span><span class="p">,</span> <span class="s1">&#39;75&#39;</span><span class="p">:</span> <span class="s1">&#39;D#5&#39;</span><span class="p">,</span> <span class="s1">&#39;76&#39;</span><span class="p">:</span> <span class="s1">&#39;E5&#39;</span><span class="p">,</span> <span class="s1">&#39;77&#39;</span><span class="p">:</span> <span class="s1">&#39;F5&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;78&#39;</span><span class="p">:</span> <span class="s1">&#39;F#5&#39;</span><span class="p">,</span> <span class="s1">&#39;79&#39;</span><span class="p">:</span> <span class="s1">&#39;G5&#39;</span><span class="p">,</span> <span class="s1">&#39;80&#39;</span><span class="p">:</span> <span class="s1">&#39;G#5&#39;</span><span class="p">,</span> <span class="s1">&#39;81&#39;</span><span class="p">:</span> <span class="s1">&#39;A5&#39;</span><span class="p">,</span> <span class="s1">&#39;82&#39;</span><span class="p">:</span> <span class="s1">&#39;A#5&#39;</span><span class="p">,</span> <span class="s1">&#39;83&#39;</span><span class="p">:</span> <span class="s1">&#39;B5&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;84&#39;</span><span class="p">:</span> <span class="s1">&#39;C6&#39;</span><span class="p">,</span> <span class="s1">&#39;85&#39;</span><span class="p">:</span> <span class="s1">&#39;C#6&#39;</span><span class="p">,</span> <span class="s1">&#39;86&#39;</span><span class="p">:</span> <span class="s1">&#39;D6&#39;</span><span class="p">,</span> <span class="s1">&#39;87&#39;</span><span class="p">:</span> <span class="s1">&#39;D#6&#39;</span><span class="p">,</span> <span class="s1">&#39;88&#39;</span><span class="p">:</span> <span class="s1">&#39;E6&#39;</span><span class="p">,</span> <span class="s1">&#39;89&#39;</span><span class="p">:</span> <span class="s1">&#39;F6&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;90&#39;</span><span class="p">:</span> <span class="s1">&#39;F#6&#39;</span><span class="p">,</span> <span class="s1">&#39;91&#39;</span><span class="p">:</span> <span class="s1">&#39;G6&#39;</span><span class="p">,</span> <span class="s1">&#39;92&#39;</span><span class="p">:</span> <span class="s1">&#39;G#6&#39;</span><span class="p">,</span> <span class="s1">&#39;93&#39;</span><span class="p">:</span> <span class="s1">&#39;A6&#39;</span><span class="p">,</span> <span class="s1">&#39;94&#39;</span><span class="p">:</span> <span class="s1">&#39;A#6&#39;</span><span class="p">,</span> <span class="s1">&#39;95&#39;</span><span class="p">:</span> <span class="s1">&#39;B6&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;96&#39;</span><span class="p">:</span> <span class="s1">&#39;C7&#39;</span><span class="p">,</span> <span class="s1">&#39;97&#39;</span><span class="p">:</span> <span class="s1">&#39;C#7&#39;</span><span class="p">,</span> <span class="s1">&#39;98&#39;</span><span class="p">:</span> <span class="s1">&#39;D7&#39;</span><span class="p">,</span> <span class="s1">&#39;99&#39;</span><span class="p">:</span> <span class="s1">&#39;D#7&#39;</span><span class="p">,</span> <span class="s1">&#39;100&#39;</span><span class="p">:</span> <span class="s1">&#39;E7&#39;</span><span class="p">,</span> <span class="s1">&#39;101&#39;</span><span class="p">:</span> <span class="s1">&#39;F7&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;102&#39;</span><span class="p">:</span> <span class="s1">&#39;F#7&#39;</span><span class="p">,</span> <span class="s1">&#39;103&#39;</span><span class="p">:</span> <span class="s1">&#39;G7&#39;</span><span class="p">,</span> <span class="s1">&#39;104&#39;</span><span class="p">:</span> <span class="s1">&#39;G#7&#39;</span><span class="p">,</span> <span class="s1">&#39;105&#39;</span><span class="p">:</span> <span class="s1">&#39;A7&#39;</span><span class="p">,</span> <span class="s1">&#39;106&#39;</span><span class="p">:</span> <span class="s1">&#39;A#7&#39;</span><span class="p">,</span> <span class="s1">&#39;107&#39;</span><span class="p">:</span> <span class="s1">&#39;B7&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;108&#39;</span><span class="p">:</span> <span class="s1">&#39;C8&#39;</span><span class="p">,</span> <span class="s1">&#39;109&#39;</span><span class="p">:</span> <span class="s1">&#39;C#8&#39;</span><span class="p">,</span> <span class="s1">&#39;110&#39;</span><span class="p">:</span> <span class="s1">&#39;D8&#39;</span><span class="p">,</span> <span class="s1">&#39;111&#39;</span><span class="p">:</span> <span class="s1">&#39;D#8&#39;</span><span class="p">,</span> <span class="s1">&#39;112&#39;</span><span class="p">:</span> <span class="s1">&#39;E8&#39;</span><span class="p">,</span> <span class="s1">&#39;113&#39;</span><span class="p">:</span> <span class="s1">&#39;F8&#39;</span><span class="p">,</span>
+         <span class="s1">&#39;114&#39;</span><span class="p">:</span> <span class="s1">&#39;F#8&#39;</span><span class="p">,</span> <span class="s1">&#39;115&#39;</span><span class="p">:</span> <span class="s1">&#39;G8&#39;</span><span class="p">,</span> <span class="s1">&#39;116&#39;</span><span class="p">:</span> <span class="s1">&#39;G#8&#39;</span><span class="p">,</span> <span class="s1">&#39;117&#39;</span><span class="p">:</span> <span class="s1">&#39;A8&#39;</span><span class="p">,</span> <span class="s1">&#39;118&#39;</span><span class="p">:</span> <span class="s1">&#39;A#8&#39;</span><span class="p">,</span> <span class="s1">&#39;119&#39;</span><span class="p">:</span> <span class="s1">&#39;B8&#39;</span><span class="p">}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">notenum</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">d</span><span class="p">[</span><span class="n">notenum</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">notenum</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">d</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">notenum</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">notenum</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">d</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">notenum</span><span class="p">]</span>
+    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;argument &#39;notenum&#39; must be in [str, int, list, tuple]&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.load">[ドキュメント]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;shift-jis&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    USTを読み取り</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># USTを文字列として取得</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8_sig&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">s</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="c1"># USTをノート単位に分割</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="sa">r</span><span class="s1">&#39;[#&#39;</span> <span class="o">+</span> <span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[#&#39;</span><span class="p">)][</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="c1"># さらに行ごとに分割して二次元リストに</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">l</span><span class="p">]</span>
+
+    <span class="c1"># ノートのリストを作る</span>
+    <span class="n">ust</span> <span class="o">=</span> <span class="n">Ust</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">lines</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+        <span class="n">note</span> <span class="o">=</span> <span class="n">Note</span><span class="p">()</span>
+        <span class="c1"># ノートの種類</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">note</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="n">tag</span>
+        <span class="c1"># print(&#39;Making &quot;Note&quot; instance from UST: {}&#39;.format(tag))</span>
+        <span class="c1"># タグ以外の行の処理</span>
+        <span class="k">if</span> <span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;[#VERSION]&#39;</span><span class="p">:</span>
+            <span class="n">note</span><span class="p">[</span><span class="s1">&#39;UstVersion&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;[#TRACKEND]&#39;</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+                <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">note</span><span class="o">.</span><span class="n">set_by_key</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">ust</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+
+    <span class="c1"># 旧形式の場合にタグの数を合わせる</span>
+    <span class="k">if</span> <span class="n">ust</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s1">&#39;[#VERSION]&#39;</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="n">ust</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_by_key</span><span class="p">(</span><span class="s1">&#39;UstVersion&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WARN: USTファイルに [#VERSION] のエントリがありません。UTAU Ver 0.4.18 未満の場合はアップデートしてください。&#39;</span><span class="p">)</span>
+            <span class="n">version</span> <span class="o">=</span> <span class="s1">&#39;older_than_1.20&#39;</span>
+        <span class="n">note</span> <span class="o">=</span> <span class="n">Note</span><span class="p">()</span>
+        <span class="n">note</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;[#VERSION]&#39;</span>
+        <span class="n">note</span><span class="o">.</span><span class="n">set_by_key</span><span class="p">(</span><span class="s1">&#39;UstVersion&#39;</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+        <span class="n">ust</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">note</span><span class="p">)</span>  <span class="c1"># リスト先頭に挿入</span>
+    <span class="c1"># UTAUプラグイン用のファイルとかで[#SETTING]がない場合にずれるのを対策</span>
+    <span class="k">if</span> <span class="n">ust</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s1">&#39;[#SETTING]&#39;</span><span class="p">:</span>
+        <span class="n">note</span> <span class="o">=</span> <span class="n">Note</span><span class="p">()</span>
+        <span class="n">note</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;[#SETTING]&#39;</span>
+        <span class="n">ust</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">note</span><span class="p">)</span>
+    <span class="c1"># インスタンス変数に代入</span>
+    <span class="n">ust</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">ust</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">ust</span><span class="o">.</span><span class="n">setting</span> <span class="o">=</span> <span class="n">ust</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># 隠しパラメータ alternative_tempo を全ノートに設定</span>
+    <span class="n">ust</span><span class="o">.</span><span class="n">reload_tempo</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">ust</span></div>
+
+
+<div class="viewcode-block" id="Ust"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Ust">[ドキュメント]</a><span class="k">class</span> <span class="nc">Ust</span><span class="p">(</span><span class="n">UserList</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;UST&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="c1"># ノート(クラスオブジェクト)からなるリスト</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setting</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;中身を見る&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@values</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        中身を上書きする</span>
+<span class="sd">        テンポを正常に取得できるようにする</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;argument &quot;l&quot; must be list instance&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">l</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reload_tempo</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">notes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        全セクションのうち、[#VERSION] と [#SETTING] [#TRACKEND] を除いたノート部分を取得</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@notes</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">notes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        全セクションのうち、[#VERSION] と [#SETTING] [#TRACKEND] を除いたノート部分を上書き</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;argument &quot;l&quot; must be list instance&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">l</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reload_tempo</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tempo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;全体のBPMを見る&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">project_tempo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tempo</span>
+            <span class="k">return</span> <span class="n">project_tempo</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">first_note_tempo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tempo</span>
+            <span class="k">return</span> <span class="n">first_note_tempo</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;[ERROR]--------------------------------------------------&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;USTのテンポが設定されていません。とりあえず120にします。&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;---------------------------------------------------------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s1">&#39;120&#39;</span>
+
+    <span class="nd">@tempo</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">tempo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tempo</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        グローバルBPMを上書きする</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tempo</span> <span class="o">=</span> <span class="n">tempo</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tempo</span> <span class="o">=</span> <span class="n">tempo</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reload_tempo</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Ust.reload_tempo"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Ust.reload_tempo">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">reload_tempo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        各ノートでBPMが取得できるように</span>
+<span class="sd">        独自パラメータ note.alternative_tempo を全ノートに仕込む</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">current_tempo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempo</span>
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">current_tempo</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">get_by_key</span><span class="p">(</span><span class="s1">&#39;Tempo&#39;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">pass</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">alternative_tempo</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">current_tempo</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Ust.reload_tag_number"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Ust.reload_tag_number">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">reload_tag_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        各ノートのノート番号を振りなおす。</span>
+<span class="sd">        ファイル出力時に実行することを想定。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">note</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">):</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;[#</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="si">}</span><span class="s1">]&#39;</span></div>
+
+    <span class="c1"># ノート一括編集系関数ここから----------------------------------------------</span>
+<div class="viewcode-block" id="Ust.replace_lyrics"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Ust.replace_lyrics">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">replace_lyrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;歌詞を一括置換（文字列指定・破壊的処理）&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">lyric</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">lyric</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Ust.translate_lyrics"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Ust.translate_lyrics">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">translate_lyrics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;歌詞を一括置換（複数文字指定・破壊的処理）&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">lyric</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">lyric</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Ust.vcv2cv"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Ust.vcv2cv">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">vcv2cv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;歌詞を平仮名連続音から単独音にする&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
+            <span class="n">note</span><span class="o">.</span><span class="n">lyric</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">lyric</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+    <span class="c1"># ノート一括編集系関数ここまで----------------------------------------------</span>
+
+<div class="viewcode-block" id="Ust.insert_note"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Ust.insert_note">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">insert_note</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        i 番目の区切りに新規ノートを挿入する。</span>
+<span class="sd">        このときの i は音符のみのインデックス。</span>
+<span class="sd">        編集するために、挿入したノートを返す。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">note</span> <span class="o">=</span> <span class="n">Note</span><span class="p">()</span>
+        <span class="n">note</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;[#INSERT]&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">note</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">note</span></div>
+
+<div class="viewcode-block" id="Ust.delete_note"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Ust.delete_note">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">delete_note</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        i 番目のノートを [#DELETE] する。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">notes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;[#DELETE]&#39;</span></div>
+
+<div class="viewcode-block" id="Ust.make_finalnote_R"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Ust.make_finalnote_R">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">make_finalnote_R</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Ustの最後のノートが必ず休符 になるようにする&quot;&quot;&quot;</span>
+        <span class="n">note</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+        <span class="c1"># Ust内の最後はTRACKENDなので後ろから2番目のノートで判定</span>
+        <span class="k">if</span> <span class="n">note</span><span class="o">.</span><span class="n">lyric</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;pau&#39;</span><span class="p">,</span> <span class="s1">&#39;sil&#39;</span><span class="p">,</span> <span class="s1">&#39;R&#39;</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  末尾に休符を自動追加しました。&#39;</span><span class="p">)</span>
+            <span class="n">extra_note</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">note</span><span class="p">)</span>
+            <span class="n">extra_note</span><span class="o">.</span><span class="n">lyric</span> <span class="o">=</span> <span class="s1">&#39;R&#39;</span>
+            <span class="n">extra_note</span><span class="o">.</span><span class="n">alternative_tempo</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">tempo</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">extra_note</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Ust.write"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Ust.write">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;shift-jis&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        USTをファイル出力</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">duplicated_self</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># [#DELETE] なノートをファイル出力しないために削除</span>
+        <span class="n">notes</span> <span class="o">=</span> <span class="p">[</span><span class="n">note</span> <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">duplicated_self</span><span class="o">.</span><span class="n">notes</span> <span class="k">if</span> <span class="n">note</span><span class="o">.</span><span class="n">tag</span> <span class="o">!=</span> <span class="s1">&#39;[#DELETE]&#39;</span><span class="p">]</span>
+        <span class="n">duplicated_self</span><span class="o">.</span><span class="n">notes</span> <span class="o">=</span> <span class="n">notes</span>
+        <span class="c1"># ノート番号を振りなおす</span>
+        <span class="n">duplicated_self</span><span class="o">.</span><span class="n">reload_tag_number</span><span class="p">()</span>
+        <span class="c1"># ノートのリストを文字列のリストに変換</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">duplicated_self</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">note</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;[#VERSION]&#39;</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;[#VERSION]&#39;</span><span class="p">)</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="p">[</span><span class="s1">&#39;UstVersion&#39;</span><span class="p">])</span>
+                <span class="k">continue</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">note</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;Tag&#39;</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">note</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="c1"># 出力用の文字列</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+        <span class="c1"># ファイル出力</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div></div>
+
+
+<div class="viewcode-block" id="Note"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Note">[ドキュメント]</a><span class="k">class</span> <span class="nc">Note</span><span class="p">(</span><span class="n">UserDict</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;UST内のノート&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="s1">&#39;[#UNDEFINED]&#39;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;Tag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tag</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alternative_tempo</span> <span class="o">=</span> <span class="mi">120</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="p">[</span><span class="s1">&#39;Tag&#39;</span><span class="p">]]</span> <span class="o">+</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;Tag&#39;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;ノートの中身を見る&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="nd">@values</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ノートの中身を上書き</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;argument &quot;d&quot; must be dictionary instance&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">d</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;タグを確認&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;Tag&#39;</span><span class="p">]</span>
+
+    <span class="nd">@tag</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">tag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;タグを上書き&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;Tag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;ノート長を確認[Ticks]&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="s1">&#39;Length&#39;</span><span class="p">])</span>
+
+    <span class="nd">@length</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;ノート長を上書き[Ticks]&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;Length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">length_ms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;ノート長を確認[ms]&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">125</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="s1">&#39;Length&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempo</span>
+
+    <span class="nd">@length_ms</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">length_ms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;ノート長を上書き[ms]&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;Length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempo</span> <span class="o">//</span> <span class="mi">125</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">lyric</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;歌詞を確認&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;Lyric&#39;</span><span class="p">]</span>
+
+    <span class="nd">@lyric</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">lyric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;歌詞を上書き&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;Lyric&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">notenum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;音階番号を確認&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="s1">&#39;NoteNum&#39;</span><span class="p">])</span>
+
+    <span class="nd">@notenum</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">notenum</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;音階番号を上書き&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;NoteNum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">tempo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;ローカルBPMを取得&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="s1">&#39;Tempo&#39;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">alternative_tempo</span><span class="p">)</span>
+
+    <span class="nd">@tempo</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">tempo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;BPMを上書き&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;Tempo&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pbs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        PBS (mode2ピッチ開始位置[ms]) を取得</span>
+<span class="sd">        例) PBS=-104;20.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 辞書には文字列で登録してある</span>
+        <span class="n">str_pbs</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;PBS&#39;</span><span class="p">]</span>
+        <span class="c1"># 浮動小数のリストに変換</span>
+        <span class="n">list_pbs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;[;,]&#39;</span><span class="p">,</span> <span class="n">str_pbs</span><span class="p">)))</span>
+        <span class="c1"># PBSの値をリストで返す</span>
+        <span class="k">return</span> <span class="n">list_pbs</span>
+
+    <span class="nd">@pbs</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">pbs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_pbs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        PBS (mode2ピッチ開始位置[ms]) を登録</span>
+<span class="sd">        例) PBS=-104;20.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">s1</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">list_pbs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s1">;&#39;</span>
+        <span class="n">s2</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">list_pbs</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
+
+        <span class="n">str_pbs</span> <span class="o">=</span> <span class="n">s1</span> <span class="o">+</span> <span class="n">s2</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;PBS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">str_pbs</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pbw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        PBW (mode2ピッチ点の間隔[ms]) を取得</span>
+<span class="sd">        例) PBW=77,163</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 辞書には文字列で登録してある</span>
+        <span class="n">s_pbw</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;PBW&#39;</span><span class="p">]</span>
+        <span class="c1"># 整数のリストに変換</span>
+        <span class="n">l_pbw</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">s_pbw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>
+        <span class="c1"># PBWの値をリストで返す</span>
+        <span class="k">return</span> <span class="n">l_pbw</span>
+
+    <span class="nd">@pbw</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">pbw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_pbw</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        PBW (mode2ピッチ点の間隔[ms]) を登録</span>
+<span class="sd">        例) PBW=77,163</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># リストを整数の文字列に変換</span>
+        <span class="n">str_pbw</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">list_pbw</span><span class="p">))))</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;PBW&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">str_pbw</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pby</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        PBY (mode2ピッチ点の高さ) を取得</span>
+<span class="sd">        例) PBY=-10.6,0.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 辞書には文字列で登録してある</span>
+        <span class="n">s_pby</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;PBY&#39;</span><span class="p">]</span>
+        <span class="c1"># 整数のリストに変換</span>
+        <span class="n">l_pby</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">s_pby</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>
+        <span class="c1"># PBYの値をリストで返す</span>
+        <span class="k">return</span> <span class="n">l_pby</span>
+
+    <span class="nd">@pby</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">pby</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_pby</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        PBY (mode2ピッチ点の高さ) を登録</span>
+<span class="sd">        例) PBY=-10.6,0.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># リストを小数の文字列に変換</span>
+        <span class="n">str_pby</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">list_pby</span><span class="p">))))</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;PBY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">str_pby</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pbm</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        PBM (mode2ピッチ点の形状) を取得</span>
+<span class="sd">        例) PBY=-10.6,0.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 辞書には文字列で登録してある</span>
+        <span class="n">s_pby</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;PBM&#39;</span><span class="p">]</span>
+        <span class="c1"># 整数のリストに変換</span>
+        <span class="n">l_pbm</span> <span class="o">=</span> <span class="n">s_pby</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+        <span class="c1"># PBYの値をリストで返す</span>
+        <span class="k">return</span> <span class="n">l_pbm</span>
+
+    <span class="nd">@pbm</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">pbm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_pbm</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        PBM (mode2ピッチ点の形状) を登録</span>
+<span class="sd">        例) PBM=,r,j,s</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># リストを文字列に変換</span>
+        <span class="n">str_pbm</span> <span class="o">=</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">list_pbm</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">[</span><span class="s1">&#39;PBM&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">str_pbm</span>
+
+    <span class="c1"># ここからデータ操作系-----------------------------------------------------</span>
+<div class="viewcode-block" id="Note.get_by_key"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Note.get_by_key">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">get_by_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;ノートの特定の情報を上書きまたは登録&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Note.set_by_key"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Note.set_by_key">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">set_by_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;ノートの特定の情報を上書きまたは登録&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span></div>
+    <span class="c1"># ここまでデータ操作系-----------------------------------------------------</span>
+
+    <span class="c1"># ここからノート操作系-----------------------------------------------------</span>
+<div class="viewcode-block" id="Note.delete"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Note.delete">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;選択ノートを削除&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;[#DELETE]&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="c1"># def insert(self):</span>
+    <span class="c1">#     &quot;&quot;&quot;ノートを挿入(したい)&quot;&quot;&quot;</span>
+    <span class="c1">#     self.tag = &#39;[#INSERT]&#39;</span>
+    <span class="c1">#     return self</span>
+
+<div class="viewcode-block" id="Note.refresh"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Note.refresh">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">refresh</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ノートの情報を引き継ぎつつ、自由にいじれるようにする</span>
+<span class="sd">        UTAUプラグインは値の上書きはできるが削除はできない。</span>
+<span class="sd">        一旦ノートを削除して新規ノートとして扱う必要がある。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tag</span> <span class="o">=</span> <span class="s1">&#39;[#DELETE]</span><span class="se">\n</span><span class="s1">[#INSERT]&#39;</span></div>
+
+<div class="viewcode-block" id="Note.suppin"><a class="viewcode-back" href="../../utaupy.html#utaupy.ust.Note.suppin">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">suppin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;ノートの情報を最小限にする&quot;&quot;&quot;</span>
+        <span class="n">new_note</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">new_note</span><span class="p">[</span><span class="s1">&#39;Tag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;[#DELETE]</span><span class="se">\n</span><span class="s1">[#INSERT]&#39;</span>
+        <span class="n">new_note</span><span class="p">[</span><span class="s1">&#39;Lyric&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lyric</span>
+        <span class="n">new_note</span><span class="p">[</span><span class="s1">&#39;Length&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span>
+        <span class="n">new_note</span><span class="p">[</span><span class="s1">&#39;NoteNum&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">notenum</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">new_note</span></div></div>
+    <span class="c1"># ここまでノート操作系-----------------------------------------------------</span>
+
+    <span class="c1"># ここからデータ出力系-----------------------------------------------------</span>
+    <span class="c1"># Ustのほうで処理するようにしたので無効化しています。</span>
+    <span class="c1"># -------------------------------------------------------------------------</span>
+    <span class="c1"># def as_lines(self):</span>
+    <span class="c1">#     &quot;&quot;&quot;出力用のリストを返す&quot;&quot;&quot;</span>
+    <span class="c1">#     d = self</span>
+    <span class="c1">#     lines = []</span>
+    <span class="c1">#     lines.append(d.pop(&#39;Tag&#39;))</span>
+    <span class="c1">#     for k, v in d.items():</span>
+    <span class="c1">#         line = &#39;{}={}&#39;.format(str(k), str(v))</span>
+    <span class="c1">#         lines.append(line)</span>
+    <span class="c1">#     return lines</span>
+    <span class="c1"># ここまでデータ出力系-----------------------------------------------------</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">utaupy  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >モジュールコード</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">utaupy.ust</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Author.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.3.1.
+    </div>
+  </body>
+</html>

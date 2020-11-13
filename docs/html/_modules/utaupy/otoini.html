@@ -1,0 +1,370 @@
+
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>utaupy.otoini &#8212; utaupy  ドキュメント</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/translations.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">utaupy  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">モジュールコード</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">utaupy.otoini</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>utaupy.otoini のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python3</span>
+<span class="c1"># coding: utf-8</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">setParam用のINIファイルとデータを扱うモジュールです。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="c1"># from . import table</span>
+
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../../utaupy.html#utaupy.otoini.main">[ドキュメント]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;実行されたときの挙動&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;耳ロボPとsetParamに卍感謝卍&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../utaupy.html#utaupy.otoini.load">[ドキュメント]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;shift-jis&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;otoiniを読み取ってオブジェクト生成&quot;&quot;&quot;</span>
+    <span class="c1"># otoiniファイルを読み取る</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;[=,]&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()]</span>
+    <span class="c1"># # 入力ファイル末尾の空白行を除去</span>
+    <span class="c1"># while l[-1] == [&#39;&#39;]:</span>
+    <span class="c1">#     del l[-1]</span>
+
+    <span class="c1"># Otoクラスオブジェクトのリストを作る</span>
+    <span class="n">otoini</span> <span class="o">=</span> <span class="n">OtoIni</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">l</span><span class="p">:</span>
+        <span class="n">oto</span> <span class="o">=</span> <span class="n">Oto</span><span class="p">()</span>
+        <span class="n">oto</span><span class="o">.</span><span class="n">from_otoini</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">otoini</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oto</span><span class="p">)</span>
+    <span class="c1"># OtoIniクラスオブジェクト化</span>
+    <span class="k">return</span> <span class="n">otoini</span></div>
+
+
+<div class="viewcode-block" id="OtoIni"><a class="viewcode-back" href="../../utaupy.html#utaupy.otoini.OtoIni">[ドキュメント]</a><span class="k">class</span> <span class="nc">OtoIni</span><span class="p">(</span><span class="nb">list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;oto.iniを想定したクラス&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__dict__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">oto</span><span class="o">.</span><span class="n">alias</span><span class="p">:</span> <span class="n">oto</span> <span class="k">for</span> <span class="n">oto</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">d</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;中身を確認する&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="OtoIni.replace_aliases"><a class="viewcode-back" href="../../utaupy.html#utaupy.otoini.OtoIni.replace_aliases">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">replace_aliases</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;エイリアスを置換する&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">oto</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">oto</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="n">oto</span><span class="o">.</span><span class="n">alias</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">before</span><span class="p">,</span> <span class="n">after</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="OtoIni.is_mono"><a class="viewcode-back" href="../../utaupy.html#utaupy.otoini.OtoIni.is_mono">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">is_mono</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        モノフォン形式のエイリアスになっているか判定する。</span>
+<span class="sd">        返り値はbool。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">alias</span><span class="o">.</span><span class="n">split</span><span class="p">())</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OtoIni.as_dict"><a class="viewcode-back" href="../../utaupy.html#utaupy.otoini.OtoIni.as_dict">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">as_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        辞書に変換して返す。</span>
+<span class="sd">        エイリアスが重複していると古いほうは消される。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="n">oto</span><span class="o">.</span><span class="n">alias</span><span class="p">:</span> <span class="n">oto</span> <span class="k">for</span> <span class="n">oto</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">d</span></div>
+
+<div class="viewcode-block" id="OtoIni.kana2romaji"><a class="viewcode-back" href="../../utaupy.html#utaupy.otoini.OtoIni.kana2romaji">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">kana2romaji</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d_table</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        エイリアスをローマ字にする</span>
+<span class="sd">        replace:</span>
+<span class="sd">          Trueのときエイリアスをローマ字に書き換え</span>
+<span class="sd">          Falseのときエイリアスは平仮名のまま</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">oto</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">oto</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">d_table</span><span class="p">[</span><span class="n">oto</span><span class="o">.</span><span class="n">alias</span><span class="p">])</span>
+            <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[ERROR] KeyError in utaupy.otoini.OtoIni.kana2romaji: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="OtoIni.monophonize"><a class="viewcode-back" href="../../utaupy.html#utaupy.otoini.OtoIni.monophonize">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">monophonize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        音素ごとに分割する。</span>
+<span class="sd">        otoini→label 変換の用途を想定</span>
+<span class="sd">        音素の発声開始位置: 左ブランク=先行発声</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 新規OtoIniを作るために、otoを入れるリスト</span>
+        <span class="n">mono_otoini</span> <span class="o">=</span> <span class="n">OtoIni</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">oto</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">phonemes</span> <span class="o">=</span> <span class="n">oto</span><span class="o">.</span><span class="n">alias</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">phonemes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">mono_otoini</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oto</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">phonemes</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+                <span class="n">name_wav</span> <span class="o">=</span> <span class="n">oto</span><span class="o">.</span><span class="n">filename</span>
+                <span class="c1"># 1文字目(オーバーラップから先行発声まで)------------</span>
+                <span class="n">mono_oto</span> <span class="o">=</span> <span class="n">Oto</span><span class="p">()</span>
+                <span class="n">mono_oto</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">name_wav</span>
+                <span class="n">mono_oto</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="n">phonemes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">mono_oto</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">oto</span><span class="o">.</span><span class="n">offset</span> <span class="o">+</span> <span class="n">oto</span><span class="o">.</span><span class="n">overlap</span>  <span class="c1"># オーバーラップの位置に左ブランクを移動</span>
+                <span class="n">mono_oto</span><span class="o">.</span><span class="n">preutterance</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">mono_otoini</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mono_oto</span><span class="p">)</span>
+                <span class="c1"># 2文字目(先行発声から固定範囲まで)----------------</span>
+                <span class="n">mono_oto</span> <span class="o">=</span> <span class="n">Oto</span><span class="p">()</span>
+                <span class="n">mono_oto</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">name_wav</span>
+                <span class="n">mono_oto</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="n">phonemes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">mono_oto</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">oto</span><span class="o">.</span><span class="n">offset</span> <span class="o">+</span> <span class="n">oto</span><span class="o">.</span><span class="n">preutterance</span>  <span class="c1"># 先行発声の位置に左ブランクを移動</span>
+                <span class="n">mono_oto</span><span class="o">.</span><span class="n">preutterance</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">mono_otoini</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mono_oto</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">phonemes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                    <span class="c1"># 3文字目(固定範囲から右ブランクまで)----------------</span>
+                    <span class="n">mono_oto</span> <span class="o">=</span> <span class="n">Oto</span><span class="p">()</span>
+                    <span class="n">mono_oto</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">name_wav</span>
+                    <span class="n">mono_oto</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="n">phonemes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="n">mono_oto</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">oto</span><span class="o">.</span><span class="n">offset</span> <span class="o">+</span> <span class="n">oto</span><span class="o">.</span><span class="n">consonant</span>  <span class="c1"># 固定範囲の位置に左ブランクを移動</span>
+                    <span class="n">mono_oto</span><span class="o">.</span><span class="n">preutterance</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">mono_otoini</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mono_oto</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">[ERROR in otoini.monophonize()]----------------&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  エイリアスの音素数は 1, 2, 3 以外対応していません。&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  phonemes: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">phonemes</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  文字を連結して処理を続行します。&#39;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;-----------------------------------------------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">mono_otoini</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oto</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mono_otoini</span></div>
+
+
+<div class="viewcode-block" id="OtoIni.write"><a class="viewcode-back" href="../../utaupy.html#utaupy.otoini.OtoIni.write">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;shift-jis&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;OtoIniクラスオブジェクトをINIファイルに出力&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">oto</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oto</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oto</span><span class="o">.</span><span class="n">alias</span><span class="p">)</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oto</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oto</span><span class="o">.</span><span class="n">consonant</span><span class="p">)</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oto</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oto</span><span class="o">.</span><span class="n">preutterance</span><span class="p">)</span>
+            <span class="n">l</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oto</span><span class="o">.</span><span class="n">overlap</span><span class="p">)</span>
+            <span class="c1"># 数値部分を丸めてから文字列に変換</span>
+            <span class="n">l</span> <span class="o">=</span> <span class="n">l</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">),</span> <span class="mi">4</span><span class="p">))</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">:]]</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">=</span><span class="si">{}</span><span class="s1">,</span><span class="si">{}</span><span class="s1">,</span><span class="si">{}</span><span class="s1">,</span><span class="si">{}</span><span class="s1">,</span><span class="si">{}</span><span class="s1">,</span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="n">l</span><span class="p">)</span>  <span class="c1"># &#39;l[0]=l[1],l[2],...&#39;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div></div>
+
+
+<div class="viewcode-block" id="Oto"><a class="viewcode-back" href="../../utaupy.html#utaupy.otoini.Oto">[ドキュメント]</a><span class="k">class</span> <span class="nc">Oto</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;oto.ini中の1モーラ&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;FileName&#39;</span><span class="p">,</span> <span class="s1">&#39;Alias&#39;</span><span class="p">,</span> <span class="s1">&#39;Offset&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;Consonant&#39;</span><span class="p">,</span> <span class="s1">&#39;Cutoff&#39;</span><span class="p">,</span> <span class="s1">&#39;Preutterance&#39;</span><span class="p">,</span> <span class="s1">&#39;Overlap&#39;</span><span class="p">)</span>
+        <span class="n">tpl</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">tpl</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">alias</span><span class="si">}</span><span class="se">\&#39;\t</span><span class="s1">&lt;utaupy.otoini.Oto object at </span><span class="si">{</span><span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s1">&gt;&#39;</span>
+
+<div class="viewcode-block" id="Oto.from_otoini"><a class="viewcode-back" href="../../utaupy.html#utaupy.otoini.Oto.from_otoini">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">from_otoini</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">l</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;1音分のリストをもらってクラスオブジェクトにする&quot;&quot;&quot;</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;FileName&#39;</span><span class="p">,</span> <span class="s1">&#39;Alias&#39;</span><span class="p">,</span> <span class="s1">&#39;Offset&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;Consonant&#39;</span><span class="p">,</span> <span class="s1">&#39;Cutoff&#39;</span><span class="p">,</span> <span class="s1">&#39;Preutterance&#39;</span><span class="p">,</span> <span class="s1">&#39;Overlap&#39;</span><span class="p">)</span>
+        <span class="c1"># 数値部分をfloatにする</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="n">l</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">l</span><span class="p">[</span><span class="mi">2</span><span class="p">:]]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__d</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="n">l</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="c1"># ここからノートの全値の処理----------------------</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;中身を確認する&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__d</span>
+
+    <span class="nd">@values</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">d</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;中身を上書きする&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__d</span> <span class="o">=</span> <span class="n">d</span>
+    <span class="c1"># ここまでノートの全値の処理----------------------</span>
+
+    <span class="c1"># ここからノートの各値の処理----------------------</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">filename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;wavファイル名を確認する&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;FileName&#39;</span><span class="p">]</span>
+
+    <span class="nd">@filename</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;wavファイル名を上書きする&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;FileName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">alias</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;エイリアスを確認する&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Alias&#39;</span><span class="p">]</span>
+
+    <span class="nd">@alias</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">alias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;エイリアスを上書きする&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Alias&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">offset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;左ブランクを確認する&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Offset&#39;</span><span class="p">]</span>
+
+    <span class="nd">@offset</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">offset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;左ブランクを上書きする&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Offset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="c1"># @property</span>
+    <span class="c1"># def offset2(self):</span>
+    <span class="c1">#     &quot;&quot;&quot;左ブランクの値を取得する&quot;&quot;&quot;</span>
+    <span class="c1">#     return self.__d[&#39;Offset&#39;]</span>
+    <span class="c1">#</span>
+    <span class="c1"># @offset2.setter</span>
+    <span class="c1"># def offset2(self, x):</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     左ブランクの値を上書きする</span>
+    <span class="c1">#     左ブランクが変化した分だけほかのパラメータの数値を調整するため、</span>
+    <span class="c1">#     ほかの値の絶対時刻を変化させず、左ブランクだけを移動できる。</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     original_offset = self.__d[&#39;Offset&#39;]</span>
+    <span class="c1">#     self.__d[&#39;Offset&#39;] = x</span>
+    <span class="c1">#     dt = self.__d[&#39;Offset&#39;] - original_offset</span>
+    <span class="c1">#     self.__d[&#39;Overlap&#39;] += dt</span>
+    <span class="c1">#     self.__d[&#39;Preutterance&#39;] += dt</span>
+    <span class="c1">#     self.__d[&#39;Consonant&#39;] += dt</span>
+    <span class="c1">#     self.cutoff2 += dt</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">consonant</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;固定範囲を確認する&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Consonant&#39;</span><span class="p">]</span>
+
+    <span class="nd">@consonant</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">consonant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;固定範囲を上書きする&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Consonant&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cutoff</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;右ブランクを確認する&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Cutoff&#39;</span><span class="p">]</span>
+
+    <span class="nd">@cutoff</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">cutoff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;右ブランクを上書きする&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Cutoff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cutoff2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;右ブランクを絶対時刻で取得する&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Cutoff&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Offset&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Cutoff&#39;</span><span class="p">])</span>
+
+    <span class="c1"># OffsetがNullのとき処理できない</span>
+    <span class="nd">@cutoff2</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">cutoff2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;右ブランクを絶対時刻で受け取り、負の値で上書きする&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Cutoff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Offset&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">preutterance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;先行発声を取得する&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Preutterance&#39;</span><span class="p">]</span>
+
+    <span class="nd">@preutterance</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">preutterance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;先行発声を上書きする&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Preutterance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">overlap</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;オーバーラップを取得する&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Overlap&#39;</span><span class="p">]</span>
+
+    <span class="nd">@overlap</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">overlap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;オーバーラップを上書きする&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__d</span><span class="p">[</span><span class="s1">&#39;Overlap&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span></div>
+    <span class="c1"># ここまでノートの各値の処理----------------------</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__init__&#39;</span><span class="p">:</span>
+    <span class="k">pass</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">utaupy  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >モジュールコード</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">utaupy.otoini</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Author.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.3.1.
+    </div>
+  </body>
+</html>

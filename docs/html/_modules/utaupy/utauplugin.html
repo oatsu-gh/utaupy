@@ -1,0 +1,180 @@
+
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>utaupy.utauplugin &#8212; utaupy  ドキュメント</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/nature.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/translations.js"></script>
+    <link rel="index" title="索引" href="../../genindex.html" />
+    <link rel="search" title="検索" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">utaupy  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">モジュールコード</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">utaupy.utauplugin</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>utaupy.utauplugin のソースコード</h1><div class="highlight"><pre>
+<span></span><span class="ch">#! /usr/bin/env python3</span>
+<span class="c1"># coding: utf-8</span>
+<span class="c1"># Copyright (c) oatsu</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">UTAUのプラグイン用のモジュール</span>
+<span class="sd">基本的には utaupy.ust の Ust() とか Note() を流用する。</span>
+
+<span class="sd">【注意】本スクリプトは開発初期なため仕様変更が激しいです。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="kn">from</span> <span class="nn">sys</span> <span class="kn">import</span> <span class="n">argv</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ust</span> <span class="k">as</span> <span class="n">_ust</span>
+
+
+<div class="viewcode-block" id="run"><a class="viewcode-back" href="../../utaupy.html#utaupy.utauplugin.run">[ドキュメント]</a><span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="n">your_function</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    UTAUプラグインスクリプトファイルの入出力をする。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># UTAUから出力されるプラグインスクリプトのパスを取得</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="c1"># up.utauplugin.Plugin オブジェクトとしてプラグインスクリプトを読み取る</span>
+    <span class="n">plugin</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="c1"># 目的のノート処理を実行</span>
+    <span class="n">your_function</span><span class="p">(</span><span class="n">plugin</span><span class="p">)</span>
+    <span class="c1"># プラグインスクリプトを上書き</span>
+    <span class="n">plugin</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load"><a class="viewcode-back" href="../../utaupy.html#utaupy.utauplugin.load">[ドキュメント]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;shift-jis&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    UTAUプラグイン一時ファイルを読み取る</span>
+<span class="sd">    USTのやつを一部改変</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ust</span> <span class="o">=</span> <span class="n">_ust</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span>
+    <span class="c1"># UtauPluginオブジェクト化</span>
+    <span class="n">plugin</span> <span class="o">=</span> <span class="n">UtauPlugin</span><span class="p">()</span>
+    <span class="n">plugin</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">ust</span><span class="o">.</span><span class="n">data</span>
+
+    <span class="k">if</span> <span class="n">ust</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;[#PREV]&#39;</span><span class="p">:</span>
+        <span class="n">plugin</span><span class="o">.</span><span class="n">previous_note</span> <span class="o">=</span> <span class="n">ust</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ust</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;[#NEXT]&#39;</span><span class="p">:</span>
+        <span class="n">plugin</span><span class="o">.</span><span class="n">next_note</span> <span class="o">=</span> <span class="n">ust</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">plugin</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">ust</span><span class="o">.</span><span class="n">version</span>
+    <span class="n">plugin</span><span class="o">.</span><span class="n">setting</span> <span class="o">=</span> <span class="n">ust</span><span class="o">.</span><span class="n">setting</span>
+    <span class="n">plugin</span><span class="o">.</span><span class="n">notes</span> <span class="o">=</span> <span class="n">ust</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+    <span class="k">return</span> <span class="n">plugin</span></div>
+
+
+<div class="viewcode-block" id="UtauPlugin"><a class="viewcode-back" href="../../utaupy.html#utaupy.utauplugin.UtauPlugin">[ドキュメント]</a><span class="k">class</span> <span class="nc">UtauPlugin</span><span class="p">(</span><span class="n">_ust</span><span class="o">.</span><span class="n">Ust</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    UTAUプラグインの一時ファイル用のクラス</span>
+<span class="sd">    UST用のクラスを継承</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># [#VERSION]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setting</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># [#SETTING]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">previous_note</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># [#PREV] のNoteオブジェクト</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__notes</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Noteオブジェクトのリスト</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next_note</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># [#NEXT] のNoteオブジェクト</span>
+
+<div class="viewcode-block" id="UtauPlugin.write"><a class="viewcode-back" href="../../utaupy.html#utaupy.utauplugin.UtauPlugin.write">[ドキュメント]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;shift-jis&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        プラグイン用のテキストをファイル出力する。</span>
+<span class="sd">        UST と違って[#DELETE]でも書き込む。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">duplicated_self</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">duplicated_self</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
+            <span class="c1"># ノートを解体して行のリストにする</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;Tag&#39;</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">=</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)))</span>
+        <span class="c1"># 出力用の文字列</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+        <span class="c1"># ファイル出力</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">notes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ノート部分を返す。Ustのままだと、さらに縮まってしまうため上書き。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__notes</span>
+
+    <span class="nd">@notes</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">notes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        ノート部分を上書き。</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__notes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">utaupy  ドキュメント</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >モジュールコード</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">utaupy.utauplugin</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, Author.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.3.1.
+    </div>
+  </body>
+</html>
