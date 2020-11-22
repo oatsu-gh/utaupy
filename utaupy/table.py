@@ -10,11 +10,19 @@ def main():
     print('平仮名とアルファベットの対応表を扱うモジュールです。')
 
 
-def load(path):
+def load(path, encoding='utf-8'):
     """テーブルを読み取ってインスタンス生成"""
     # ファイル読み取り
-    with open(path) as f:
-        l = [v.strip().split() for v in f.readlines()]
+    try:
+        with open(path, mode='r', encoding=encoding) as f:
+            l = [v.strip().split() for v in f.readlines()]
+    except UnicodeDecodeError:
+        try:
+            with open(path, mode='r', encoding='sjis') as f:
+                l = [v.strip().split() for v in f.readlines()]
+        except UnicodeDecodeError:
+            with open(path, mode='r', encoding='utf-8') as f:
+                l = [v.strip().split() for v in f.readlines()]
     # 辞書にする
     d = {}
     for v in l:
