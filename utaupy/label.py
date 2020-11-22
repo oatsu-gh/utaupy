@@ -46,7 +46,7 @@ def load(path, mode='r', encoding='utf-8', time_unit='100ns'):
     """
     # lab ファイル読み取り
     with open(path, mode=mode, encoding=encoding) as f:
-        lines = [s.strip().split() for s in f.readlines()]
+        lines = [s.strip().split(maxsplit=2) for s in f.readlines()]
     # 入力ファイル末尾の空白行を除去
     while lines[-1] == ['']:
         del lines[-1]
@@ -112,7 +112,7 @@ class Label(UserList):
     def reload(self):
         """
         発音開始時刻を参照して、発音終了時刻を自動補完する。
-        ただし最終行の発音狩猟時刻だけは補完できないため、そのままにする。
+        ただし最終行の発音終了時刻だけは補完できないため、そのままにする。
         """
         for i, phoneme in enumerate(self[:-1]):
             phoneme.end = self[i + 1].start
