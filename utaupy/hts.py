@@ -5,8 +5,10 @@
 Python3 module for HTS-full-label.
 """
 
+import json
 import re
-# from collections import UserList
+from collections import UserList
+from copy import deepcopy
 from itertools import chain
 from pprint import pprint
 
@@ -23,7 +25,7 @@ def load(source):
     return song.load(source)
 
 
-class HTSFullLabel(list):
+class HTSFullLabel(UserList):
     """
     HTSのフルコンテキストラベルの1行を扱うクラス
     OneLine からなる list
@@ -34,11 +36,28 @@ class HTSFullLabel(list):
         super().__init__()
         self.song = Song()
 
-    def write(self, path, mode='w', encoding='utf-8') -> str:
+    def write(self, path, mode='w', encoding='utf-8', hts_style: bool = True) -> str:
         """
         ファイル出力する
         """
-        s = '\n'.join([str(oneline) for oneline in self])
+        if hts_style:
+            lines = []
+            for oneline in self:
+                temp_ol = deepcopy(oneline)
+                if temp_ol.syllable_previous[0].identity in ('pau', 'sil'):
+                    temp_ol.a[0] = 'xx'
+                    temp_ol.a[1] = 'xx'
+                    temp_ol.a[2] = 'xx'
+                if temp_ol.syllable_next[0].identity in ('pau', 'sil'):
+                    temp_ol.c[0] = 'xx'
+                    temp_ol.c[1] = 'xx'
+                    temp_ol.c[2] = 'xx'
+                lines.append(temp_ol)
+            s = '\n'.join([str(oneline) for oneline in lines])
+
+        else:
+            s = '\n'.join([str(oneline) for oneline in self])
+
         with open(path, mode=mode, encoding=encoding) as f:
             f.write(s)
         return s
@@ -49,13 +68,13 @@ class HTSFullLabel(list):
         """
         if isinstance(source, str):
             self._load_from_path(source, encoding=encoding)
-        elif type(source) == Song:
+        elif isinstance(source, Song):
             self._load_from_songobj(source)
-        elif type(source) == list:
+        elif isinstance(source, list):
             self._load_from_lines(source)
         else:
             raise TypeError(f'Type of the argument "source" must be str, list or {Song}.')
-        self.song = self.as_song()
+        self.song = self.generate_songobj()
         # self.fill_contexts_from_songobj()
         return self
 
@@ -83,7 +102,7 @@ class HTSFullLabel(list):
         # 各行を解析してHTSFullLabelに追加する。
         for line in lines:
             # 1行分の情報用のオブジェクトを生成
-            oneline = _OneLine()
+            oneline = OneLine()
             # 正規表現で上手く区切れない文字を置換する
             # 空白で分割して、時刻情報とそれ以外のコンテキストに分ける
             line_split = line.split(maxsplit=2)
@@ -122,43 +141,45 @@ class HTSFullLabel(list):
     def fill_contexts_from_songobj(self):
         """
         自身が持つSongオブジェクトをもとにコンテキスト情報を埋める。
-        {object_name}_current 系のオブジェクトのみから前後を補完する。
         """
         song = self.song
-        phrases = [Phrase()] + song + [Phrase()]
-        for i_p, phrase in enumerate(phrases[1:-1], 1):
-            notes = phrases[i_p - 1][-1] + phrase + phrases[i_p + 1][0]
-            for i_n, note in enumerate(notes[1:-1], 1):
-                syllables = notes[i_n - 1][-1] + phrase + notes[i_n + 1][0]
-                for i_s, syllable in enumerate(syllables[1:-1], 1):
-                    for phoneme in syllable:
-                        # TODO: ここ消す
-                        print(list(map(id, [phoneme, note, syllable, phoneme])))
-                        ol = _OneLine()
-                        # 音素情報を登録(現在の音素のみ)
-                        ol.phoneme = phoneme
-                        # 音節情報を登録
-                        ol.syllable = syllable
-                        ol.syllable_previous = syllables[i_s - 1]
-                        ol.syllable_next = syllables[i_s - 1]
-                        # ノート情報を登録
-                        ol.note = note
-                        ol.note_previous = notes[i_n - 1]
-                        ol.note_next = notes[i_n + 1]
-                        # フレーズ情報を登録
-                        ol.phrase = phrase
-                        ol.phrase_previous = phrases[i_p - 1]
-                        ol.phrase_next = phrases[i_p + 1]
-                        # 楽曲情報を登録
-                        ol.song = song
-        self._fill_phoneme_contexts()
+        dummy_note = Note()
+        dummy_syllable = Syllable()
+        dummy_syllable.append(Phoneme())
+        dummy_note.append(dummy_syllable)
+
+        notes = [dummy_note] + song + [deepcopy(dummy_note)]
+
+        onelines = []
+        for i_n, note in enumerate(notes[1:-1], 1):
+            syllables = notes[i_n - 1] + note + notes[i_n + 1]
+            for i_s, syllable in enumerate(syllables[1:-1], 1):
+                for phoneme in syllable:
+                    # TODO: ここ消す
+                    ol = OneLine()
+                    # 音素情報を登録(現在の音素のみ)
+                    ol.phoneme = phoneme
+                    # 音節情報を登録
+                    ol.syllable = syllable
+                    ol.syllable_previous = syllables[i_s - 1]
+                    ol.syllable_next = syllables[i_s + 1]
+                    # ノート情報を登録
+                    ol.note = note
+                    ol.note_previous = notes[i_n - 1]
+                    ol.note_next = notes[i_n + 1]
+                    # 楽曲情報を登録
+                    ol.song = song
+                    # print(list(map(id, [song, note, syllable, phoneme])))
+                    onelines.append(ol)
+        self.data = onelines
+        self._fill_phonemes()
         return self
 
-    def _fill_phoneme_contexts(self):
+    def _fill_phonemes(self):
         """
         phoneme をもとに、前後の音素に関する項を埋める。
         """
-        extended_self = [_OneLine(), _OneLine()] + self + [_OneLine(), _OneLine()]
+        extended_self = [OneLine(), OneLine()] + self.data + [OneLine(), OneLine()]
         # ol is OneLine objec
         for i, ol in enumerate(extended_self[2:-2], 2):
             ol.phoneme_before_previous = extended_self[i - 2].phoneme
@@ -167,7 +188,7 @@ class HTSFullLabel(list):
             ol.phoneme_after_next = extended_self[i + 2].phoneme
         return self
 
-    def as_song(self):
+    def generate_songobj(self):
         """
         フルコンテキストラベルの情報をもとにSongオブジェクトをつくる。
         self.song に格納する。
@@ -175,39 +196,25 @@ class HTSFullLabel(list):
         # Song は1つの HTSFullLabel につき1つだけなので、ループする必要がない。
         # Song は一番最初の行の情報がすべての行に通用すると考える。
         song = self[0].song
-        phrase = Phrase()
         note = Note()
         syllable = Syllable()
         for ol in self:
             phoneme = ol.phoneme
-            # ノートが「フレーズ内で1番最初のノート」なとき、フレーズを切り替える。
-            if str(ol.note.position) in ('xx', '1'):
-                phrase = ol.phrase
-                song.append(phrase)
-            # 音節が「ノート内で1番最初の音節」なとき、ノートを切り替える。
-            if str(ol.syllable.position) == '1':
+            # 処理する行が「ノート内で1番最初の音節」かつ
+            # 「音節内でいちばん最初の音素」のとき、ノートを切り替える。
+            if str(ol.syllable.position) == '1' and str(phoneme.position) == '1':
                 note = ol.note
-                phrase.append(note)
-            # 音素が「音節内で1番最初の音素」なとき、音節を切り替える。
+                song.append(note)
+            # 処理する行が「音節内で1番最初の音素」なとき、音節を切り替える。
             if str(phoneme.position) == '1':
                 syllable = ol.syllable
                 note.append(syllable)
             syllable.append(phoneme)
-            print(phoneme.identity, syllable.position, note.position)
-            for note in phrase:
-                for syllable in note:
-                    for phoneme in syllable:
-                        print('len(song)', len(song))
-                        print('phrase\t', phrase)
-                        print('note\t', note)
-                        print('syllable', syllable)
-                        print('phoneme\t', phoneme)
-                        print('------------------------------------------------------------------------------')
-        # song.check()
+        self.song = song
         return song
 
 
-class _OneLine:
+class OneLine:
     """
     HTSのフルコンテキストラベルの1行を扱うクラス
     ファイルを読み取って HTSFullLabel を生成するときと、
@@ -267,7 +274,7 @@ class _OneLine:
 
     @start.setter
     def start(self, start_time: int):
-        self.phoneme.start = int(start_time)
+        self.phoneme.start = start_time
 
     @property
     def end(self) -> int:
@@ -278,7 +285,7 @@ class _OneLine:
 
     @end.setter
     def end(self, end_time: int):
-        self.phoneme.end = int(end_time)
+        self.phoneme.end = end_time
 
     @property
     def p(self) -> list:
@@ -436,31 +443,32 @@ class _OneLine:
         self.song.contexts = song_contexts
 
 
-class Song(list):
+class Song(UserList):
     """
     曲を扱うクラス
     今日の曲(j1-j3)
     [Phrase, Phrase, ..., Phrase]
+    [Note, Note, ..., Note]
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, init=None):
+        super().__init__(init)
         self.contexts = ['xx'] * 3
         self.number_of_measures = 'xx'
 
-    @property
-    def all_phrases(self):
-        """
-        Phraseをすべて並べたリストを返す。
-        """
-        return self
+    # @property
+    # def all_phrases(self):
+    #     """
+    #     Phraseをすべて並べたリストを返す。
+    #     """
+    #     return self
 
     @property
     def all_notes(self):
         """
         Noteをすべて並べたリストを返す。
         """
-        return list(chain.from_iterable(self))
+        return self
 
     @property
     def all_syllables(self):
@@ -480,13 +488,12 @@ class Song(list):
     def number_of_phrases(self):
         """
         楽曲内のフレーズ数。(j3)
-        _OneLine から Song を生成するときにつかう。
         """
         return self.contexts[2]
 
     @number_of_phrases.setter
     def number_of_phrases(self, number: int):
-        self.contexts[2] = int(number)
+        self.contexts[2] = number
 
     def check(self):
         """
@@ -502,37 +509,41 @@ class Song(list):
         """
         # 各要素数がちゃんとしているか確認する。
         # 楽曲内フレーズ数が、ラベルに記載されている値と一致するか確認する。
-        assert len(self) == self.number_of_phrases, \
-            f'楽曲内フレーズ数に不整合があります。len(Song):{len(self)}, ラベル記載値: {self.number_of_phrases}'
+        # assert len(self) == self.number_of_phrases, \
+        #     f'楽曲内フレーズ数に不整合があります。len(Song):{len(self)}, ラベル記載値: {self.number_of_phrases}'
         # フレーズ内の値をチェック
-        for phrase in self.all_phrases:
-            syllables = list(chain.from_iterable(phrase))
-            # 各フレーズ内音節数が、ラベルに記載されている値と一致するか確認する。
-            assert len(syllables) == phrase.number_of_syllables, \
-                f'フレーズ内音節数に不整合があります。{len(syllables)}, {phrase.number_of_syllables}'
-            # 各フレーズ内音素数が、ラベルに記載されている値と一致するか確認する。
-            assert sum(list(map(len, syllables))) == phrase.number_of_phonemes, \
-                'フレーズ内音素数に不整合があります。'
+        # for phrase in self.all_phrases:
+        #     syllables = list(chain.from_iterable(phrase))
+        #     # 各フレーズ内音節数が、ラベルに記載されている値と一致するか確認する。
+        #     assert len(syllables) == phrase.number_of_syllables, \
+        #         f'フレーズ内音節数に不整合があります。{len(syllables)}, {phrase.number_of_syllables}'
+        #     # 各フレーズ内音素数が、ラベルに記載されている値と一致するか確認する。
+        #     assert sum(list(map(len, syllables))) == phrase.number_of_phonemes, \
+        #         'フレーズ内音素数に不整合があります。'
         # 各音節内音素数が、ラベルに記載されている値と一致するか確認する。
-        assert all(len(syllable) == syllable.number_of_phonemes for syllable in self.all_syllables), \
-            '音節内音素数に不整合があります。'
+        for syllable in self.all_syllables:
+            assert len(syllable) == syllable.number_of_phonemes, \
+                '音節内音素数に不整合があります。'
+        for i, note in enumerate(self):
+            assert len(note) == note.number_of_syllables, \
+                f'ノート内音節数に不整合があります。i:{i} len(note):{len(note)} note.number_of_syllables:{note.number_of_syllables}'
 
     def check_position(self):
         """
         各position がちゃんとしているか確認する。
         """
         for syllable in self.all_syllables:
-            assert all(phoneme.position == idx + 1 for (phoneme, idx) in enumerate(syllable)), \
+            assert all(phoneme.position == idx + 1 for (idx, phoneme) in enumerate(syllable)), \
                 '音節内音素位置に不整合があります。'
         for note in self.all_notes:
-            assert all(syllable.position == idx + 1 for (syllable, idx) in enumerate(note)), \
+            assert all(syllable.position == idx + 1 for (idx, syllable) in enumerate(note)), \
                 'ノート内音節位置に不整合があります。'
-        for phrase in self.all_phrases:
-            assert all(note.position == idx + 1 for (note, idx) in enumerate(phrase)), \
-                'フレーズ内ノート位置に不整合があります。'
+        # for phrase in self.all_phrases:
+        #     assert all(note.position == idx + 1 for (note, idx) in enumerate(phrase)), \
+        #         'フレーズ内ノート位置に不整合があります。'
 
 
-class Phrase(list):
+class Phrase(UserList):
     """
     フレーズを扱うクラス
     昨日のフレーズ G (g1~g2)
@@ -542,8 +553,8 @@ class Phrase(list):
     [Note, Note, Note, ..., Note]
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, init=None):
+        super().__init__(init)
         self.contexts = ['xx'] * 2
 
     @property
@@ -551,7 +562,7 @@ class Phrase(list):
         """
         フレーズ内の音節数。
 
-        _OneLine からSongを生成するときに使うかも。
+        OneLine からSongを生成するときに使うかも。
         フレーズの切り替わり判定をするときに使うかも。
         多分使わない。
         """
@@ -565,7 +576,7 @@ class Phrase(list):
     def number_of_phonemes(self):
         """
         フレーズ内の音素数。
-        _OneLine からSongを生成するときに使う。
+        OneLine からSongを生成するときに使う。
         """
         return self.contexts[1]
 
@@ -574,7 +585,7 @@ class Phrase(list):
         self.contexts[1] = number
 
 
-class Note(list):
+class Note(UserList):
     """
     ノートまたは休符を扱うクラス
     1ノート（ノートと休符）を扱うクラス
@@ -585,8 +596,8 @@ class Note(list):
     [Syllable, Syllable, ..., Syllable]
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, init=None):
+        super().__init__(init)
         self.contexts = ['xx'] * 60
 
     @property
@@ -598,10 +609,27 @@ class Note(list):
 
     @position.setter
     def position(self, position: int):
-        self.contexts[17] = int(position)
+        self.contexts[17] = position
+
+    @property
+    def number_of_syllables(self):
+        """
+        ノート内音節数
+        """
+        return self.contexts[5]
+
+    @number_of_syllables.setter
+    def number_of_syllables(self, number: int):
+        self.contexts[5] = number
+
+    def is_pau(self):
+        """
+        休符かどうかを返す
+        """
+        return self[0][0].identity in ('pau', 'sil')
 
 
-class Syllable(list):
+class Syllable(UserList):
     """
     1音節を扱うクラス
     昨日の音節 A (a1~a5)
@@ -610,8 +638,8 @@ class Syllable(list):
     [Phoneme, Phoneme, ..., Phoneme]
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, init=None):
+        super().__init__(init)
         self.contexts = ['xx'] * 5
 
     @property
