@@ -3,6 +3,7 @@
 # Copyright (c) 2020 oatsu
 """
 Python3 module for HTS-full-label.
+Sinsy仕様のHTSフルコンテキストラベルを扱うモジュール
 """
 
 # import json
@@ -35,7 +36,7 @@ class HTSFullLabel(UserList):
         super().__init__(init)
         self.song = Song()
 
-    def write(self, path, mode='w', encoding='utf-8', strict_hts_style:bool=True) -> str:
+    def write(self, path, mode='w', encoding='utf-8', strict_hts_style: bool = True) -> str:
         """
         ファイル出力する
         strict_hts_style: bool:
@@ -724,7 +725,7 @@ def adjust_notes_to_hts(full_label: HTSFullLabel, strict=True) -> HTSFullLabel:
 
     for ol in new_label:
         if ol.note.is_pau():
-            ol.f[0:2] = ['xx'] * 2
+            ol.e[0:2] = ['xx'] * 2
 
     for ol in new_label[:-1]:
         if ol.next_note.is_pau():
