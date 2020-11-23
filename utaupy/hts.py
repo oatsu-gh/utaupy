@@ -5,14 +5,13 @@
 Python3 module for HTS-full-label.
 """
 
-import json
+# import json
 import re
 from collections import UserList
 from copy import deepcopy
 from itertools import chain
-from pprint import pprint
 
-# import itertools
+# from pprint import pprint
 
 
 def load(source):
@@ -32,32 +31,24 @@ class HTSFullLabel(UserList):
     [OneLine, OneLine, ..., OneLine]
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, init=None):
+        super().__init__(init)
         self.song = Song()
 
-    def write(self, path, mode='w', encoding='utf-8', hts_style: bool = True) -> str:
+    def write(self, path, mode='w', encoding='utf-8', strict_hts_style:bool=True) -> str:
         """
         ファイル出力する
+        strict_hts_style: bool:
+            「休符の長さ」が前後の発声に影響するかどうかを左右する。
+            Trueのときは d, f における休符の長さ情報が削除されて 'xx' になる。
+            Falseのときは d, f における休符の長さ情報が維持される。
         """
-        if hts_style:
-            lines = []
-            for oneline in self:
-                temp_ol = deepcopy(oneline)
-                if temp_ol.syllable_previous[0].identity in ('pau', 'sil'):
-                    temp_ol.a[0] = 'xx'
-                    temp_ol.a[1] = 'xx'
-                    temp_ol.a[2] = 'xx'
-                if temp_ol.syllable_next[0].identity in ('pau', 'sil'):
-                    temp_ol.c[0] = 'xx'
-                    temp_ol.c[1] = 'xx'
-                    temp_ol.c[2] = 'xx'
-                lines.append(temp_ol)
-            s = '\n'.join([str(oneline) for oneline in lines])
-
-        else:
-            s = '\n'.join([str(oneline) for oneline in self])
-
+        # 休符周辺の仕様をSinsyに近づける。
+        new_label = adjust_syllables_to_hts(self)
+        new_label = adjust_notes_to_hts(new_label, strict=strict_hts_style)
+        # 文字列にする
+        s = '\n'.join([str(oneline) for oneline in new_label])
+        # ファイル出力
         with open(path, mode=mode, encoding=encoding) as f:
             f.write(s)
         return s
@@ -74,8 +65,8 @@ class HTSFullLabel(UserList):
             self._load_from_lines(source)
         else:
             raise TypeError(f'Type of the argument "source" must be str, list or {Song}.')
-        self.song = self.generate_songobj()
-        # self.fill_contexts_from_songobj()
+        self.generate_songobj()
+        self.fill_contexts_from_songobj()
         return self
 
     def _load_from_path(self, path, encoding: str = 'utf-8'):
@@ -135,7 +126,6 @@ class HTSFullLabel(UserList):
         hts.Song オブジェクトをもとにコンテキストを登録する。
         """
         self.song = songobj
-        self.fill_contexts_from_songobj()
         return self
 
     def fill_contexts_from_songobj(self):
@@ -155,18 +145,17 @@ class HTSFullLabel(UserList):
             syllables = notes[i_n - 1] + note + notes[i_n + 1]
             for i_s, syllable in enumerate(syllables[1:-1], 1):
                 for phoneme in syllable:
-                    # TODO: ここ消す
                     ol = OneLine()
                     # 音素情報を登録(現在の音素のみ)
                     ol.phoneme = phoneme
                     # 音節情報を登録
                     ol.syllable = syllable
-                    ol.syllable_previous = syllables[i_s - 1]
-                    ol.syllable_next = syllables[i_s + 1]
+                    ol.previous_syllable = syllables[i_s - 1]
+                    ol.next_syllable = syllables[i_s + 1]
                     # ノート情報を登録
                     ol.note = note
-                    ol.note_previous = notes[i_n - 1]
-                    ol.note_next = notes[i_n + 1]
+                    ol.previous_note = notes[i_n - 1]
+                    ol.next_note = notes[i_n + 1]
                     # 楽曲情報を登録
                     ol.song = song
                     # print(list(map(id, [song, note, syllable, phoneme])))
@@ -182,10 +171,10 @@ class HTSFullLabel(UserList):
         extended_self = [OneLine(), OneLine()] + self.data + [OneLine(), OneLine()]
         # ol is OneLine objec
         for i, ol in enumerate(extended_self[2:-2], 2):
-            ol.phoneme_before_previous = extended_self[i - 2].phoneme
-            ol.phoneme_previous = extended_self[i - 1].phoneme
-            ol.phoneme_next = extended_self[i + 1].phoneme
-            ol.phoneme_after_next = extended_self[i + 2].phoneme
+            ol.before_previous_phoneme = extended_self[i - 2].phoneme
+            ol.previous_phoneme = extended_self[i - 1].phoneme
+            ol.next_phoneme = extended_self[i + 1].phoneme
+            ol.after_next_phoneme = extended_self[i + 2].phoneme
         return self
 
     def generate_songobj(self):
@@ -196,10 +185,14 @@ class HTSFullLabel(UserList):
         # Song は1つの HTSFullLabel につき1つだけなので、ループする必要がない。
         # Song は一番最初の行の情報がすべての行に通用すると考える。
         song = self[0].song
+        song.data = []
         note = Note()
         syllable = Syllable()
         for ol in self:
             phoneme = ol.phoneme
+            # すでに入っている音節や音素を取り除く。取り除かないと数が倍になる。
+            ol.note.data = []
+            ol.syllable.data = []
             # 処理する行が「ノート内で1番最初の音節」かつ
             # 「音節内でいちばん最初の音素」のとき、ノートを切り替える。
             if str(ol.syllable.position) == '1' and str(phoneme.position) == '1':
@@ -211,7 +204,6 @@ class HTSFullLabel(UserList):
                 note.append(syllable)
             syllable.append(phoneme)
         self.song = song
-        return song
 
 
 class OneLine:
@@ -222,20 +214,20 @@ class OneLine:
     """
 
     def __init__(self):
-        self.phoneme_before_previous = Phoneme()
-        self.phoneme_previous = Phoneme()
+        self.before_previous_phoneme = Phoneme()
+        self.previous_phoneme = Phoneme()
         self.phoneme = Phoneme()
-        self.phoneme_next = Phoneme()
-        self.phoneme_after_next = Phoneme()
-        self.syllable_previous = Syllable()
+        self.next_phoneme = Phoneme()
+        self.after_next_phoneme = Phoneme()
+        self.previous_syllable = Syllable()
         self.syllable = Syllable()
-        self.syllable_next = Syllable()
-        self.note_previous = Note()
+        self.next_syllable = Syllable()
+        self.previous_note = Note()
         self.note = Note()
-        self.note_next = Note()
-        self.phrase_previous = Phrase()
+        self.next_note = Note()
+        self.previous_phrase = Phrase()
         self.phrase = Phrase()
-        self.phrase_next = Phrase()
+        self.next_phrase = Phrase()
         self.song = Song()
 
     def __str__(self):
@@ -294,16 +286,16 @@ class OneLine:
         """
         p = [
             self.phoneme.language_independent_identity,
-            self.phoneme_before_previous.identity,
-            self.phoneme_previous.identity,
+            self.before_previous_phoneme.identity,
+            self.previous_phoneme.identity,
             self.phoneme.identity,
-            self.phoneme_next.identity,
-            self.phoneme_after_next.identity,
-            self.phoneme_before_previous.flag,
-            self.phoneme_previous.flag,
+            self.next_phoneme.identity,
+            self.after_next_phoneme.identity,
+            self.before_previous_phoneme.flag,
+            self.previous_phoneme.flag,
             self.phoneme.flag,
-            self.phoneme_next.flag,
-            self.phoneme_after_next.flag,
+            self.next_phoneme.flag,
+            self.after_next_phoneme.flag,
             self.phoneme.position,
             self.phoneme.position_backward,
             self.phoneme.distance_from_previous_vowel,
@@ -315,16 +307,16 @@ class OneLine:
     @p.setter
     def p(self, phoneme_contexts: list):
         self.phoneme.language_independent_identity = phoneme_contexts[0]
-        self.phoneme_before_previous.identity = phoneme_contexts[1]
-        self.phoneme_previous.identity = phoneme_contexts[2]
+        self.before_previous_phoneme.identity = phoneme_contexts[1]
+        self.previous_phoneme.identity = phoneme_contexts[2]
         self.phoneme.identity = phoneme_contexts[3]
-        self.phoneme_next.identity = phoneme_contexts[4]
-        self.phoneme_after_next.identity = phoneme_contexts[5]
-        self.phoneme_before_previous.flag = phoneme_contexts[6]
-        self.phoneme_previous.flag = phoneme_contexts[7]
+        self.next_phoneme.identity = phoneme_contexts[4]
+        self.after_next_phoneme.identity = phoneme_contexts[5]
+        self.before_previous_phoneme.flag = phoneme_contexts[6]
+        self.previous_phoneme.flag = phoneme_contexts[7]
         self.phoneme.flag = phoneme_contexts[8]
-        self.phoneme_next.flag = phoneme_contexts[9]
-        self.phoneme_after_next.flag = phoneme_contexts[10]
+        self.next_phoneme.flag = phoneme_contexts[9]
+        self.after_next_phoneme.flag = phoneme_contexts[10]
         self.phoneme.position = phoneme_contexts[11]
         self.phoneme.position_backward = phoneme_contexts[12]
         self.phoneme.distance_from_previous_vowel = phoneme_contexts[13]
@@ -336,11 +328,11 @@ class OneLine:
         """
         直前の音節のコンテキスト
         """
-        return self.syllable_previous.contexts
+        return self.previous_syllable.contexts
 
     @a.setter
     def a(self, syllable_contexts: list):
-        self.syllable_previous.contexts = syllable_contexts
+        self.previous_syllable.contexts = syllable_contexts
 
     @property
     def b(self) -> list:
@@ -358,22 +350,22 @@ class OneLine:
         """
         直後の音節のコンテキスト
         """
-        return self.syllable_next.contexts
+        return self.next_syllable.contexts
 
     @c.setter
     def c(self, syllable_contexts: list):
-        self.syllable_next.contexts = syllable_contexts
+        self.next_syllable.contexts = syllable_contexts
 
     @property
     def d(self) -> list:
         """
         直前のノートのコンテキスト
         """
-        return self.note_previous.contexts
+        return self.previous_note.contexts
 
     @d.setter
     def d(self, note_contexts: list):
-        self.note_previous.contexts = note_contexts
+        self.previous_note.contexts = note_contexts
 
     @property
     def e(self) -> list:
@@ -391,22 +383,22 @@ class OneLine:
         """
         直後のノートのコンテキスト
         """
-        return self.note_next.contexts
+        return self.next_note.contexts
 
     @f.setter
     def f(self, note_contexts: list):
-        self.note_next.contexts = note_contexts
+        self.next_note.contexts = note_contexts
 
     @property
     def g(self) -> list:
         """
         直前のフレーズのコンテキスト
         """
-        return self.phrase_previous.contexts
+        return self.previous_phrase.contexts
 
     @g.setter
     def g(self, phrase_contexts: list):
-        self.phrase_previous.contexts = phrase_contexts
+        self.previous_phrase.contexts = phrase_contexts
 
     @property
     def h(self) -> list:
@@ -424,11 +416,11 @@ class OneLine:
         """
         直後のフレーズのコンテキスト
         """
-        return self.phrase_next.contexts
+        return self.next_phrase.contexts
 
     @i.setter
     def i(self, phrase_contexts: list):
-        self.phrase_next.contexts = phrase_contexts
+        self.next_phrase.contexts = phrase_contexts
 
     @property
     def j(self) -> list:
@@ -521,11 +513,11 @@ class Song(UserList):
         #     assert sum(list(map(len, syllables))) == phrase.number_of_phonemes, \
         #         'フレーズ内音素数に不整合があります。'
         # 各音節内音素数が、ラベルに記載されている値と一致するか確認する。
-        for syllable in self.all_syllables:
-            assert len(syllable) == syllable.number_of_phonemes, \
-                '音節内音素数に不整合があります。'
+        for i, syllable in enumerate(self.all_syllables):
+            assert str(len(syllable)) == str(syllable.number_of_phonemes), \
+                f'音節内音素数に不整合があります。i:{i} len(syllable):{len(syllable)} syllable.number_of_phonemes:{syllable.number_of_phonemes}'
         for i, note in enumerate(self):
-            assert len(note) == note.number_of_syllables, \
+            assert str(len(note)) == str(note.number_of_syllables), \
                 f'ノート内音節数に不整合があります。i:{i} len(note):{len(note)} note.number_of_syllables:{note.number_of_syllables}'
 
     def check_position(self):
@@ -533,14 +525,11 @@ class Song(UserList):
         各position がちゃんとしているか確認する。
         """
         for syllable in self.all_syllables:
-            assert all(phoneme.position == idx + 1 for (idx, phoneme) in enumerate(syllable)), \
+            assert all(str(phoneme.position) == str(idx + 1) for (idx, phoneme) in enumerate(syllable)), \
                 '音節内音素位置に不整合があります。'
         for note in self.all_notes:
-            assert all(syllable.position == idx + 1 for (idx, syllable) in enumerate(note)), \
+            assert all(str(syllable.position) == str(idx + 1) for (idx, syllable) in enumerate(note)), \
                 'ノート内音節位置に不整合があります。'
-        # for phrase in self.all_phrases:
-        #     assert all(note.position == idx + 1 for (note, idx) in enumerate(phrase)), \
-        #         'フレーズ内ノート位置に不整合があります。'
 
 
 class Phrase(UserList):
@@ -695,3 +684,52 @@ class Phoneme:
 
     def __str__(self):
         return f'{self.start} {self.end} {self.identity}'
+
+
+def adjust_syllables_to_hts(full_label: HTSFullLabel) -> HTSFullLabel:
+    """
+    出力用に休符まわりの音節コンテキストを調整する。
+    """
+    new_label = HTSFullLabel([deepcopy(ol) for ol in full_label])
+
+    for ol in new_label[1:]:
+        if ol.previous_syllable[0].identity in ('pau', 'sil'):
+            ol.a[0] = 'xx'
+            ol.a[1] = 'xx'
+            ol.a[2] = 'xx'
+    for ol in new_label[:-1]:
+        if ol.next_syllable[0].identity in ('pau', 'sil'):
+            ol.c[0] = 'xx'
+            ol.c[1] = 'xx'
+            ol.c[2] = 'xx'
+
+    return new_label
+
+
+def adjust_notes_to_hts(full_label: HTSFullLabel, strict=True) -> HTSFullLabel:
+    """
+    休符の前後のノート情報を調整したい。
+    Sinsy仕様の d, f では休符を飛ばした音符を検出して処理している。
+
+    音程関連は必ずやる。
+    休符の長さに関する前後情報は持っておきたい。
+    """
+    new_label = HTSFullLabel([deepcopy(ol) for ol in full_label])
+
+    for ol in new_label[1:]:
+        if ol.previous_note.is_pau():
+            ol.d[0:3] = ['xx'] * 3
+            if strict:
+                ol.d[3:8] = ['xx'] * 5
+
+    for ol in new_label:
+        if ol.note.is_pau():
+            ol.f[0:2] = ['xx'] * 2
+
+    for ol in new_label[:-1]:
+        if ol.next_note.is_pau():
+            ol.f[0:3] = ['xx'] * 3
+            if strict:
+                ol.f[3:8] = ['xx'] * 5
+
+    return new_label
