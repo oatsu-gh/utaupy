@@ -6,6 +6,7 @@ USTファイルとデータを扱うモジュールです。
 import re
 from collections import UserDict, UserList
 from copy import deepcopy
+from functools import lru_cache
 
 
 def main():
@@ -23,7 +24,8 @@ def main():
     input('\nPress Enter to exit.')
 
 
-def notenum_as_abc(notenum):
+@lru_cache()
+def notenum_as_abc(notenum) -> str:
     """
     音階番号をABC表記に変更する(C1=24, C4=)
     """
@@ -43,16 +45,10 @@ def notenum_as_abc(notenum):
          '102': 'Gb7', '103': 'G7', '104': 'Ab7', '105': 'A7', '106': 'Bb7', '107': 'B7',
          '108': 'C8', '109': 'Db8', '110': 'D8', '111': 'Eb8', '112': 'E8', '113': 'F8',
          '114': 'Gb8', '115': 'G8', '116': 'Ab8', '117': 'A8', '118': 'Bb8', '119': 'B8'}
-    if isinstance(notenum, str):
-        return d[notenum]
-    if isinstance(notenum, int):
-        return d[str(notenum)]
-    if isinstance(notenum, (list, tuple)):
-        return [d[str(v)] for v in notenum]
-    raise TypeError("argument 'notenum' must be in [str, int, list, tuple]")
+    return d[str(notenum)]
 
 
-def load(path, mode='r', encoding='shift-jis'):
+def load(path: str, mode='r', encoding='shift-jis'):
     """
     USTを読み取り
     """
@@ -138,17 +134,14 @@ class Ust(UserList):
         return self.data
 
     @property
-    def notes(self):
+    def notes(self) -> list:
         """
         全セクションのうち、[#VERSION] と [#SETTING] [#TRACKEND] を除いたノート部分を取得
         """
         return self.data[2:-1]
 
     @notes.setter
-    def notes(self, l):
-        """
-        全セクションのうち、[#VERSION] と [#SETTING] [#TRACKEND] を除いたノート部分を上書き
-        """
+    def notes(self, l: list):
         if not isinstance(l, list):
             raise TypeError('argument "l" must be list instance')
         self.data = self.data[:2] + l + self.data[-1:]
@@ -245,7 +238,7 @@ class Ust(UserList):
             extra_note.alternative_tempo = note.tempo
             self.insert(-1, extra_note)
 
-    def write(self, path, mode='w', encoding='shift-jis'):
+    def write(self, path: str, mode='w', encoding='shift-jis') -> str:
         """
         USTをファイル出力
         """
