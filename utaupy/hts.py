@@ -36,17 +36,17 @@ class HTSFullLabel(UserList):
         super().__init__(init)
         self.song = Song()
 
-    def write(self, path, mode='w', encoding='utf-8', strict_hts_style: bool = True) -> str:
+    def write(self, path, mode='w', encoding='utf-8', strict_sinsy_style: bool = True) -> str:
         """
         ファイル出力する
-        strict_hts_style: bool:
+        strict_sinsy_style: bool:
             「休符の長さ」が前後の発声に影響するかどうかを左右する。
             Trueのときは d, f における休符の長さ情報が削除されて 'xx' になる。
             Falseのときは d, f における休符の長さ情報が維持される。
         """
         # 休符周辺の仕様をSinsyに近づける。
         new_label = adjust_syllables_to_hts(self)
-        new_label = adjust_notes_to_hts(new_label, strict=strict_hts_style)
+        new_label = adjust_notes_to_hts(new_label, strict=strict_sinsy_style)
         # 文字列にする
         s = '\n'.join([str(oneline) for oneline in new_label])
         # ファイル出力
