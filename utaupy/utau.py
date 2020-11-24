@@ -7,8 +7,6 @@ UTAU音源を扱うモジュール
 from collections import UserDict
 from glob import glob
 
-from tqdm import tqdm
-
 from . import otoini as _otoini
 
 
@@ -141,7 +139,7 @@ def autoadjust_parameters(voicebank, utaupy_ust_ust):
             差分をSTPで削る
     """
     notes = utaupy_ust_ust.notes
-    for i, note in enumerate(tqdm(notes[1:]), 1):
+    for i, note in enumerate(notes[1:], 1):
         halflen = notes[i - 1].length_ms / 2
         oto = get_oto(voicebank, note, suffix_exists=True)
         if halflen < oto.preutterance - oto.overlap:
