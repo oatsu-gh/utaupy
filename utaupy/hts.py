@@ -593,7 +593,7 @@ class Note(UserList):
     @property
     def position(self):
         """
-        フレーズ内での位置
+        フレーズ内での位置(e18)
         """
         return self.contexts[17]
 
@@ -602,9 +602,21 @@ class Note(UserList):
         self.contexts[17] = position
 
     @property
+    def position_backward(self):
+        """
+        フレーズ内での後ろから数えた位置(e19)
+        1-indexed
+        """
+        return int(self.contexts[18])
+
+    @position_backward.setter
+    def position_backward(self, position_backward: int):
+        self.contexts[18] = position_backward
+
+    @property
     def number_of_syllables(self):
         """
-        ノート内音節数
+        ノート内音節数(e6)
         """
         return self.contexts[5]
 
@@ -635,13 +647,26 @@ class Syllable(UserList):
     @property
     def position(self):
         """
-        ノート内での位置
+        ノート内での位置(b2)
+        1-indexed
         """
         return int(self.contexts[1])
 
     @position.setter
     def position(self, position: int):
         self.contexts[1] = position
+
+    @property
+    def position_backward(self):
+        """
+        ノート内での後ろから数えた位置(b3)
+        1-indexed
+        """
+        return int(self.contexts[2])
+
+    @position_backward.setter
+    def position_backward(self, position_backward: int):
+        self.contexts[2] = position_backward
 
     @property
     def number_of_phonemes(self):
