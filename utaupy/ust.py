@@ -4,9 +4,11 @@
 USTファイルとデータを扱うモジュールです。
 """
 import re
-from collections import UserDict, UserList
+from collections import UserDict
 from copy import deepcopy
 from functools import lru_cache
+# from pprint import pprint
+from typing import List
 
 
 def main():
@@ -16,10 +18,7 @@ def main():
     print('ust読み取りテストをします。')
     path = input('ustのパスを入力してください。\n>>> ')
     ust = load(path)
-    print()
-
-    for note in ust.values:
-        print(note)
+    print(ust)
 
     input('\nPress Enter to exit.')
 
@@ -48,128 +47,214 @@ def notenum_as_abc(notenum) -> str:
     return d[str(notenum)]
 
 
-def load(path: str, mode='r', encoding='shift-jis'):
+# def load(path: str, mode='r', encoding='shift-jis'):
+#     """
+#     USTを読み取り
+#     """
+#     # USTを文字列として取得
+#     try:
+#         with open(path, mode=mode, encoding=encoding) as f:
+#             s = f.read()
+#     except UnicodeDecodeError:
+#         with open(path, mode=mode, encoding='utf-8_sig') as f:
+#             s = f.read()
+#     # USTをノート単位に分割
+#     l = [r'[#' + v.strip() for v in s.split(r'[#')][1:]
+#     # さらに行ごとに分割して二次元リストに
+#     l = [v.split('\n') for v in l]
+#
+#     # ノートのリストを作る
+#     ust = Ust()
+#     for lines in l:
+#         note = Note()
+#         # ノートの種類
+#         tag = lines[0]
+#         note.tag = tag
+#         # print('Making "Note" instance from UST: {}'.format(tag))
+#         # タグ以外の行の処理
+#         if tag == '[#VERSION]':
+#             note['UstVersion'] = lines[1]
+#         elif tag == '[#TRACKEND]':
+#             pass
+#         else:
+#             for line in lines[1:]:
+#                 key, value = line.split('=', 1)
+#                 note.set_by_key(key, value)
+#         ust.append(note)
+#
+#     # 旧形式の場合にタグの数を合わせる
+#     if ust[0].tag != '[#VERSION]':
+#         try:
+#             version = ust[0].get_by_key('UstVersion')
+#         except KeyError:
+#             print('WARN: USTファイルに [#VERSION] のエントリがありません。UTAU Ver 0.4.18 未満の場合はアップデートしてください。')
+#             version = 'older_than_1.20'
+#         note = Note()
+#         note.tag = '[#VERSION]'
+#         note.set_by_key('UstVersion', version)
+#         ust.insert(0, note)  # リスト先頭に挿入
+#     # UTAUプラグイン用のファイルとかで[#SETTING]がない場合にずれるのを対策
+#     if ust[1].tag != '[#SETTING]':
+#         note = Note()
+#         note.tag = '[#SETTING]'
+#         ust.insert(0, note)
+#     # インスタンス変数に代入
+#     ust.version = ust[0]
+#     ust.setting = ust[1]
+#     # 隠しパラメータ alternative_tempo を全ノートに設定
+#     ust.reload_tempo()
+#     return ust
+
+
+def load(path: str, encoding: str = 'shift-jis'):
     """
     USTを読み取り
     """
-    # USTを文字列として取得
-    try:
-        with open(path, mode=mode, encoding=encoding) as f:
-            s = f.read()
-    except UnicodeDecodeError:
-        with open(path, mode=mode, encoding='utf-8_sig') as f:
-            s = f.read()
-    # USTをノート単位に分割
-    l = [r'[#' + v.strip() for v in s.split(r'[#')][1:]
-    # さらに行ごとに分割して二次元リストに
-    l = [v.split('\n') for v in l]
-
-    # ノートのリストを作る
-    ust = Ust()
-    for lines in l:
-        note = Note()
-        # ノートの種類
-        tag = lines[0]
-        note.tag = tag
-        # print('Making "Note" instance from UST: {}'.format(tag))
-        # タグ以外の行の処理
-        if tag == '[#VERSION]':
-            note['UstVersion'] = lines[1]
-        elif tag == '[#TRACKEND]':
-            pass
-        else:
-            for line in lines[1:]:
-                key, value = line.split('=', 1)
-                note.set_by_key(key, value)
-        ust.append(note)
-
-    # 旧形式の場合にタグの数を合わせる
-    if ust[0].tag != '[#VERSION]':
-        try:
-            version = ust[0].get_by_key('UstVersion')
-        except KeyError:
-            print('WARN: USTファイルに [#VERSION] のエントリがありません。UTAU Ver 0.4.18 未満の場合はアップデートしてください。')
-            version = 'older_than_1.20'
-        note = Note()
-        note.tag = '[#VERSION]'
-        note.set_by_key('UstVersion', version)
-        ust.insert(0, note)  # リスト先頭に挿入
-    # UTAUプラグイン用のファイルとかで[#SETTING]がない場合にずれるのを対策
-    if ust[1].tag != '[#SETTING]':
-        note = Note()
-        note.tag = '[#SETTING]'
-        ust.insert(0, note)
-    # インスタンス変数に代入
-    ust.version = ust[0]
-    ust.setting = ust[1]
-    # 隠しパラメータ alternative_tempo を全ノートに設定
-    ust.reload_tempo()
-    return ust
+    new_ust = Ust()
+    new_ust.load(path, encoding=encoding)
+    return new_ust
 
 
-class Ust(UserList):
+class Ust:
     """UST"""
 
     def __init__(self):
         super().__init__()
         # ノート(クラスオブジェクト)からなるリスト
-        self.version = None
-        self.setting = None
+        self.version = None   # [#VERSION]
+        self.setting = None   # [#SETTING]
+        self.notes = []       # [#1234], [#INSERT], [#DELETE]
+        self.trackend = None  # [#TRACKEND]
+        self.next = None      # [#NEXT]
+        self.prev = None      # [#PREV]
 
-    @property
-    def values(self):
-        """中身を見る"""
+    def __str__(self):
+        # self.notesが増減するので複製したものを扱う
+        duplicated_self = deepcopy(self)
+        # 特殊ノートを処理
+        if self.setting is not None:
+            duplicated_self.notes.insert(0, self.setting)
+        if self.prev is not None:
+            duplicated_self.notes.insert(0, self.prev)
+        if self.next is not None:
+            duplicated_self.notes.append(self.next)
+        if self.trackend is not None:
+            duplicated_self.notes.append(self.trackend)
+        # 通常ノートを文字列にする
+        s = '\n'.join(str(note) for note in duplicated_self.notes)
+        # バージョン情報があれば先頭に追記
+        if self.version is not None:
+            str_version = f'[#VERSION]\nUST Version {str(duplicated_self.version)}'
+            s = '\n'.join((str_version, s))
+        return s
+
+    def load(self, path: str, encoding='shift-jis'):
+        """
+        ファイルからインスタンス生成
+        """
+        # USTを文字列として取得
+        try:
+            with open(path, mode='r', encoding=encoding) as f:
+                s = f.read().strip()
+        except UnicodeDecodeError:
+            try:
+                with open(path, mode='r', encoding='utf-8') as f:
+                    s = f.read().strip()
+            except UnicodeDecodeError:
+                with open(path, mode='r', encoding='utf-8_sig') as f:
+                    s = f.read().strip()
+
+        # USTの文字列をノート単位に分割
+        l: List[str] = [f'[#{v.strip()}' for v in s.split('[#')][1:]
+        l_2d = [s.split('\n') for s in l]
+
+        # ノートのリストを作る
+        for lines in l_2d:
+            # 1行目: ノートの種類
+            tag = lines[0]
+            # print('reading entry:', tag)  # デバッグ用出力
+            note = Note(tag=tag)
+            # どこに登録するか決める
+            if tag not in ('[#VERSION]', '[#SETTING]', '[#TRACKEND]', '[#PREV]', '[#NEXT]'):
+                self.notes.append(note)
+            elif tag == '[#VERSION]':
+                self.version = lines[1].replace('UST Version ', '')
+                continue
+            elif tag == '[#SETTING]':
+                self.setting = note
+            elif tag == '[#PREV]':
+                self.prev = note
+            elif tag == '[#NEXT]':
+                self.next = note
+            elif tag == '[#TRACKEND]':
+                self.trackend = note
+            else:
+                raise Exception('想定外のエラーです。開発者に連絡してください。:', tag, str(note))
+            # 2行目移行: タグ以外の情報
+            for line in lines[1:]:
+                key, value = line.split('=', maxsplit=1)
+                note[key] = value
+
+        # 旧形式の場合にタグの数を合わせる
+        # TODO: utaupy v1.10.0 でここの処理消す。
+        if self.version is None:
+            try:
+                version = self.setting['UstVersion']
+            except KeyError:
+                version = 'lower_than_1.19'
+                print('[WARN] USTファイルに [#VERSION] のエントリがありません。'
+                      'UTAU Ver 0.4.18 未満の場合はアップデートしてください。')
+            note = Note(tag='[#VERSION]')
+            note['UstVersion'] = version
+
+        # 隠しパラメータ alternative_tempo を全ノートに設定
+        self.reload_tempo()
         return self
 
-    @values.setter
-    def values(self, l):
-        """
-        中身を上書きする
-        テンポを正常に取得できるようにする
-        """
-        if not isinstance(l, list):
-            raise TypeError('argument "l" must be list instance')
-        self.data = l
-        self.reload_tempo()
-        return self.data
+    # @property
+    # def values(self):
+    #     """中身を見る"""
+    #     return self
+    #
+    # @values.setter
+    # def values(self, l:list):
+    #     """
+    #     中身を上書きする
+    #     テンポを正常に取得できるようにする
+    #     """
+    #     self.data = l
+    #     self.reload_tempo()
+    #     return self.data
 
-    @property
-    def notes(self) -> list:
-        """
-        全セクションのうち、[#VERSION] と [#SETTING] [#TRACKEND] を除いたノート部分を取得
-        """
-        return self.data[2:-1]
+    # @property
+    # def notes(self) -> list:
+    #     """
+    #     全セクションのうち、[#VERSION] と [#SETTING] [#TRACKEND] を除いたノート部分を取得
+    #     """
+    #     return self.data[2:-1]
+    #
+    # @notes.setter
+    # def notes(self, l: list):
+    #     self.data = self.data[:2] + l + self.data[-1:]
+    #     self.reload_tempo()
+    #     return self.data
 
-    @notes.setter
-    def notes(self, l: list):
-        if not isinstance(l, list):
-            raise TypeError('argument "l" must be list instance')
-        self.data = self.data[:2] + l + self.data[-1:]
-        self.reload_tempo()
-        return self.data
-
-    @property
+    @ property
     def tempo(self):
         """全体のBPMを見る"""
         try:
-            project_tempo = self.data[1].tempo
-            return project_tempo
+            global_tempo = self.setting.tempo
         except KeyError:
-            first_note_tempo = self.data[2].tempo
-            return first_note_tempo
+            global_tempo = self.notes[2].tempo
+        return global_tempo
 
-        print('[ERROR]--------------------------------------------------')
-        print('USTのテンポが設定されていません。とりあえず120にします。')
-        print('---------------------------------------------------------\n')
-        return '120'
-
-    @tempo.setter
+    @ tempo.setter
     def tempo(self, tempo):
         """
         グローバルBPMを上書きする
         """
-        self.data[1].tempo = tempo
-        self.data[2].tempo = tempo
+        self.setting.tempo = tempo
+        self.notes[0].tempo = tempo
         self.reload_tempo()
 
     def reload_tempo(self):
@@ -194,7 +279,7 @@ class Ust(UserList):
             note.tag = f'[#{str(i).zfill(4)}]'
 
     # ノート一括編集系関数ここから----------------------------------------------
-    def replace_lyrics(self, before, after):
+    def replace_lyrics(self, before: str, after: str):
         """歌詞を一括置換（文字列指定・破壊的処理）"""
         for note in self.notes:
             note.lyric = note.lyric.replace(before, after)
@@ -210,7 +295,7 @@ class Ust(UserList):
             note.lyric = note.lyric.split()[-1]
     # ノート一括編集系関数ここまで----------------------------------------------
 
-    def insert_note(self, i):
+    def insert_note(self, i: int):
         """
         i 番目の区切りに新規ノートを挿入する。
         このときの i は音符のみのインデックス。
@@ -221,7 +306,7 @@ class Ust(UserList):
         self.notes.insert(i, note)
         return note
 
-    def delete_note(self, i):
+    def delete_note(self, i: int):
         """
         i 番目のノートを [#DELETE] する。
         """
@@ -229,37 +314,27 @@ class Ust(UserList):
 
     def make_finalnote_R(self):
         """Ustの最後のノートが必ず休符 になるようにする"""
-        note = self.data[-2]
+        note = self.notes[-1]
         # Ust内の最後はTRACKENDなので後ろから2番目のノートで判定
         if note.lyric not in ('pau', 'sil', 'R'):
             print('  末尾に休符を自動追加しました。')
             extra_note = deepcopy(note)
             extra_note.lyric = 'R'
             extra_note.alternative_tempo = note.tempo
-            self.insert(-1, extra_note)
+            self.notes.append(-1, extra_note)
 
-    def write(self, path: str, mode='w', encoding='shift-jis') -> str:
+    def write(self, path: str, mode: str = 'w', encoding: str = 'shift-jis') -> str:
         """
         USTをファイル出力
         """
         duplicated_self = deepcopy(self)
         # [#DELETE] なノートをファイル出力しないために削除
-        notes = [note for note in duplicated_self.notes if note.tag != '[#DELETE]']
-        duplicated_self.notes = notes
+        duplicated_self.notes = [
+            note for note in duplicated_self.notes if note.tag != '[#DELETE]']
         # ノート番号を振りなおす
         duplicated_self.reload_tag_number()
-        # ノートのリストを文字列のリストに変換
-        lines = []
-        for note in duplicated_self:
-            if note.tag == '[#VERSION]':
-                lines.append('[#VERSION]')
-                lines.append(note['UstVersion'])
-                continue
-            lines.append(note.pop('Tag'))
-            for k, v in note.items():
-                lines.append(f'{str(k)}={str(v)}')
-        # 出力用の文字列
-        s = '\n'.join(lines)
+        # 文字列にする
+        s = str(duplicated_self)
         # ファイル出力
         with open(path, mode=mode, encoding=encoding) as f:
             f.write(s)
@@ -269,7 +344,7 @@ class Ust(UserList):
 class Note(UserDict):
     """UST内のノート"""
 
-    def __init__(self, tag='[#UNDEFINED]'):
+    def __init__(self, tag: str = '[#UNDEFINED]'):
         super().__init__()
         self['Tag'] = tag
         self.alternative_tempo = 120
@@ -278,18 +353,18 @@ class Note(UserDict):
         lines = [self['Tag']] + [f'{k}={v}' for (k, v) in self.items() if k != 'Tag']
         return '\n'.join(lines)
 
+    # TODO: utaupy 1.10.0で消す
     @property
     def values(self):
         """ノートの中身を見る"""
         return self.data
 
+    # TODO: utaupy 1.10.0で消す
     @values.setter
-    def values(self, d):
+    def values(self, d: dict):
         """
         ノートの中身を上書き
         """
-        if not isinstance(d, dict):
-            raise TypeError('argument "d" must be dictionary instance')
         self.data = d
 
     @property
@@ -487,20 +562,6 @@ class Note(UserDict):
         new_note['NoteNum'] = self.notenum
         self.data = new_note
     # ここまでノート操作系-----------------------------------------------------
-
-    # ここからデータ出力系-----------------------------------------------------
-    # Ustのほうで処理するようにしたので無効化しています。
-    # -------------------------------------------------------------------------
-    # def as_lines(self):
-    #     """出力用のリストを返す"""
-    #     d = self
-    #     lines = []
-    #     lines.append(d.pop('Tag'))
-    #     for k, v in d.items():
-    #         line = '{}={}'.format(str(k), str(v))
-    #         lines.append(line)
-    #     return lines
-    # ここまでデータ出力系-----------------------------------------------------
 
 
 if __name__ == '__main__':
