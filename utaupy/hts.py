@@ -36,6 +36,7 @@ class HTSFullLabel(UserList):
         super().__init__(init)
         self.song = Song()
 
+    @profile
     def write(self, path, mode='w', encoding='utf-8', strict_sinsy_style: bool = True) -> str:
         """
         ファイル出力する
@@ -45,8 +46,8 @@ class HTSFullLabel(UserList):
             Falseのときは d, f における休符の長さ情報が維持される。
         """
         # 休符周辺の仕様をSinsyに近づける。
-        new_label = adjust_syllables_to_hts(self)
-        new_label = adjust_notes_to_hts(new_label, strict=strict_sinsy_style)
+        new_label = adjust_syllables_to_sinsy(self)
+        new_label = adjust_notes_to_sinsy(new_label, strict=strict_sinsy_style)
         # 文字列にする
         s = '\n'.join([str(oneline) for oneline in new_label])
         # ファイル出力
@@ -307,22 +308,23 @@ class OneLine:
 
     @p.setter
     def p(self, phoneme_contexts: list):
-        self.phoneme.language_independent_identity = phoneme_contexts[0]
-        self.before_previous_phoneme.identity = phoneme_contexts[1]
-        self.previous_phoneme.identity = phoneme_contexts[2]
-        self.phoneme.identity = phoneme_contexts[3]
-        self.next_phoneme.identity = phoneme_contexts[4]
-        self.after_next_phoneme.identity = phoneme_contexts[5]
-        self.before_previous_phoneme.flag = phoneme_contexts[6]
-        self.previous_phoneme.flag = phoneme_contexts[7]
-        self.phoneme.flag = phoneme_contexts[8]
-        self.next_phoneme.flag = phoneme_contexts[9]
-        self.after_next_phoneme.flag = phoneme_contexts[10]
-        self.phoneme.position = phoneme_contexts[11]
-        self.phoneme.position_backward = phoneme_contexts[12]
-        self.phoneme.distance_from_previous_vowel = phoneme_contexts[13]
-        self.phoneme.distance_to_next_vowel = phoneme_contexts[14]
-        self.phoneme.undefined_context = phoneme_contexts[15]
+        (self.phoneme.language_independent_identity,
+         self.before_previous_phoneme.identity,
+         self.previous_phoneme.identity,
+         self.phoneme.identity,
+         self.next_phoneme.identity,
+         self.after_next_phoneme.identity,
+         self.before_previous_phoneme.flag,
+         self.previous_phoneme.flag,
+         self.phoneme.flag,
+         self.next_phoneme.flag,
+         self.after_next_phoneme.flag,
+         self.phoneme.position,
+         self.phoneme.position_backward,
+         self.phoneme.distance_from_previous_vowel,
+         self.phoneme.distance_to_next_vowel,
+         self.phoneme.undefined_context
+        ) = phoneme_contexts[0:16]
 
     @property
     def a(self) -> list:
@@ -711,28 +713,23 @@ class Phoneme:
     def __str__(self):
         return f'{self.start} {self.end} {self.identity}'
 
-
-def adjust_syllables_to_hts(full_label: HTSFullLabel) -> HTSFullLabel:
+def adjust_syllables_to_sinsy(full_label: HTSFullLabel) -> HTSFullLabel:
     """
     出力用に休符まわりの音節コンテキストを調整する。
     """
-    new_label = HTSFullLabel([deepcopy(ol) for ol in full_label])
+    new_label = deepcopy(full_label)
 
     for ol in new_label[1:]:
         if ol.previous_syllable[0].identity in ('pau', 'sil'):
-            ol.a[0] = 'xx'
-            ol.a[1] = 'xx'
-            ol.a[2] = 'xx'
+            ol.a[0:2] = ['xx'] * 3
     for ol in new_label[:-1]:
         if ol.next_syllable[0].identity in ('pau', 'sil'):
-            ol.c[0] = 'xx'
-            ol.c[1] = 'xx'
-            ol.c[2] = 'xx'
+            ol.c[0:2] = ['xx'] * 3
+
 
     return new_label
 
-
-def adjust_notes_to_hts(full_label: HTSFullLabel, strict=True) -> HTSFullLabel:
+def adjust_notes_to_sinsy(full_label: HTSFullLabel, strict=True) -> HTSFullLabel:
     """
     休符の前後のノート情報を調整したい。
     Sinsy仕様の d, f では休符を飛ばした音符を検出して処理している。
@@ -740,22 +737,30 @@ def adjust_notes_to_hts(full_label: HTSFullLabel, strict=True) -> HTSFullLabel:
     音程関連は必ずやる。
     休符の長さに関する前後情報は持っておきたい。
     """
-    new_label = HTSFullLabel([deepcopy(ol) for ol in full_label])
-
-    for ol in new_label[1:]:
-        if ol.previous_note.is_pau():
-            ol.d[0:3] = ['xx'] * 3
-            if strict:
+    new_label = deepcopy(full_label)
+    if strict:
+        # 前のノートに関する処理
+        for ol in new_label[1:]:
+            if ol.previous_note.is_pau():
+                ol.d[0:3] = ['xx'] * 3
                 ol.d[3:8] = ['xx'] * 5
-
+        # 次のノートに関する処理
+        for ol in new_label[:-1]:
+            if ol.next_note.is_pau():
+                ol.f[0:3] = ['xx'] * 3
+                ol.f[3:8] = ['xx'] * 5
+    else:
+        # 前のノートに関する処理
+        for ol in new_label[1:]:
+            if ol.previous_note.is_pau():
+                ol.d[0:3] = ['xx'] * 3
+        # 次のノートに関する処理
+        for ol in new_label[:-1]:
+            if ol.next_note.is_pau():
+                ol.f[0:3] = ['xx'] * 3
+    # 現在のノートに関する処理
     for ol in new_label:
         if ol.note.is_pau():
             ol.e[0:2] = ['xx'] * 2
-
-    for ol in new_label[:-1]:
-        if ol.next_note.is_pau():
-            ol.f[0:3] = ['xx'] * 3
-            if strict:
-                ol.f[3:8] = ['xx'] * 5
 
     return new_label
