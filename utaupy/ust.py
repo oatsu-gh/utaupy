@@ -47,65 +47,6 @@ def notenum_as_abc(notenum) -> str:
     return d[str(notenum)]
 
 
-# def load(path: str, mode='r', encoding='shift-jis'):
-#     """
-#     USTを読み取り
-#     """
-#     # USTを文字列として取得
-#     try:
-#         with open(path, mode=mode, encoding=encoding) as f:
-#             s = f.read()
-#     except UnicodeDecodeError:
-#         with open(path, mode=mode, encoding='utf-8_sig') as f:
-#             s = f.read()
-#     # USTをノート単位に分割
-#     l = [r'[#' + v.strip() for v in s.split(r'[#')][1:]
-#     # さらに行ごとに分割して二次元リストに
-#     l = [v.split('\n') for v in l]
-#
-#     # ノートのリストを作る
-#     ust = Ust()
-#     for lines in l:
-#         note = Note()
-#         # ノートの種類
-#         tag = lines[0]
-#         note.tag = tag
-#         # print('Making "Note" instance from UST: {}'.format(tag))
-#         # タグ以外の行の処理
-#         if tag == '[#VERSION]':
-#             note['UstVersion'] = lines[1]
-#         elif tag == '[#TRACKEND]':
-#             pass
-#         else:
-#             for line in lines[1:]:
-#                 key, value = line.split('=', 1)
-#                 note.set_by_key(key, value)
-#         ust.append(note)
-#
-#     # 旧形式の場合にタグの数を合わせる
-#     if ust[0].tag != '[#VERSION]':
-#         try:
-#             version = ust[0].get_by_key('UstVersion')
-#         except KeyError:
-#             print('WARN: USTファイルに [#VERSION] のエントリがありません。UTAU Ver 0.4.18 未満の場合はアップデートしてください。')
-#             version = 'older_than_1.20'
-#         note = Note()
-#         note.tag = '[#VERSION]'
-#         note.set_by_key('UstVersion', version)
-#         ust.insert(0, note)  # リスト先頭に挿入
-#     # UTAUプラグイン用のファイルとかで[#SETTING]がない場合にずれるのを対策
-#     if ust[1].tag != '[#SETTING]':
-#         note = Note()
-#         note.tag = '[#SETTING]'
-#         ust.insert(0, note)
-#     # インスタンス変数に代入
-#     ust.version = ust[0]
-#     ust.setting = ust[1]
-#     # 隠しパラメータ alternative_tempo を全ノートに設定
-#     ust.reload_tempo()
-#     return ust
-
-
 def load(path: str, encoding: str = 'shift-jis'):
     """
     USTを読み取り
@@ -125,8 +66,8 @@ class Ust:
         self.setting = None   # [#SETTING]
         self.notes = []       # [#1234], [#INSERT], [#DELETE]
         self.trackend = None  # [#TRACKEND]
-        self.next = None      # [#NEXT]
-        self.prev = None      # [#PREV]
+        self.next_note = None      # [#NEXT]
+        self.previous_note = None      # [#PREV]
 
     def __str__(self):
         # self.notesが増減するので複製したものを扱う
@@ -134,9 +75,9 @@ class Ust:
         # 特殊ノートを処理
         if self.setting is not None:
             duplicated_self.notes.insert(0, self.setting)
-        if self.prev is not None:
+        if self.previous_note is not None:
             duplicated_self.notes.insert(0, self.prev)
-        if self.next is not None:
+        if self.next_note is not None:
             duplicated_self.notes.append(self.next)
         if self.trackend is not None:
             duplicated_self.notes.append(self.trackend)
@@ -183,9 +124,9 @@ class Ust:
             elif tag == '[#SETTING]':
                 self.setting = note
             elif tag == '[#PREV]':
-                self.prev = note
+                self.previous_note = note
             elif tag == '[#NEXT]':
-                self.next = note
+                self.next_note = note
             elif tag == '[#TRACKEND]':
                 self.trackend = note
             else:
@@ -195,49 +136,9 @@ class Ust:
                 key, value = line.split('=', maxsplit=1)
                 note[key] = value
 
-        # 旧形式の場合にタグの数を合わせる
-        # TODO: utaupy v1.10.0 でここの処理消す。
-        if self.version is None:
-            try:
-                version = self.setting['UstVersion']
-            except KeyError:
-                version = 'lower_than_1.19'
-                print('[WARN] USTファイルに [#VERSION] のエントリがありません。'
-                      'UTAU Ver 0.4.18 未満の場合はアップデートしてください。')
-            note = Note(tag='[#VERSION]')
-            note['UstVersion'] = version
-
         # 隠しパラメータ alternative_tempo を全ノートに設定
         self.reload_tempo()
         return self
-
-    # @property
-    # def values(self):
-    #     """中身を見る"""
-    #     return self
-    #
-    # @values.setter
-    # def values(self, l:list):
-    #     """
-    #     中身を上書きする
-    #     テンポを正常に取得できるようにする
-    #     """
-    #     self.data = l
-    #     self.reload_tempo()
-    #     return self.data
-
-    # @property
-    # def notes(self) -> list:
-    #     """
-    #     全セクションのうち、[#VERSION] と [#SETTING] [#TRACKEND] を除いたノート部分を取得
-    #     """
-    #     return self.data[2:-1]
-    #
-    # @notes.setter
-    # def notes(self, l: list):
-    #     self.data = self.data[:2] + l + self.data[-1:]
-    #     self.reload_tempo()
-    #     return self.data
 
     @ property
     def tempo(self):
@@ -352,20 +253,6 @@ class Note(UserDict):
     def __str__(self):
         lines = [self['Tag']] + [f'{k}={v}' for (k, v) in self.items() if k != 'Tag']
         return '\n'.join(lines)
-
-    # TODO: utaupy 1.10.0で消す
-    @property
-    def values(self):
-        """ノートの中身を見る"""
-        return self.data
-
-    # TODO: utaupy 1.10.0で消す
-    @values.setter
-    def values(self, d: dict):
-        """
-        ノートの中身を上書き
-        """
-        self.data = d
 
     @property
     def tag(self):

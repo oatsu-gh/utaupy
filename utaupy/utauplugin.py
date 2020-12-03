@@ -57,25 +57,3 @@ class UtauPlugin(_ust.Ust):
         with open(path, mode=mode, encoding=encoding) as f:
             f.write(s)
         return s
-
-    @property
-    def previous_note(self):
-        """
-        v1.9.0 以下の仕様の補完
-        """
-        return self.prev
-
-    @previous_note.setter
-    def previous_note(self, note: _ust.Note):
-        self.prev = note
-
-    @property
-    def next_note(self):
-        """
-        v1.9.0 以下の仕様の補完
-        """
-        return self.next
-
-    @next_note.setter
-    def next_note(self, note: _ust.Note):
-        self.next = note
