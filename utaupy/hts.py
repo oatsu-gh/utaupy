@@ -36,7 +36,6 @@ class HTSFullLabel(UserList):
         super().__init__(init)
         self.song = Song()
 
-    @profile
     def write(self, path, mode='w', encoding='utf-8', strict_sinsy_style: bool = True) -> str:
         """
         ファイル出力する
@@ -502,19 +501,6 @@ class Song(UserList):
         リストとしての要素数と、コンテキストに記載されている要素数が一致するか点検する。
         Noteに記載されている
         """
-        # 各要素数がちゃんとしているか確認する。
-        # 楽曲内フレーズ数が、ラベルに記載されている値と一致するか確認する。
-        # assert len(self) == self.number_of_phrases, \
-        #     f'楽曲内フレーズ数に不整合があります。len(Song):{len(self)}, ラベル記載値: {self.number_of_phrases}'
-        # フレーズ内の値をチェック
-        # for phrase in self.all_phrases:
-        #     syllables = list(chain.from_iterable(phrase))
-        #     # 各フレーズ内音節数が、ラベルに記載されている値と一致するか確認する。
-        #     assert len(syllables) == phrase.number_of_syllables, \
-        #         f'フレーズ内音節数に不整合があります。{len(syllables)}, {phrase.number_of_syllables}'
-        #     # 各フレーズ内音素数が、ラベルに記載されている値と一致するか確認する。
-        #     assert sum(list(map(len, syllables))) == phrase.number_of_phonemes, \
-        #         'フレーズ内音素数に不整合があります。'
         # 各音節内音素数が、ラベルに記載されている値と一致するか確認する。
         for i, syllable in enumerate(self.all_syllables):
             assert str(len(syllable)) == str(syllable.number_of_phonemes), \
@@ -718,14 +704,12 @@ def adjust_syllables_to_sinsy(full_label: HTSFullLabel) -> HTSFullLabel:
     出力用に休符まわりの音節コンテキストを調整する。
     """
     new_label = deepcopy(full_label)
-
     for ol in new_label[1:]:
         if ol.previous_syllable[0].identity in ('pau', 'sil'):
             ol.a[0:2] = ['xx'] * 3
     for ol in new_label[:-1]:
         if ol.next_syllable[0].identity in ('pau', 'sil'):
             ol.c[0:2] = ['xx'] * 3
-
 
     return new_label
 
