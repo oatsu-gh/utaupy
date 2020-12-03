@@ -60,6 +60,9 @@ class UtauPlugin(_ust.Ust):
 
     @property
     def previous_note(self):
+        """
+        v1.9.0 以下の仕様の補完
+        """
         return self.prev
 
     @previous_note.setter
@@ -68,6 +71,9 @@ class UtauPlugin(_ust.Ust):
 
     @property
     def next_note(self):
+        """
+        v1.9.0 以下の仕様の補完
+        """
         return self.next
 
     @next_note.setter
