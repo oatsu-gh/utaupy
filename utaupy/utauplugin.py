@@ -3,9 +3,7 @@
 # Copyright (c) oatsu
 """
 UTAUのプラグイン用のモジュール
-基本的には utaupy.ust の Ust() とか Note() を流用する。
-
-【注意】本スクリプトは開発初期なため仕様変更が激しいです。
+utaupy.ust.Ust をもとに、ファイル入出力機能を変更したもの。
 """
 
 from copy import deepcopy
@@ -15,9 +13,11 @@ from sys import argv
 from utaupy import ust as _ust
 
 
-def run(your_function, path=None):
+def run(your_function, option=None, path=None):
     """
     UTAUプラグインスクリプトファイルの入出力をする。
+    your_function: 実行したい関数
+    arguments: 実行オプションとか
     path: UTAUから出力されるプラグインスクリプトのパス
     """
     if path is None:
@@ -25,7 +25,10 @@ def run(your_function, path=None):
     # up.utauplugin.Plugin オブジェクトとしてプラグインスクリプトを読み取る
     plugin = load(path)
     # 目的のノート処理を実行
-    your_function(plugin)
+    if option is None:
+        your_function(plugin)
+    else:
+        your_function(plugin, option)
     # プラグインスクリプトを上書き
     plugin.write(path)
 
