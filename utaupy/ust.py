@@ -408,11 +408,11 @@ class Note(UserDict):
     @property
     def velocity(self):
         """子音速度"""
-        return int(self.get('NoteNum', 100))
+        return int(self.get('Velocity', 100))
 
     @velocity.setter
     def velocity(self, x: int):
-        self['NoteNum'] = int(x)
+        self['Velocity'] = int(x)
 
     # ここからデータ操作系-----------------------------------------------------
     def get_by_key(self, key):
