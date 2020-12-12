@@ -10,9 +10,9 @@ UTAU関連ファイルの相互変換
 # from . import reaper as _reaper
 # from . import reclist as _reclist
 # from . import table as _table
-from . import label as _label
-from . import otoini as _otoini
-from . import ust as _ust
+from utaupy import label as _label
+from utaupy import otoini as _otoini
+from utaupy import ust as _ust
 
 
 def main():
@@ -28,26 +28,26 @@ def svp2ust(svp, debug=False):
 
     # ust.Noteを入れておくリスト
     ust = _ust.Ust()
+
     # バージョン情報の空ノートを追加
-    utaunote = _ust.Note()
-    ust.append(utaunote)
+    # utaunote = _ust.Note()
+    # ust.append(utaunote)
+
     # プロジェクト設定のノートを追加
-    utaunote = _ust.Note()
-    utaunote.set_by_key('Tempo', svp['time']['tempo'][0]['bpm'])
-    ust.append(utaunote)
+    ust.setting.set_by_key('Tempo', svp['time']['tempo'][0]['bpm'])
 
     # 前奏の休符を追加
     utaunote = _ust.Note()
     utaunote.lyric = 'R'
     utaunote.length = svnotes[0]['onset'] // 1470000
-    ust.append(utaunote)
+    ust.notes.append(utaunote)
 
     # DEBUG: 休符が挟まってるかどうかを判定して、休符を追加する処理を実装する必要がある。
     for svnote in svnotes:
         utaunote = _ust.Note()
         utaunote.lyric = svnote['lyrics']
         utaunote.length = svnote['duration'] // 1470000
-        ust.append(utaunote)
+        ust.notes.append(utaunote)
         if debug:
             print(utaunote.values)
     return ust
@@ -94,7 +94,7 @@ def ust2otoini_mono(ust, name_wav, d_table, dt=100, debug=False):
     # UstのNoteオブジェクトごとにOtoオブジェクトを生成
     kana_otoini = _otoini.OtoIni()  # simple_otoを入れるリスト
     t = 0  # ノート開始時刻を記録
-    for note in ust[2:-1]:
+    for note in ust.notes:
         length = note.length_ms
         simple_oto = _otoini.Oto()  # 各パラメータ位置を両端に集めたOto
         simple_oto.filename = name_wav
@@ -208,7 +208,7 @@ def ust2otoini_romaji_cv(ust, name_wav, d_table, dt=100, replace=True, debug=Fal
     t = 0  # ノート開始時刻を記録
 
     # NOTE: ここnotes[2:-1]とust.values[2:-1]で処理時間に差は出る？
-    for note in ust[2:-1]:
+    for note in ust.notes:
         if debug:
             print(f'    {ust}')
         try:
@@ -264,9 +264,13 @@ def otoini2label(otoini, mode='auto', debug=False):
     otoini_time_order: otoiniの時間単位の桁。
     label_time_order : ラベルの時間単位の桁。
     """
+    # ms(10^-4) -> 100ns(10^-7) の換算
     time_order_ratio = 10000
     # time_order_ratio = otoini_time_order / label_time_order
     # print('  time_order_ratio:', time_order_ratio)
+
+    # wavファイルが余計にあるときに追加される行を無視する
+    otoini.data = [oto for oto in otoini if oto.alias != '']
 
     allowed_modes = ['auto', 'mono', 'romaji_cv']
     # エイリアスのタイプ自動判別
