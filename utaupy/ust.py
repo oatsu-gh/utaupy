@@ -76,9 +76,9 @@ class Ust:
         if self.setting is not None:
             duplicated_self.notes.insert(0, self.setting)
         if self.previous_note is not None:
-            duplicated_self.notes.insert(0, self.prev)
+            duplicated_self.notes.insert(0, self.previous_note)
         if self.next_note is not None:
-            duplicated_self.notes.append(self.next)
+            duplicated_self.notes.append(self.next_note)
         if self.trackend is not None:
             duplicated_self.notes.append(self.trackend)
         # 通常ノートを文字列にする
@@ -165,10 +165,7 @@ class Ust:
         """
         current_tempo = self.tempo
         for note in self.notes:
-            try:
-                current_tempo = note.get_by_key('Tempo')
-            except KeyError:
-                pass
+            current_tempo = note.get('Tempo', current_tempo)
             note.alternative_tempo = float(current_tempo)
 
     def reload_tag_number(self):
@@ -214,15 +211,15 @@ class Ust:
         self.notes[i].tag = '[#DELETE]'
 
     def make_finalnote_R(self):
-        """Ustの最後のノートが必ず休符 になるようにする"""
-        note = self.notes[-1]
+        """Ustの最後のノートが休符 になるようにする"""
+        last_note = self.notes[-1]
         # Ust内の最後はTRACKENDなので後ろから2番目のノートで判定
-        if note.lyric not in ('pau', 'sil', 'R'):
-            print('  末尾に休符を自動追加しました。')
-            extra_note = deepcopy(note)
-            extra_note.lyric = 'R'
-            extra_note.alternative_tempo = note.tempo
-            self.notes.append(-1, extra_note)
+        if last_note.lyric not in ('pau', 'sil', 'R'):
+            print('  末尾に休符を自動追加します。')
+            rest_note = deepcopy(last_note)
+            rest_note.lyric = 'R'
+            self.notes.append(rest_note)
+        self.reload_tempo()
 
     def write(self, path: str, mode: str = 'w', encoding: str = 'shift-jis') -> str:
         """
@@ -248,7 +245,7 @@ class Note(UserDict):
     def __init__(self, tag: str = '[#UNDEFINED]'):
         super().__init__()
         self['Tag'] = tag
-        self.alternative_tempo = 120
+        self.alternative_tempo = None
 
     def __str__(self):
         lines = [self['Tag']] + [f'{k}={v}' for (k, v) in self.items() if k != 'Tag']
@@ -307,10 +304,7 @@ class Note(UserDict):
     @property
     def tempo(self):
         """ローカルBPMを取得"""
-        try:
-            return float(self['Tempo'])
-        except KeyError:
-            return float(self.alternative_tempo)
+        return self.get('Tempo', self.alternative_tempo)
 
     @tempo.setter
     def tempo(self, x):
@@ -411,13 +405,26 @@ class Note(UserDict):
         str_pbm = ','.join(list_pbm)
         self['PBM'] = str_pbm
 
+    @property
+    def velocity(self):
+        """子音速度"""
+        return int(self.get('NoteNum', 100))
+
+    @velocity.setter
+    def velocity(self, x: int):
+        self['NoteNum'] = int(x)
+
     # ここからデータ操作系-----------------------------------------------------
     def get_by_key(self, key):
-        """ノートの特定の情報を上書きまたは登録"""
+        """ノートの特定の情報を取得
+        UserDictになったのでいずれ消す
+        """
         return self[key]
 
     def set_by_key(self, key, x):
-        """ノートの特定の情報を上書きまたは登録"""
+        """ノートの特定の情報を上書きまたは登録
+        UserDictになったのでいずれ消す
+        """
         self[key] = x
     # ここまでデータ操作系-----------------------------------------------------
 
