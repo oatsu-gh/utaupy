@@ -4,6 +4,7 @@
 setParam用のINIファイルとデータを扱うモジュールです。
 """
 import re
+from collections import UserList
 
 # from . import table
 
@@ -32,7 +33,7 @@ def load(path, mode='r', encoding='shift-jis'):
     return otoini
 
 
-class OtoIni(list):
+class OtoIni(UserList):
     """oto.iniを想定したクラス"""
 
     def __dict__(self):
