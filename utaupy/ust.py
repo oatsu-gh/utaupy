@@ -6,24 +6,11 @@ USTファイルとデータを扱うモジュールです。
 import re
 from collections import UserDict
 from copy import deepcopy
-from functools import lru_cache
+# from functools import lru_cache
 # from pprint import pprint
 from typing import List
 
 
-def main():
-    """実行されたときの挙動"""
-    print('デフォ子かわいいよデフォ子\n')
-
-    print('ust読み取りテストをします。')
-    path = input('ustのパスを入力してください。\n>>> ')
-    ust = load(path)
-    print(ust)
-
-    input('\nPress Enter to exit.')
-
-
-@lru_cache()
 def notenum_as_abc(notenum) -> str:
     """
     音階番号をABC表記に変更する(C1=24, C4=)
@@ -57,14 +44,16 @@ def load(path: str, encoding: str = 'shift-jis'):
 
 
 class Ust:
-    """UST"""
+    """
+    UST (UTAU Sequence Text) ファイルを扱うためのクラス
+    """
 
     def __init__(self):
         super().__init__()
         # ノート(クラスオブジェクト)からなるリスト
         self.version = None   # [#VERSION]
         self.setting = None   # [#SETTING]
-        self.notes = []       # [#1234], [#INSERT], [#DELETE]
+        self.notes: List[Note] = []       # [#1234], [#INSERT], [#DELETE]
         self.trackend = None  # [#TRACKEND]
         self.next_note = None      # [#NEXT]
         self.previous_note = None      # [#PREV]
@@ -141,39 +130,62 @@ class Ust:
         return self
 
     @ property
-    def tempo(self):
-        """全体のBPMを見る"""
-        try:
-            global_tempo = self.setting.tempo
-        except KeyError:
-            global_tempo = self.notes[2].tempo
-        return global_tempo
+    def tempo(self) -> float:
+        """
+        USTのグローバルテンポ
+        """
+        # 2020-12-19以前の実装------------
+        # global_tempo = self.setting.get('Tempo', self.notes[0].tempo)
+        # --------------------------------
+        if 'Tempo' not in self.setting:
+            self.setting['Tempo'] = self.notes[0].tempo
+        return self.setting['Tempo']
 
     @ tempo.setter
     def tempo(self, tempo):
-        """
-        グローバルBPMを上書きする
-        """
         self.setting.tempo = tempo
-        self.notes[0].tempo = tempo
+        # self.notes[0].tempo = tempo
         self.reload_tempo()
+
+    def clean_tempo(self):
+        """
+        ローカルテンポが不要な部分を削除する。
+        """
+        # まずはグローバルテンポを取得
+        current_tempo = self.tempo
+        # 不要なデータを削除
+        for note in self.notes:
+            if 'Tempo' in note:
+                if note['Tempo'] == current_tempo:
+                    del note['Tempo']
+            else:
+                current_tempo = note.tempo
 
     def reload_tempo(self):
         """
-        各ノートでBPMが取得できるように
-        独自パラメータ note.alternative_tempo を全ノートに仕込む
+        1. グローバルテンポを1ノート目のテンポで上書きする。
+        2. 各ノートでBPMが取得できるように note.alternative_tempo を全ノートに仕込む。
         """
-        current_tempo = self.tempo
+        if 'Tempo' in self.notes[0]:
+            self.setting['Tempo'] = self.notes[0]['Tempo']
+        current_tempo = self.setting['Tempo']
         for note in self.notes:
-            current_tempo = note.get('Tempo', current_tempo)
+            if 'Tempo' in note:
+                if float(note['Tempo']) == current_tempo:
+                    del note['Tempo']
+                else:
+                    current_tempo = note['Tempo']
+            # current_tempo = note.get('Tempo', current_tempo)
             note.alternative_tempo = float(current_tempo)
+        self.clean_tempo()
 
-    def reload_tag_number(self):
+    def reload_tag_number(self, start: int = 0):
         """
+        start: 開始番号 (0なら[#0000]から)
         各ノートのノート番号を振りなおす。
         ファイル出力時に実行することを想定。
         """
-        for i, note in enumerate(self.notes):
+        for i, note in enumerate(self.notes, start):
             note.tag = f'[#{str(i).zfill(4)}]'
 
     # ノート一括編集系関数ここから----------------------------------------------
@@ -228,11 +240,12 @@ class Ust:
         duplicated_self = deepcopy(self)
         # [#DELETE] なノートをファイル出力しないために削除
         duplicated_self.notes = [
-            note for note in duplicated_self.notes if note.tag != '[#DELETE]']
+            note for note in duplicated_self.notes if note.tag != '[#DELETE]'
+        ]
         # ノート番号を振りなおす
         duplicated_self.reload_tag_number()
         # 文字列にする
-        s = str(duplicated_self)
+        s = str(duplicated_self) + '\n'
         # ファイル出力
         with open(path, mode=mode, encoding=encoding) as f:
             f.write(s)
@@ -272,7 +285,7 @@ class Note(UserDict):
         self['Length'] = str(x)
 
     @property
-    def length_ms(self):
+    def length_ms(self) -> float:
         """ノート長を確認[ms]"""
         return 125 * float(self['Length']) / self.tempo
 
@@ -283,33 +296,36 @@ class Note(UserDict):
 
     @property
     def lyric(self):
-        """歌詞を確認"""
+        """
+        歌詞
+        """
         return self['Lyric']
 
     @lyric.setter
     def lyric(self, x):
-        """歌詞を上書き"""
         self['Lyric'] = x
 
     @property
     def notenum(self):
-        """音階番号を確認"""
+        """
+        音階番号
+        """
         return int(self['NoteNum'])
 
     @notenum.setter
     def notenum(self, x):
-        """音階番号を上書き"""
         self['NoteNum'] = str(x)
 
     @property
-    def tempo(self):
-        """ローカルBPMを取得"""
-        return self.get('Tempo', self.alternative_tempo)
+    def tempo(self) -> float:
+        """
+        ローカルBPM
+        """
+        return float(self.get('Tempo', self.alternative_tempo))
 
     @tempo.setter
     def tempo(self, x):
-        """BPMを上書き"""
-        self['Tempo'] = x
+        self['Tempo'] = str(x)
 
     @property
     def pbs(self):
@@ -407,7 +423,9 @@ class Note(UserDict):
 
     @property
     def velocity(self):
-        """子音速度"""
+        """
+        子音速度
+        """
         return int(self.get('Velocity', 100))
 
     @velocity.setter
@@ -416,7 +434,8 @@ class Note(UserDict):
 
     # ここからデータ操作系-----------------------------------------------------
     def get_by_key(self, key):
-        """ノートの特定の情報を取得
+        """
+        ノートの特定の情報を取得
         UserDictになったのでいずれ消す
         """
         return self[key]
@@ -449,13 +468,25 @@ class Note(UserDict):
 
     def suppin(self):
         """ノートの情報を最小限にする"""
-        new_note = {}
-        new_note['Tag'] = '[#DELETE]\n[#INSERT]'
-        new_note['Lyric'] = self.lyric
-        new_note['Length'] = self.length
-        new_note['NoteNum'] = self.notenum
-        self.data = new_note
+        new_data = {}
+        new_data['Tag'] = '[#DELETE]\n[#INSERT]'
+        new_data['Lyric'] = self.lyric
+        new_data['Length'] = self.length
+        new_data['NoteNum'] = self.notenum
+        self.data = new_data
     # ここまでノート操作系-----------------------------------------------------
+
+
+def main():
+    """実行されたときの挙動"""
+    print('デフォ子かわいいよデフォ子\n')
+
+    print('ust読み取りテストをします。')
+    path = input('ustのパスを入力してください。\n>>> ')
+    ust = load(path)
+    print(ust)
+
+    input('\nPress Enter to exit.')
 
 
 if __name__ == '__main__':

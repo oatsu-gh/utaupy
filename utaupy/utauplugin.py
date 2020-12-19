@@ -55,7 +55,7 @@ class UtauPlugin(_ust.Ust):
         USTをファイル出力
         """
         # 文字列にする
-        s = str(deepcopy(self))
+        s = str(deepcopy(self)) + '\n'
         # ファイル出力
         with open(path, mode=mode, encoding=encoding) as f:
             f.write(s)
