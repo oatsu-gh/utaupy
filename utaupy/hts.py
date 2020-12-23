@@ -163,6 +163,7 @@ class HTSFullLabel(UserList):
                     onelines.append(ol)
         self.data = onelines
         self._fill_phonemes()
+        self._fill_note_position()
         return self
 
     def _fill_phonemes(self):
@@ -177,6 +178,36 @@ class HTSFullLabel(UserList):
             ol.next_phoneme = extended_self[i + 1].phoneme
             ol.after_next_phoneme = extended_self[i + 2].phoneme
         return self
+
+    def _fill_note_position(self):
+        """
+        「Phrase内で何番目か」の項を埋める。
+        Phraseの扱いは難しいので、「休符からの距離」を代わりに用いる。
+        """
+        counter = 'xx'
+        # 直前の休符からの距離を数える
+        for note in self.song.all_notes:
+            # 休符のときは距離をリセット
+            if note.is_pau():
+                note.position = 'xx'
+                counter = 0
+            # 休符ではないけれど休符位置が分からないときは未登録のまま
+            elif counter == 'xx':
+                continue
+            # 休符ではなく、休符位置が分かっているときは登録
+            else:
+                counter += 1
+                note.position = counter
+        # 次の休符までの距離を登録する。
+        for note in reversed(self.song.all_notes):
+            if note.is_pau():
+                note.position_backward = 'xx'
+                counter = 0
+            elif counter == 'xx':
+                continue
+            else:
+                counter += 1
+                note.position_backward = counter
 
     def generate_songobj(self):
         """
@@ -323,7 +354,7 @@ class OneLine:
          self.phoneme.distance_from_previous_vowel,
          self.phoneme.distance_to_next_vowel,
          self.phoneme.undefined_context
-        ) = phoneme_contexts[0:16]
+         ) = phoneme_contexts[0:16]
 
     @property
     def a(self) -> list:
@@ -699,6 +730,7 @@ class Phoneme:
     def __str__(self):
         return f'{self.start} {self.end} {self.identity}'
 
+
 def adjust_syllables_to_sinsy(full_label: HTSFullLabel) -> HTSFullLabel:
     """
     出力用に休符まわりの音節コンテキストを調整する。
@@ -712,6 +744,7 @@ def adjust_syllables_to_sinsy(full_label: HTSFullLabel) -> HTSFullLabel:
             ol.c[0:2] = ['xx'] * 3
 
     return new_label
+
 
 def adjust_notes_to_sinsy(full_label: HTSFullLabel, strict=True) -> HTSFullLabel:
     """
