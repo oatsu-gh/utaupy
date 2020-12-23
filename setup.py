@@ -6,7 +6,7 @@ Python script for PyPI registation
 """
 from setuptools import find_packages, setup
 
-version = '1.10.1'
+version = '1.10.2'
 
 try:
     with open("README.md", mode='r') as f:
@@ -18,7 +18,7 @@ except UnicodeDecodeError:
 setup(
     name='utaupy',
     version=version,
-    description='Python3 module for UTAU and singing-voice-database',
+    description='Python3 module for UTAU and singing-databases',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='oatsu',
