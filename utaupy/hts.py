@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # Copyright (c) 2020 oatsu
-# TODO: p14, p15 を補完できるようにする。
 """
 Python3 module for HTS-full-label.
 Sinsy仕様のHTSフルコンテキストラベルを扱うモジュール
@@ -15,7 +14,7 @@ from itertools import chain
 
 # from pprint import pprint
 
-VOWELS = ('a', 'i', 'u', 'e', 'o', 'ae', 'A', 'I', 'U', 'E', 'O', 'N')
+VOWELS = ('a', 'i', 'u', 'e', 'o', 'A', 'I', 'U', 'E', 'O', 'N', 'ae', 'AE')
 BREAKS = ('br')
 PAUSES = ('pau', 'sil')
 
@@ -504,7 +503,7 @@ class Song(UserList):
 
     def _fill_phoneme_contexts(self, vowels=VOWELS, pauses=PAUSES, breaks=BREAKS):
         """
-        p1, p12, p13を補完する。
+        p1, p12, p13, p14, p15 を補完する。
         """
         # p1 を埋める
         for phoneme in self.all_phonemes:
@@ -519,10 +518,14 @@ class Song(UserList):
                 phoneme.language_independent_identity = 'b'
             else:
                 phoneme.language_independent_identity = 'c'
+        # p12, p13, p14, p15を埋める
+        self._fill_p12_p13()
+        self._fill_p14_p15()
 
-        # TODO: p14とp15を埋める
-
-        # p12 と p13 を埋める
+    def _fill_p12_p13(self):
+        """
+        p12 と p13 (音節内での位置) を補完する。
+        """
         for syllable in self.all_syllables:
             len_syllable = len(syllable)
             for i, phoneme in enumerate(syllable):
@@ -530,6 +533,38 @@ class Song(UserList):
                 phoneme.position = i + 1
                 # p13
                 phoneme.position_backward = len_syllable - i
+
+    def _fill_p14_p15(self):
+        """
+        p14 と p15 (母音からの距離) を補完する。
+        """
+        distance_forward = None
+        distance_backward = None
+        for syllable in self.all_syllables:
+            # p14
+            for phoneme in syllable:
+                if phoneme.is_vowel():
+                    distance_forward = 1
+                    continue
+                if distance_forward is None:
+                    continue
+                if phoneme.is_consonant():
+                    phoneme.distance_from_previous_vowel = distance_forward
+                    distance_forward += 1
+                else:
+                    distance_forward += 1
+            # p15
+            for phoneme in reversed(syllable):
+                if phoneme.is_vowel():
+                    distance_backward = 1
+                    continue
+                if distance_backward is None:
+                    continue
+                if phoneme.is_consonant():
+                    phoneme.distance_from_previous_vowel = distance_backward
+                    distance_backward += 1
+                else:
+                    distance_backward += 1
 
     def _fill_syllable_contexts(self):
         """
