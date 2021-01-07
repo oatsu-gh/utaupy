@@ -1,6 +1,6 @@
-#! /usr/bin/env python3
-# coding: utf-8
+#!/usr/bin/env python3
 # Copyright (c) 2020 oatsu
+# TODO: p14, p15 を補完できるようにする。
 """
 Python3 module for HTS-full-label.
 Sinsy仕様のHTSフルコンテキストラベルを扱うモジュール
@@ -13,6 +13,11 @@ from copy import deepcopy
 from itertools import chain
 
 # from pprint import pprint
+
+
+VOWELS = ('a', 'i', 'u', 'e', 'o', 'ae', 'A', 'I', 'U', 'E', 'O', 'N')
+BREAKS = ('br')
+PAUSES = ('pau', 'sil')
 
 
 def load(source):
@@ -45,10 +50,9 @@ class HTSFullLabel(UserList):
             Falseのときは d, f における休符の長さ情報が維持される。
         """
         # 休符周辺の仕様をSinsyに近づける。
-        new_label = adjust_syllables_to_sinsy(self)
-        new_label = adjust_notes_to_sinsy(new_label, strict=strict_sinsy_style)
+        new_label = adjust_pau_contexts(self, strict=strict_sinsy_style)
         # 文字列にする
-        s = '\n'.join([str(oneline) for oneline in new_label])
+        s = '\n'.join(list(map(str, new_label)))
         # ファイル出力
         with open(path, mode=mode, encoding=encoding) as f:
             f.write(s)
@@ -67,7 +71,6 @@ class HTSFullLabel(UserList):
         else:
             raise TypeError(f'Type of the argument "source" must be str, list or {Song}.')
         self.generate_songobj()
-        self.fill_contexts_from_songobj()
         return self
 
     def _load_from_path(self, path, encoding: str = 'utf-8'):
@@ -162,11 +165,9 @@ class HTSFullLabel(UserList):
                     # print(list(map(id, [song, note, syllable, phoneme])))
                     onelines.append(ol)
         self.data = onelines
-        self._fill_phonemes()
-        self._fill_note_position()
         return self
 
-    def _fill_phonemes(self):
+    def fill_phonemes(self):
         """
         phoneme をもとに、前後の音素に関する項を埋める。
         """
@@ -178,36 +179,6 @@ class HTSFullLabel(UserList):
             ol.next_phoneme = extended_self[i + 1].phoneme
             ol.after_next_phoneme = extended_self[i + 2].phoneme
         return self
-
-    def _fill_note_position(self):
-        """
-        「Phrase内で何番目か」の項を埋める。
-        Phraseの扱いは難しいので、「休符からの距離」を代わりに用いる。
-        """
-        counter = 'xx'
-        # 直前の休符からの距離を数える
-        for note in self.song.all_notes:
-            # 休符のときは距離をリセット
-            if note.is_pau():
-                note.position = 'xx'
-                counter = 0
-            # 休符ではないけれど休符位置が分からないときは未登録のまま
-            elif counter == 'xx':
-                continue
-            # 休符ではなく、休符位置が分かっているときは登録
-            else:
-                counter += 1
-                note.position = counter
-        # 次の休符までの距離を登録する。
-        for note in reversed(self.song.all_notes):
-            if note.is_pau():
-                note.position_backward = 'xx'
-                counter = 0
-            elif counter == 'xx':
-                continue
-            else:
-                counter += 1
-                note.position_backward = counter
 
     def generate_songobj(self):
         """
@@ -235,7 +206,10 @@ class HTSFullLabel(UserList):
                 syllable = ol.syllable
                 note.append(syllable)
             syllable.append(phoneme)
+
+        song.autofill()
         self.song = song
+        self.fill_contexts_from_songobj()
 
 
 class OneLine:
@@ -520,6 +494,19 @@ class Song(UserList):
     def number_of_phrases(self, number: int):
         self.contexts[2] = number
 
+    def write(self, path, mode='w', encoding='utf-8', strict_sinsy_style: bool = True) -> str:
+        """
+        ファイル出力する。
+        HTSFullLabelからではなく、USTなどからSongが直接生成されている場合に対応する。
+        """
+        full_label = HTSFullLabel()
+        full_label.song = self
+        full_label.fill_contexts_from_songobj()
+        str_full_label = full_label.write(
+            path, mode=mode, encoding=encoding, strict_sinsy_style=strict_sinsy_style
+        )
+        return str_full_label
+
     def check(self):
         """
         まとめてチェックする。
@@ -550,6 +537,252 @@ class Song(UserList):
         for note in self.all_notes:
             assert all(str(syllable.position) == str(idx + 1) for (idx, syllable) in enumerate(note)), \
                 'ノート内音節位置に不整合があります。'
+
+    def autofill(self):
+        """
+        自動補完可能なものをすべて自動補完する。
+        """
+        self._fill_note_contexts()
+        self._fill_syllable_contexts()
+        self._fill_phoneme_contexts()
+
+    def _fill_phoneme_contexts(self, vowels=VOWELS, pauses=PAUSES, breaks=BREAKS):
+        """
+        p1, p12, p13を補完する。
+        """
+        # p1 を埋める
+        for phoneme in self.all_phonemes:
+            phoneme_identity = phoneme.identity
+            if phoneme_identity == 'xx':
+                phoneme.language_independent_identity = 'xx'
+            elif phoneme_identity in vowels:
+                phoneme.language_independent_identity = 'v'
+            elif phoneme_identity in pauses:
+                phoneme.language_independent_identity = 'p'
+            elif phoneme_identity in breaks:
+                phoneme.language_independent_identity = 'b'
+            else:
+                phoneme.language_independent_identity = 'c'
+
+        # TODO: p14とp15を埋める
+
+        # p12 と p13 を埋める
+        for syllable in self.all_syllables:
+            len_syllable = len(syllable)
+            for i, phoneme in enumerate(syllable):
+                # p12
+                phoneme.position = i + 1
+                # p13
+                phoneme.position_backward = len_syllable - i
+
+    def _fill_syllable_contexts(self):
+        """
+        b1, b2, b3 を補完する。
+        """
+        for note in self.all_notes:
+            len_note = len(note)
+            for i, syllable in enumerate(note):
+                # b1
+                syllable.number_of_phonemes = len(syllable)
+                # b2
+                syllable.position = i + 1
+                # b3
+                syllable.position_backward = len_note - i
+
+    def _fill_note_contexts(self):
+        """
+        e を補完する。
+
+        必要なデータ:
+            - e5: テンポ
+            - e8: ノート長(96分音符)
+        補完するデータ:
+            - e6: ノート内音節数
+            - e7: ノート長(10ms)
+            - e18-e25: フレーズ内での位置
+                - e20, e21: フレーズ内での位置(100ms)
+                - e22, e23: フレーズ内での位置(96分音符)
+                - e24, e25: フレーズ内での位置(パーセント)
+            - Note.length_100ns
+            - Note.position_100ns
+            - Note.position_100ns_backward
+        """
+        # e6, e7 を埋める。
+        for note in self.all_notes:
+            # e6 (ノート内音節数) を埋める
+            note.number_of_syllables = len(self)
+            # e8 の情報をもとに e7 を埋める。テンポ情報(e5)がないと困る。
+            # 100ns単位での長さも登録する。
+            if note.tempo != 'xx' and note.length != 'xx':
+                note.tempo = int(note.tempo)
+                note.length = int(note.length)
+                length_100ns = round(25000000 * note.length / note.tempo)
+                note.length_100ns = length_100ns
+                note.length_10ms = length_100ns // 100000
+
+        # フレーズ内で何番目のノートかを埋める
+        self._fill_e18_e19()
+        # フレーズ内での 96分音符単位での位置を埋める。e18,e19が必要。
+        self._fill_e22_e23()
+        # フレーズ内での 100ms単位での位置を埋める。e18,e19が必要。
+        # フレーズ内での 100ns単位での位置も埋める(utaupy独自コンテキスト)。
+        self._fill_e20_e21_e59_e60()
+        # フレーズ内での パーセント表記での位置を埋める。e18, e19, 100ns位置が必要
+        self._fill_e24_e25()
+
+    def _fill_e18_e19(self):
+        """
+        「Phrase内で何番目か(e18, e19)」の項を埋める。
+        Phraseの扱いは難しいので、「休符からの距離」を代わりに用いる。
+        """
+        counter = 'xx'
+        # 直前の休符からの距離を数える
+        for note in self:
+            # 休符のときは距離をリセット
+            if note.is_pau():
+                note.position = 'xx'
+                counter = 0
+            # 休符ではないけれど休符位置が分からないときは未登録のまま
+            elif counter == 'xx':
+                continue
+            # 休符ではなく、休符位置が分かっているときは登録
+            else:
+                counter += 1
+                note.position = counter
+        # 次の休符までの距離を登録する。
+        for note in reversed(self):
+            if note.is_pau():
+                note.position_backward = 'xx'
+                counter = 0
+            elif counter == 'xx':
+                continue
+            else:
+                counter += 1
+                note.position_backward = counter
+
+    def _fill_e20_e21_e59_e60(self):
+        """
+        「フレーズ内での位置(100ms単位での表記) (e20, e21)」の項を埋める。
+
+        e18とe19のデータがある前提で実行する。
+        10msでの累計だとずれるので100nsで計算してから10msに直して登録する。
+        """
+
+        counter_100ns = 0
+
+        # 前の休符から数えた時間を登録する。
+        for note in self.all_notes:
+            # 休符のときは 'xx'
+            if note.position == 'xx':
+                note.position_100ms = 'xx'
+                note.position_100ns = None
+                counter_100ns = 0
+            # フレーズ中で最初のノートのときは時間をリセットして、累積時間を増やす。
+            elif note.position == 1:
+                note.position_100ms = 0
+                note.position_100ns = 0
+                counter_100ns += note.length_100ns
+            # 休符でもなくて最初のノートでもないとき
+            else:
+                note.position_100ms = round(counter_100ns / 1000000)
+                note.position_100ns = counter_100ns
+                counter_100ns += note.length_100ns
+
+        counter_100ns = 0
+        # 次の休符から数えた時間を登録する。
+        for note in reversed(self.all_notes):
+            # 休符のときは 'xx'
+            if note.position_backward == 'xx':
+                counter_100ns = 0
+                note.position_100ms_backward = 'xx'
+                note.position_100ns_backward = None
+            # フレーズ中で最後のノートのときは時間をリセットして、累積時間を増やす。
+            elif note.position_backward == 1:
+                counter_100ns = note.length_100ns
+                note.position_100ms_backward = round(counter_100ns / 1000000)
+                note.position_100ns_backward = counter_100ns
+            # 休符でもなくて最後のノートでもないとき
+            else:
+                counter_100ns += note.length_100ns
+                note.position_100ms_backward = round(counter_100ns / 1000000)
+                note.position_100ns_backward = counter_100ns
+
+    def _fill_e22_e23(self):
+        """
+        「フレーズ内での位置(96分音符単位) (e22, e23)」の項を埋める。
+        e18とe19のデータがある前提で実行する。
+        """
+        counter = 0
+        # 前の休符から数えた時間を登録する。
+        for note in self.all_notes:
+            # 休符のときは 'xx'
+            if note.position == 'xx':
+                note.contexts[21] = 'xx'
+                counter = 0
+            # フレーズ中で最初のノートのときは時間をリセットして、累積時間を増やす。
+            elif note.position == 1:
+                note.contexts[21] = 0
+                counter += int(note.length)
+            # 休符でもなくて最初のノートでもないとき
+            else:
+                note.contexts[21] = counter
+                counter += int(note.length)
+
+        counter = 0
+        # 次の休符から数えた時間を登録する。
+        for note in reversed(self.all_notes):
+            # 休符のときは 'xx'
+            if note.position_backward == 'xx':
+                counter = 0
+                note.contexts[22] = 'xx'
+            # フレーズ中で最後のノートのときは時間をリセットして、累積時間を増やす。
+            elif note.position_backward == 1:
+                counter = int(note.length)
+                note.contexts[22] = counter
+            # 休符でもなくて最後のノートでもないときは普通に登録して、累積時間を増やす。
+            else:
+                counter += int(note.length)
+                note.contexts[22] = counter
+
+    def _fill_e24_e25(self):
+        """
+        「フレーズ内での位置(パーセント表記) (e24, e25)」の項を埋める。
+        e18, e19, length_100ns のデータがある前提で実行する。
+        """
+        # フレーズの全体の長さ(96分音符単位)
+        length_of_phrase = 0
+        counter_100ns = 0
+        for note in self.all_notes:
+            if note.position == 'xx':
+                length_of_phrase = 0
+                counter_100ns = 0
+                note.contexts[23] = 'xx'
+            elif note.position == 1:
+                length_of_phrase = note.position_100ns_backward
+                note.contexts[23] = round(100 * counter_100ns / length_of_phrase)
+                counter_100ns += note.length_100ns
+            else:
+                note.contexts[23] = round(100 * counter_100ns / length_of_phrase)
+                counter_100ns += note.length_100ns
+
+        # フレーズの全体の長さ(96分音符単位)
+        length_of_phrase = 0
+        counter_100ns = 0
+        for note in reversed(self.all_notes):
+            # 休符のときは 'xx'
+            if note.position_backward == 'xx':
+                length_of_phrase = 0
+                counter_100ns = 0
+                note.contexts[24] = 'xx'
+            # フレーズ中で最後のノートのときは時間をリセットして、累積時間を増やす。
+            elif note.position_backward == 1:
+                length_of_phrase = note.position_100ns + note.length_100ns
+                counter_100ns = note.length_100ns
+                note.contexts[24] = round(100 * counter_100ns / length_of_phrase)
+            # 休符でもなくて最後のノートでもないときは普通に登録して、累積時間を増やす。
+            else:
+                counter_100ns += note.length_100ns
+                note.contexts[24] = round(100 * counter_100ns / length_of_phrase)
 
 
 class Phrase(UserList):
@@ -608,6 +841,55 @@ class Note(UserList):
     def __init__(self, init=None):
         super().__init__(init)
         self.contexts = ['xx'] * 60
+        self.length_100ns: int = None
+        self.position_100ns: int = None
+        self.position_100ns_backward: int = None
+
+    @property
+    def tempo(self):
+        """
+        テンポ(e5)
+        """
+        return self.contexts[4]
+
+    @tempo.setter
+    def tempo(self, tempo: int):
+        self.contexts[4] = tempo
+
+    @property
+    def number_of_syllables(self):
+        """
+        ノート内音節数(e6)
+        """
+        return self.contexts[5]
+
+    @number_of_syllables.setter
+    def number_of_syllables(self, number: int):
+        self.contexts[5] = number
+
+    @property
+    def length_10ms(self):
+        """
+        ノート長(e7)
+        10ms単位の整数で計算
+        """
+        return self.contexts[6]
+
+    @length_10ms.setter
+    def length_10ms(self, length: int):
+        self.contexts[6] = length
+
+    @property
+    def length(self):
+        """
+        ノート長(e8)
+        96分音符いくつ分かで計算
+        """
+        return self.contexts[7]
+
+    @length.setter
+    def length(self, length: int):
+        self.contexts[7] = length
 
     @property
     def position(self):
@@ -626,28 +908,41 @@ class Note(UserList):
         フレーズ内での後ろから数えた位置(e19)
         1-indexed
         """
-        return int(self.contexts[18])
+        return self.contexts[18]
 
     @position_backward.setter
     def position_backward(self, position_backward: int):
         self.contexts[18] = position_backward
 
     @property
-    def number_of_syllables(self):
+    def position_100ms(self):
         """
-        ノート内音節数(e6)
+        フレーズ内での位置(e20)
+        100ms単位
         """
-        return self.contexts[5]
+        return self.contexts[19]
 
-    @number_of_syllables.setter
-    def number_of_syllables(self, number: int):
-        self.contexts[5] = number
+    @position_100ms.setter
+    def position_100ms(self, position: int):
+        self.contexts[19] = position
+
+    @property
+    def position_100ms_backward(self):
+        """
+        フレーズ内での後ろから数えた位置(e21)
+        100ms単位
+        """
+        return self.contexts[20]
+
+    @position_100ms_backward.setter
+    def position_100ms_backward(self, position_backward: int):
+        self.contexts[20] = position_backward
 
     def is_pau(self):
         """
         休符かどうかを返す
         """
-        return self[0][0].identity in ('pau', 'sil')
+        return self[0][0].is_pau()
 
 
 class Syllable(UserList):
@@ -664,30 +959,6 @@ class Syllable(UserList):
         self.contexts = ['xx'] * 5
 
     @property
-    def position(self):
-        """
-        ノート内での位置(b2)
-        1-indexed
-        """
-        return int(self.contexts[1])
-
-    @position.setter
-    def position(self, position: int):
-        self.contexts[1] = position
-
-    @property
-    def position_backward(self):
-        """
-        ノート内での後ろから数えた位置(b3)
-        1-indexed
-        """
-        return int(self.contexts[2])
-
-    @position_backward.setter
-    def position_backward(self, position_backward: int):
-        self.contexts[2] = position_backward
-
-    @property
     def number_of_phonemes(self):
         """
         音節内の音素数(b1)
@@ -697,6 +968,31 @@ class Syllable(UserList):
     @number_of_phonemes.setter
     def number_of_phonemes(self, number: int):
         self.contexts[0] = number
+
+    @property
+    def position(self):
+        """
+        ノート内での位置(b2)
+        1-indexed
+        """
+        return self.contexts[1]
+
+    @position.setter
+    def position(self, position: int):
+        self.contexts[1] = position
+
+    @property
+    def position_backward(self):
+        """
+
+        ノート内での後ろから数えた位置(b3)
+        1-indexed
+        """
+        return self.contexts[2]
+
+    @position_backward.setter
+    def position_backward(self, position_backward: int):
+        self.contexts[2] = position_backward
 
 
 class Phoneme:
@@ -730,54 +1026,117 @@ class Phoneme:
     def __str__(self):
         return f'{self.start} {self.end} {self.identity}'
 
+    def is_vowel(self):
+        """
+        母音かどうか
+        """
+        return self.language_independent_identity == 'v'
 
-def adjust_syllables_to_sinsy(full_label: HTSFullLabel) -> HTSFullLabel:
+    def is_consonant(self):
+        """
+        子音かどうか
+        """
+        return self.language_independent_identity == 'c'
+
+    def is_pau(self):
+        """
+        休符かどうか
+        """
+        return self.language_independent_identity == 'p'
+
+    def is_break(self):
+        """
+        息継ぎかどうか
+        """
+        return self.language_independent_identity == 'b'
+
+
+def adjust_pau_contexts(full_label: HTSFullLabel, strict: bool = True) -> HTSFullLabel:
     """
     出力用に休符まわりの音節コンテキストを調整する。
     """
-    new_label = deepcopy(full_label)
-    for ol in new_label[1:]:
-        if ol.previous_syllable[0].identity in ('pau', 'sil'):
-            ol.a[0:2] = ['xx'] * 3
-    for ol in new_label[:-1]:
-        if ol.next_syllable[0].identity in ('pau', 'sil'):
-            ol.c[0:2] = ['xx'] * 3
-
-    return new_label
-
-
-def adjust_notes_to_sinsy(full_label: HTSFullLabel, strict=True) -> HTSFullLabel:
-    """
-    休符の前後のノート情報を調整したい。
-    Sinsy仕様の d, f では休符を飛ばした音符を検出して処理している。
-
-    音程関連は必ずやる。
-    休符の長さに関する前後情報は持っておきたい。
-    """
-    new_label = deepcopy(full_label)
+    # deepcopyが深く、できるだけSinsyの出力に近づける。でも遅い。
     if strict:
-        # 前のノートに関する処理
+        new_label = HTSFullLabel()
+        # NOTE: ここのdeepcopyめっちゃ遅い
+        new_label.data = [deepcopy(ol) for ol in full_label]
+        # 前の音節とノートに関する処理
         for ol in new_label[1:]:
+            if ol.previous_syllable[0].identity in ('pau', 'sil'):
+                ol.a[0:3] = ['xx'] * 3
             if ol.previous_note.is_pau():
                 ol.d[0:3] = ['xx'] * 3
                 ol.d[3:8] = ['xx'] * 5
-        # 次のノートに関する処理
+        # 現在の音節とノートに関する処理
+        for ol in new_label:
+            if ol.note.is_pau():
+                ol.e[0:2] = ['xx'] * 2
+        # 次の音節とノートに関する処理
         for ol in new_label[:-1]:
+            if ol.next_syllable[0].identity in ('pau', 'sil'):
+                ol.c[0:3] = ['xx'] * 3
             if ol.next_note.is_pau():
                 ol.f[0:3] = ['xx'] * 3
                 ol.f[3:8] = ['xx'] * 5
+
+    # deepcopyが浅く処理が速い。ただし、Sinsyの出力と差異が生じてしまう。
     else:
-        # 前のノートに関する処理
-        for ol in new_label[1:]:
-            if ol.previous_note.is_pau():
-                ol.d[0:3] = ['xx'] * 3
-        # 次のノートに関する処理
-        for ol in new_label[:-1]:
-            if ol.next_note.is_pau():
-                ol.f[0:3] = ['xx'] * 3
-    # 現在のノートに関する処理
-    for ol in new_label:
-        if ol.note.is_pau():
-            ol.e[0:2] = ['xx'] * 2
+        new_label = deepcopy(full_label)
+        for ol in new_label:
+            if ol.note.is_pau():
+                ol.b[0:3] = ['xx'] * 3
+                ol.e[0:3] = ['xx'] * 3
 
     return new_label
+
+#
+# def adjust_syllables_to_sinsy(full_label: HTSFullLabel) -> HTSFullLabel:
+#     """
+#     出力用に休符まわりの音節コンテキストを調整する。
+#     """
+#     new_label = deepcopy(full_label)
+#     for ol in new_label[1:]:
+#         if ol.previous_syllable[0].identity in ('pau', 'sil'):
+#             ol.a[0:2] = ['xx'] * 3
+#     for ol in new_label[:-1]:
+#         if ol.next_syllable[0].identity in ('pau', 'sil'):
+#             ol.c[0:2] = ['xx'] * 3
+#
+#     return new_label
+#
+#
+# def adjust_notes_to_sinsy(full_label: HTSFullLabel, strict=True) -> HTSFullLabel:
+#     """
+#     休符の前後のノート情報を調整したい。
+#     Sinsy仕様の d, f では休符を飛ばした音符を検出して処理している。
+#
+#     音程関連は必ずやる。
+#     休符の長さに関する前後情報は持っておきたい。
+#
+#     strict=True だとめっちゃ遅い
+#     """
+#     if strict:
+#         new_label = HTSFullLabel()
+#         # NOTE: ここのdeepcopyめっちゃ遅い
+#         new_label.data = [deepcopy(ol) for ol in full_label]
+#         # 前のノートに関する処理
+#         for ol in new_label[1:]:
+#             if ol.previous_note.is_pau():
+#                 ol.d[0:3] = ['xx'] * 3
+#                 ol.d[3:8] = ['xx'] * 5
+#         # 現在のノートに関する処理
+#         for ol in new_label:
+#             if ol.note.is_pau():
+#                 ol.e[0:2] = ['xx'] * 2
+#         # 次のノートに関する処理
+#         for ol in new_label[:-1]:
+#             if ol.next_note.is_pau():
+#                 ol.f[0:3] = ['xx'] * 3
+#                 ol.f[3:8] = ['xx'] * 5
+#     else:
+#         new_label = deepcopy(full_label)
+#         for ol in new_label:
+#             if ol.note.is_pau():
+#                 ol.e[0:3] = ['xx'] * 3
+#
+#     return new_label
