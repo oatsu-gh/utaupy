@@ -4,8 +4,9 @@
 """
 Python3 module for HTS-full-label.
 Sinsy仕様のHTSフルコンテキストラベルを扱うモジュール
-"""
 
+forループが多いのでpypy3を使っても良いかも。(とくにdeepcopyが重い)
+"""
 # import json
 import re
 from collections import UserList
@@ -13,7 +14,6 @@ from copy import deepcopy
 from itertools import chain
 
 # from pprint import pprint
-
 
 VOWELS = ('a', 'i', 'u', 'e', 'o', 'ae', 'A', 'I', 'U', 'E', 'O', 'N')
 BREAKS = ('br')
@@ -97,12 +97,12 @@ class HTSFullLabel(UserList):
         # 各行を解析してHTSFullLabelに追加する。
         for line in lines:
             # 1行分の情報用のオブジェクトを生成
-            oneline = OneLine()
+            ol = OneLine()
             # 正規表現で上手く区切れない文字を置換する
             # 空白で分割して、時刻情報とそれ以外のコンテキストに分ける
             line_split = line.split(maxsplit=2)
-            oneline.start = int(line_split[0])
-            oneline.end = int(line_split[1])
+            ol.start = int(line_split[0])
+            ol.end = int(line_split[1])
             str_contexts = line_split[2]
             # コンテキスト文字列を /A: などの文字列で区切って一次元リストにする
             l_contexts = re.split('/.:', str_contexts)
@@ -110,19 +110,9 @@ class HTSFullLabel(UserList):
             sep = re.escape('=+-~∼!@#$%^ˆ&;_|[]')
             l_contexts_2d = [re.split((f'[{sep}]'), s) for s in l_contexts]
             # 1行分の情報用のオブジェクトに、各種コンテキストを登録する
-            oneline.p = l_contexts_2d[0]
-            oneline.a = l_contexts_2d[1]
-            oneline.b = l_contexts_2d[2]
-            oneline.c = l_contexts_2d[3]
-            oneline.d = l_contexts_2d[4]
-            oneline.e = l_contexts_2d[5]
-            oneline.f = l_contexts_2d[6]
-            oneline.g = l_contexts_2d[7]
-            oneline.h = l_contexts_2d[8]
-            oneline.i = l_contexts_2d[9]
-            oneline.j = l_contexts_2d[10]
+            ol.p, ol.a, ol.b, ol.c, ol.d, ol.e, ol.f, ol.g, ol.h, ol.i, ol.j = l_contexts_2d
             # 1行分の情報用のオブジェクトを HTSFullLabel オブジェクトに追加する。
-            self.append(oneline)
+            self.append(ol)
         return self
 
     def _load_from_songobj(self, songobj: list):
@@ -237,30 +227,27 @@ class OneLine:
         self.song = Song()
 
     def __str__(self):
-        str_time = f'{self.start} {self.end} '
-        # Phoneme 関連
-        str_p = \
-            '{0}@{1}ˆ{2}-{3}+{4}={5}_{6}%{7}ˆ{8}_{9}∼{10}-{11}!{12}[{13}${14}]{15}' \
-            .format(*self.p)
-        # Syllable 関連
-        str_a = '/A:{0}-{1}-{2}@{3}~{4}'.format(*self.a)
-        str_b = '/B:{0}_{1}_{2}@{3}|{4}'.format(*self.b)
-        str_c = '/C:{0}+{1}+{2}@{3}&{4}'.format(*self.c)
-        # Note 関連
-        str_d = '/D:{0}!{1}#{2}${3}%{4}|{5}&{6};{7}-{8}'.format(*self.d)
-        str_e = \
-            '/E:{0}]{1}ˆ{2}={3}∼{4}!{5}@{6}#{7}+{8}]{9}${10}|{11}[{12}&{13}]{14}={15}ˆ{16}∼{17}#{18}_{19};{20}${21}&{22}%{23}[{24}|{25}]{26}-{27}ˆ{28}+{29}∼{30}={31}@{32}${33}!{34}%{35}#{36}|{37}|{38}-{39}&{40}&{41}+{42}[{43};{44}]{45};{46}∼{47}∼{48}ˆ{49}ˆ{50}@{51}[{52}#{53}={54}!{55}∼{56}+{57}!{58}ˆ{59}' \
-            .format(*self.e)
-        str_f = '/F:{0}#{1}#{2}-{3}${4}${5}+{6}%{7};{8}'.format(*self.f)
-        # Phrase 関連
-        str_g = '/G:{0}_{1}'.format(*self.g)
-        str_h = '/H:{0}_{1}'.format(*self.h)
-        str_i = '/I:{0}_{1}'.format(*self.i)
-        # Song 関連
-        str_j = '/J:{0}~{1}@{2}'.format(*self.j)
-        # 各パラメータの文字列を結合
-        str_self = ''.join((str_time, str_p, str_a, str_b, str_c, str_d,
-                            str_e, str_f, str_g, str_h, str_i, str_j))
+        str_self = ''.join((
+            f'{self.start} {self.end} ',
+            # Phoneme 関連
+            '{}@{}ˆ{}-{}+{}={}_{}%{}ˆ{}_{}∼{}-{}!{}[{}${}]{}'
+            .format(*self.p),
+            # Syllable 関連
+            '/A:{}-{}-{}@{}~{}'.format(*self.a),
+            '/B:{}_{}_{}@{}|{}'.format(*self.b),
+            '/C:{}+{}+{}@{}&{}'.format(*self.c),
+            # Note 関連
+            '/D:{}!{}#{}${}%{}|{}&{};{}-{}'.format(*self.d),
+            'E:{}]{}ˆ{}={}∼{}!{}@{}#{}+{}]{}${}|{}[{}&{}]{}={}ˆ{}∼{}#{}_{};{}${}&{}%{}[{}|{}]{}-{}ˆ{}+{}∼{}={}@{}${}!{}%{}#{}|{}|{}-{}&{}&{}+{}[{};{}]{};{}∼{}∼{}ˆ{}ˆ{}@{}[{}#{}={}!{}∼{}+{}!{}ˆ{}' \
+            .format(*self.e),
+            '/F:{}#{}#{}-{}${}${}+{}%{};{}'.format(*self.f),
+            # Phrase 関連
+            '/G:{}_{}'.format(*self.g),
+            '/H:{}_{}'.format(*self.h),
+            '/I:{}_{}'.format(*self.i),
+            # Song 関連
+            '/J:{}~{}@{}'.format(*self.j)
+        ))
         return str_self
 
     @property
@@ -506,37 +493,6 @@ class Song(UserList):
             path, mode=mode, encoding=encoding, strict_sinsy_style=strict_sinsy_style
         )
         return str_full_label
-
-    def check(self):
-        """
-        まとめてチェックする。
-        """
-        self.check_number_of_values()
-        self.check_position()
-
-    def check_number_of_values(self):
-        """
-        リストとしての要素数と、コンテキストに記載されている要素数が一致するか点検する。
-        Noteに記載されている
-        """
-        # 各音節内音素数が、ラベルに記載されている値と一致するか確認する。
-        for i, syllable in enumerate(self.all_syllables):
-            assert str(len(syllable)) == str(syllable.number_of_phonemes), \
-                f'音節内音素数に不整合があります。i:{i} len(syllable):{len(syllable)} syllable.number_of_phonemes:{syllable.number_of_phonemes}'
-        for i, note in enumerate(self):
-            assert str(len(note)) == str(note.number_of_syllables), \
-                f'ノート内音節数に不整合があります。i:{i} len(note):{len(note)} note.number_of_syllables:{note.number_of_syllables}'
-
-    def check_position(self):
-        """
-        各position がちゃんとしているか確認する。
-        """
-        for syllable in self.all_syllables:
-            assert all(str(phoneme.position) == str(idx + 1) for (idx, phoneme) in enumerate(syllable)), \
-                '音節内音素位置に不整合があります。'
-        for note in self.all_notes:
-            assert all(str(syllable.position) == str(idx + 1) for (idx, syllable) in enumerate(note)), \
-                'ノート内音節位置に不整合があります。'
 
     def autofill(self):
         """
