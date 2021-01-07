@@ -292,7 +292,7 @@ class Note(UserDict):
     @length_ms.setter
     def length_ms(self, x):
         """ノート長を上書き[ms]"""
-        self['Length'] = x * self.tempo // 125
+        self['Length'] = str(round(x * self.tempo / 125))
 
     @property
     def lyric(self):
