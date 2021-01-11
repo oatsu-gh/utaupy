@@ -870,8 +870,8 @@ class Song(UserList):
                 note.contexts[56] = 'xx'
                 continue
             # 直前のノートも今のノートも音符のとき
-            previous_notenum = ABSPITCH_TO_NOTENUM[previous_abspitch]
-            current_notenum = ABSPITCH_TO_NOTENUM[current_abspitch]
+            previous_notenum = abspitch_to_notenum(previous_abspitch)
+            current_notenum = abspitch_to_notenum(current_abspitch)
             pitch_difference = previous_notenum - current_notenum
             note.contexts[56] = \
                 f'p{pitch_difference}' if pitch_difference >= 0 else f'm{pitch_difference}'
@@ -887,8 +887,8 @@ class Song(UserList):
                 note.contexts[57] = 'xx'
                 continue
             # 直前のノートも今のノートも音符のとき
-            previous_notenum = ABSPITCH_TO_NOTENUM[previous_abspitch]
-            current_notenum = ABSPITCH_TO_NOTENUM[current_abspitch]
+            previous_notenum = abspitch_to_notenum(previous_abspitch)
+            current_notenum = abspitch_to_notenum(current_abspitch)
             pitch_difference = previous_notenum - current_notenum
             note.contexts[57] = \
                 f'p{pitch_difference}' if pitch_difference >= 0 else f'm{pitch_difference}'
