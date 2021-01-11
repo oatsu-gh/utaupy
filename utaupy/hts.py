@@ -14,9 +14,59 @@ from itertools import chain
 
 # from pprint import pprint
 
+# p1を埋めるのに使う。
 VOWELS = ('a', 'i', 'u', 'e', 'o', 'A', 'I', 'U', 'E', 'O', 'N', 'ae', 'AE')
 BREAKS = ('br')
 PAUSES = ('pau', 'sil')
+
+# e1を埋めるのに使う
+NOTENUM_TO_ABSPITCH_DICT = {
+    'xx': 'xx',
+    '12': 'C0', '13': 'Db0', '14': 'D0', '15': 'Eb0', '16': 'E0', '17': 'F0',
+    '18': 'Gb0', '19': 'G0', '20': 'Ab0', '21': 'A0', '22': 'Bb0', '23': 'B0',
+    '24': 'C1', '25': 'Db1', '26': 'D1', '27': 'Eb1', '28': 'E1', '29': 'F1',
+    '30': 'Gb1', '31': 'G1', '32': 'Ab1', '33': 'A1', '34': 'Bb1', '35': 'B1',
+    '36': 'C2', '37': 'Db2', '38': 'D2', '39': 'Eb2', '40': 'E2', '41': 'F2',
+    '42': 'Gb2', '43': 'G2', '44': 'Ab2', '45': 'A2', '46': 'Bb2', '47': 'B2',
+    '48': 'C3', '49': 'Db3', '50': 'D3', '51': 'Eb3', '52': 'E3', '53': 'F3',
+    '54': 'Gb3', '55': 'G3', '56': 'Ab3', '57': 'A3', '58': 'Bb3', '59': 'B3',
+    '60': 'C4', '61': 'Db4', '62': 'D4', '63': 'Eb4', '64': 'E4', '65': 'F4',
+    '66': 'Gb4', '67': 'G4', '68': 'Ab4', '69': 'A4', '70': 'Bb4', '71': 'B4',
+    '72': 'C5', '73': 'Db5', '74': 'D5', '75': 'Eb5', '76': 'E5', '77': 'F5',
+    '78': 'Gb5', '79': 'G5', '80': 'Ab5', '81': 'A5', '82': 'Bb5', '83': 'B5',
+    '84': 'C6', '85': 'Db6', '86': 'D6', '87': 'Eb6', '88': 'E6', '89': 'F6',
+    '90': 'Gb6', '91': 'G6', '92': 'Ab6', '93': 'A6', '94': 'Bb6', '95': 'B6',
+    '96': 'C7', '97': 'Db7', '98': 'D7', '99': 'Eb7', '100': 'E7', '101': 'F7',
+    '102': 'Gb7', '103': 'G7', '104': 'Ab7', '105': 'A7', '106': 'Bb7', '107': 'B7',
+    '108': 'C8', '109': 'Db8', '110': 'D8', '111': 'Eb8', '112': 'E8', '113': 'F8',
+    '114': 'Gb8', '115': 'G8', '116': 'Ab8', '117': 'A8', '118': 'Bb8', '119': 'B8',
+    '120': 'C9', '121': 'Db9', '122': 'D9', '123': 'Eb9', '124': 'E9', '125': 'F9',
+    '126': 'Gb9', '127': 'G9',
+}
+# e57, e58 を埋めるのに使う
+ABSPITCH_TO_NOTENUM_DICT = {
+    'xx': 'xx',
+    'C0': 12, 'Db0': 13, 'D0': 14, 'Eb0': 15, 'E0': 16, 'F0': 17,
+    'Gb0': 18, 'G0': 19, 'Ab0': 20, 'A0': 21, 'Bb0': 22, 'B0': 23,
+    'C1': 24, 'Db1': 25, 'D1': 26, 'Eb1': 27, 'E1': 28, 'F1': 29,
+    'Gb1': 30, 'G1': 31, 'Ab1': 32, 'A1': 33, 'Bb1': 34, 'B1': 35,
+    'C2': 36, 'Db2': 37, 'D2': 38, 'Eb2': 39, 'E2': 40, 'F2': 41,
+    'Gb2': 42, 'G2': 43, 'Ab2': 44, 'A2': 45, 'Bb2': 46, 'B2': 47,
+    'C3': 48, 'Db3': 49, 'D3': 50, 'Eb3': 51, 'E3': 52, 'F3': 53,
+    'Gb3': 54, 'G3': 55, 'Ab3': 56, 'A3': 57, 'Bb3': 58, 'B3': 59,
+    'C4': 60, 'Db4': 61, 'D4': 62, 'Eb4': 63, 'E4': 64, 'F4': 65,
+    'Gb4': 66, 'G4': 67, 'Ab4': 68, 'A4': 69, 'Bb4': 70, 'B4': 71,
+    'C5': 72, 'Db5': 73, 'D5': 74, 'Eb5': 75, 'E5': 76, 'F5': 77,
+    'Gb5': 78, 'G5': 79, 'Ab5': 80, 'A5': 81, 'Bb5': 82, 'B5': 83,
+    'C6': 84, 'Db6': 85, 'D6': 86, 'Eb6': 87, 'E6': 88, 'F6': 89,
+    'Gb6': 90, 'G6': 91, 'Ab6': 92, 'A6': 93, 'Bb6': 94, 'B6': 95,
+    'C7': 96, 'Db7': 97, 'D7': 98, 'Eb7': 99, 'E7': 100, 'F7': 101,
+    'Gb7': 102, 'G7': 103, 'Ab7': 104, 'A7': 105, 'Bb7': 106, 'B7': 107,
+    'C8': 108, 'Db8': 109, 'D8': 110, 'Eb8': 111, 'E8': 112, 'F8': 113,
+    'Gb8': 114, 'G8': 115, 'Ab8': 116, 'A8': 117, 'Bb8': 118, 'B8': 119,
+    'C9': 120, 'Db9': 121, 'D9': 122, 'Eb9': 123, 'E9': 124, 'F9': 125,
+    'Gb9': 126, 'G9': 127
+}
 
 
 def load(source):
@@ -27,6 +77,20 @@ def load(source):
     """
     song = HTSFullLabel()
     return song.load(source)
+
+
+def notenum_to_abspitch(notenum) -> str:
+    """
+    音高をC4のような記法に変換する
+    """
+    return NOTENUM_TO_ABSPITCH_DICT[str(notenum)]
+
+
+def abspitch_to_notenum(abspitch: str):
+    """
+    音高をノート番号に変換する
+    """
+    return ABSPITCH_TO_NOTENUM_DICT[abspitch]
 
 
 class HTSFullLabel(UserList):
@@ -453,7 +517,7 @@ class Song(UserList):
         """
         Noteをすべて並べたリストを返す。
         """
-        return self
+        return self.data
 
     @property
     def all_syllables(self):
@@ -492,6 +556,24 @@ class Song(UserList):
             path, mode=mode, encoding=encoding, strict_sinsy_style=strict_sinsy_style
         )
         return str_full_label
+
+    def reload_time(self):
+        """
+        ノート長をもとに、Sinsyの出力と同じになるように、
+        Phonemeオブジェクトのstartとendを計算して登録する。
+
+        単位は100ns
+        100ns単位での長さがすでに計算されているものとする。(note.length_100ns)
+        """
+        t_start = 0
+        t_end = 0
+        for note in self.all_notes:
+            t_end += note.length_100ns
+            phonemes_in_note = tuple(chain.from_iterable(note))
+            for phoneme in phonemes_in_note:
+                phoneme.start = t_start
+                phoneme.end = t_end
+            t_start = t_end
 
     def autofill(self):
         """
@@ -605,11 +687,7 @@ class Song(UserList):
             # e8 の情報をもとに e7 を埋める。テンポ情報(e5)がないと困る。
             # 100ns単位での長さも登録する。
             if note.tempo != 'xx' and note.length != 'xx':
-                note.tempo = int(note.tempo)
-                note.length = int(note.length)
-                length_100ns = round(25000000 * note.length / note.tempo)
-                note.length_100ns = length_100ns
-                note.length_10ms = length_100ns // 100000
+                note.length_10ms = note.length_100ns // 100000
 
         # フレーズ内で何番目のノートかを埋める
         self._fill_e18_e19()
@@ -617,7 +695,7 @@ class Song(UserList):
         self._fill_e22_e23()
         # フレーズ内での 100ms単位での位置を埋める。e18,e19が必要。
         # フレーズ内での 100ns単位での位置も埋める(utaupy独自コンテキスト)。
-        self._fill_e20_e21_e59_e60()
+        self._fill_e20_e21_100ns()
         # フレーズ内での パーセント表記での位置を埋める。e18, e19, 100ns位置が必要
         self._fill_e24_e25()
 
@@ -628,7 +706,7 @@ class Song(UserList):
         """
         counter = 'xx'
         # 直前の休符からの距離を数える
-        for note in self:
+        for note in self.all_notes:
             # 休符のときは距離をリセット
             if note.is_pau():
                 note.position = 'xx'
@@ -641,7 +719,7 @@ class Song(UserList):
                 counter += 1
                 note.position = counter
         # 次の休符までの距離を登録する。
-        for note in reversed(self):
+        for note in reversed(self.all_notes):
             if note.is_pau():
                 note.position_backward = 'xx'
                 counter = 0
@@ -651,7 +729,7 @@ class Song(UserList):
                 counter += 1
                 note.position_backward = counter
 
-    def _fill_e20_e21_e59_e60(self):
+    def _fill_e20_e21_100ns(self):
         """
         「フレーズ内での位置(100ms単位での表記) (e20, e21)」の項を埋める。
 
@@ -740,40 +818,80 @@ class Song(UserList):
         「フレーズ内での位置(パーセント表記) (e24, e25)」の項を埋める。
         e18, e19, length_100ns のデータがある前提で実行する。
         """
-        # フレーズの全体の長さ(96分音符単位)
-        length_of_phrase = 0
+        # フレーズの全体の長さ
+        phrase_length_100ns = 0
         counter_100ns = 0
         for note in self.all_notes:
             if note.position == 'xx':
-                length_of_phrase = 0
+                phrase_length_100ns = 0
                 counter_100ns = 0
                 note.contexts[23] = 'xx'
             elif note.position == 1:
-                length_of_phrase = note.position_100ns_backward
-                note.contexts[23] = round(100 * counter_100ns / length_of_phrase)
+                phrase_length_100ns = note.position_100ns_backward
+                note.contexts[23] = round(100 * counter_100ns / phrase_length_100ns)
                 counter_100ns += note.length_100ns
             else:
-                note.contexts[23] = round(100 * counter_100ns / length_of_phrase)
+                note.contexts[23] = round(100 * counter_100ns / phrase_length_100ns)
                 counter_100ns += note.length_100ns
 
-        # フレーズの全体の長さ(96分音符単位)
-        length_of_phrase = 0
+        # フレーズの全体の長さ
+        phrase_length_100ns = 0
         counter_100ns = 0
         for note in reversed(self.all_notes):
             # 休符のときは 'xx'
             if note.position_backward == 'xx':
-                length_of_phrase = 0
+                phrase_length = 0
                 counter_100ns = 0
                 note.contexts[24] = 'xx'
             # フレーズ中で最後のノートのときは時間をリセットして、累積時間を増やす。
             elif note.position_backward == 1:
-                length_of_phrase = note.position_100ns + note.length_100ns
+                phrase_length = note.position_100ns + note.length_100ns
                 counter_100ns = note.length_100ns
-                note.contexts[24] = round(100 * counter_100ns / length_of_phrase)
+                note.contexts[24] = round(100 * counter_100ns / phrase_length)
             # 休符でもなくて最後のノートでもないときは普通に登録して、累積時間を増やす。
             else:
                 counter_100ns += note.length_100ns
-                note.contexts[24] = round(100 * counter_100ns / length_of_phrase)
+                note.contexts[24] = round(100 * counter_100ns / phrase_length)
+
+    def _fill_e57_e58(self):
+        """
+        「前後のノートとの音高差 (e57, e58)」の項を埋める。
+        e1がある前提で実行する。
+        休符が入ると死ぬw
+        """
+        notes = self.all_notes
+        # e57を埋める
+        for i, note in enumerate(notes[1:], 1):
+            previous_note = notes[i - 1]
+            previous_abspitch = previous_note.absolute_pitch
+            current_abspitch = note.absolute_pitch
+            # 直前のノートまたは今のノートが休符のときはスキップ
+            if 'xx' in (previous_abspitch, current_abspitch):
+                note.contexts[56] = 'xx'
+                continue
+            # 直前のノートも今のノートも音符のとき
+            previous_notenum = ABSPITCH_TO_NOTENUM[previous_abspitch]
+            current_notenum = ABSPITCH_TO_NOTENUM[current_abspitch]
+            pitch_difference = previous_notenum - current_notenum
+            note.contexts[56] = \
+                f'p{pitch_difference}' if pitch_difference >= 0 else f'm{pitch_difference}'
+
+        # e58 を埋める
+        # 処理内容を比較しやすいようにprevious_noteにしているが、実際はnext_note
+        for i, note in enumerate(reversed(notes[:-1]), 1):
+            previous_note = notes[i - 1]
+            previous_abspitch = previous_note.absolute_pitch
+            current_abspitch = note.absolute_pitch
+            # 直後のノートまたは今のノートが休符のときはスキップ
+            if 'xx' in (previous_abspitch, current_abspitch):
+                note.contexts[57] = 'xx'
+                continue
+            # 直前のノートも今のノートも音符のとき
+            previous_notenum = ABSPITCH_TO_NOTENUM[previous_abspitch]
+            current_notenum = ABSPITCH_TO_NOTENUM[current_abspitch]
+            pitch_difference = previous_notenum - current_notenum
+            note.contexts[57] = \
+                f'p{pitch_difference}' if pitch_difference >= 0 else f'm{pitch_difference}'
 
 
 class Phrase(UserList):
@@ -832,9 +950,44 @@ class Note(UserList):
     def __init__(self, init=None):
         super().__init__(init)
         self.contexts = ['xx'] * 60
-        self.length_100ns: int = None
         self.position_100ns: int = None
         self.position_100ns_backward: int = None
+
+    @property
+    def absolute_pitch(self):
+        """
+        ノートの絶対音高 (C0-G9) (e1)
+        # TODO: 番号でもsetできるようにする。
+        """
+        return self.contexts[0]
+
+    @absolute_pitch.setter
+    def absolute_pitch(
+            self, absolute_pitch: str = None, notenum: int = None):
+        """
+        absolute_pitch: C0-G9 のような表記
+        notenum: MIDIなどの note number による表記(C-1:0 ~ G9:127)
+        """
+        # どちらか片方は必須だし、
+        # 片方しか利用できませんよというやつ
+        assert not (absolute_pitch is None) == (notenum is None)
+        if absolute_pitch is not None:
+            self.contexts[0] = absolute_pitch
+        else:
+            self.contexts[0] = notenum_to_abspitch(notenum)
+
+    @property
+    def notenum(self):
+        """
+        音高をノート番号で取得する
+        ラベルファイルには記録されないが、
+        C4のような表記でe1に記録される。
+        """
+        return abspitch_to_notenum(self.absolute_pitch)
+
+    @notenum.setter
+    def notenum(self, notenum):
+        self.absolute_pitch = notenum_to_abspitch(notenum)
 
     @property
     def tempo(self):
@@ -881,6 +1034,16 @@ class Note(UserList):
     @length.setter
     def length(self, length: int):
         self.contexts[7] = length
+
+    @property
+    def length_100ns(self):
+        """
+        ノート長(ラベル出力なし)
+        100ns単位の整数で計算
+        """
+        if 'xx' in (self.tempo, self.length):
+            return 'xx'
+        return round(25000000 * int(self.length) / int(self.tempo))
 
     @property
     def position(self):
@@ -932,6 +1095,7 @@ class Note(UserList):
     def is_pau(self):
         """
         休符かどうかを返す
+        ノート内の最初の音素が休符かどうかで判断する
         """
         return self[0][0].is_pau()
 
