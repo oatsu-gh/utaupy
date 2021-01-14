@@ -432,6 +432,17 @@ class Note(UserDict):
     def velocity(self, x: int):
         self['Velocity'] = int(x)
 
+    @property
+    def flags(self) -> str:
+        """
+        フラグ
+        """
+        return self.get('Flags', '')
+
+    @flags.setter
+    def flags(self, flags: str):
+        self['Flags'] = str(flags)
+
     # ここからデータ操作系-----------------------------------------------------
     def get_by_key(self, key):
         """
