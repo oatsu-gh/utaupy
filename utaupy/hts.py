@@ -16,7 +16,7 @@ from itertools import chain
 
 # p1を埋めるのに使う。
 VOWELS = ('a', 'i', 'u', 'e', 'o', 'A', 'I', 'U', 'E', 'O', 'N', 'ae', 'AE')
-BREAKS = ('br')
+BREAKS = ('br', 'cl')
 PAUSES = ('pau', 'sil')
 
 # e1を埋めるのに使う
@@ -127,13 +127,15 @@ class HTSFullLabel(UserList):
         """
         if isinstance(source, str):
             self._load_from_path(source, encoding=encoding)
+            self.generate_songobj()
         elif isinstance(source, Song):
             self._load_from_songobj(source)
+            self.fill_contexts_from_songobj()
         elif isinstance(source, list):
             self._load_from_lines(source)
+            self.generate_songobj()
         else:
             raise TypeError(f'Type of the argument "source" must be str, list or {Song}.')
-        self.generate_songobj()
         return self
 
     def _load_from_path(self, path, encoding: str = 'utf-8'):
@@ -203,21 +205,22 @@ class HTSFullLabel(UserList):
             for i_s, syllable in enumerate(syllables[1:-1], 1):
                 for phoneme in syllable:
                     ol = OneLine()
+                    # ノート情報を登録
+                    ol.previous_note = notes[i_n - 1]
+                    ol.note = note
+                    ol.next_note = notes[i_n + 1]
+                    # 音節情報を登録
+                    ol.previous_syllable = syllables[i_s - 1]
+                    ol.syllable = syllable
+                    ol.next_syllable = syllables[i_s + 1]
                     # 音素情報を登録(現在の音素のみ)
                     ol.phoneme = phoneme
-                    # 音節情報を登録
-                    ol.syllable = syllable
-                    ol.previous_syllable = syllables[i_s - 1]
-                    ol.next_syllable = syllables[i_s + 1]
-                    # ノート情報を登録
-                    ol.note = note
-                    ol.previous_note = notes[i_n - 1]
-                    ol.next_note = notes[i_n + 1]
                     # 楽曲情報を登録
                     ol.song = song
                     # print(list(map(id, [song, note, syllable, phoneme])))
                     onelines.append(ol)
         self.data = onelines
+        self.fill_phonemes()
         return self
 
     def fill_phonemes(self):
@@ -301,7 +304,7 @@ class OneLine:
             '/C:{}+{}+{}@{}&{}'.format(*self.c),
             # Note 関連
             '/D:{}!{}#{}${}%{}|{}&{};{}-{}'.format(*self.d),
-            'E:{}]{}ˆ{}={}∼{}!{}@{}#{}+{}]{}${}|{}[{}&{}]{}={}ˆ{}∼{}#{}_{};{}${}&{}%{}[{}|{}]{}-{}ˆ{}+{}∼{}={}@{}${}!{}%{}#{}|{}|{}-{}&{}&{}+{}[{};{}]{};{}∼{}∼{}ˆ{}ˆ{}@{}[{}#{}={}!{}∼{}+{}!{}ˆ{}' \
+            '/E:{}]{}ˆ{}={}∼{}!{}@{}#{}+{}]{}${}|{}[{}&{}]{}={}ˆ{}∼{}#{}_{};{}${}&{}%{}[{}|{}]{}-{}ˆ{}+{}∼{}={}@{}${}!{}%{}#{}|{}|{}-{}&{}&{}+{}[{};{}]{};{}∼{}∼{}ˆ{}ˆ{}@{}[{}#{}={}!{}∼{}+{}!{}ˆ{}' \
             .format(*self.e),
             '/F:{}#{}#{}-{}${}${}+{}%{};{}'.format(*self.f),
             # Phrase 関連
@@ -544,7 +547,8 @@ class Song(UserList):
     def number_of_phrases(self, number: int):
         self.contexts[2] = number
 
-    def write(self, path, mode='w', encoding='utf-8', strict_sinsy_style: bool = True) -> str:
+    def write(self, path, mode='w', encoding='utf-8', strict_sinsy_style: bool = True
+              ) -> HTSFullLabel:
         """
         ファイル出力する。
         HTSFullLabelからではなく、USTなどからSongが直接生成されている場合に対応する。
@@ -552,12 +556,12 @@ class Song(UserList):
         full_label = HTSFullLabel()
         full_label.song = self
         full_label.fill_contexts_from_songobj()
-        str_full_label = full_label.write(
+        full_label.write(
             path, mode=mode, encoding=encoding, strict_sinsy_style=strict_sinsy_style
         )
-        return str_full_label
+        return full_label
 
-    def reload_time(self):
+    def reset_time(self):
         """
         ノート長をもとに、Sinsyの出力と同じになるように、
         Phonemeオブジェクトのstartとendを計算して登録する。
@@ -568,20 +572,21 @@ class Song(UserList):
         t_start = 0
         t_end = 0
         for note in self.all_notes:
-            t_end += note.length_100ns
             phonemes_in_note = tuple(chain.from_iterable(note))
+            t_end += note.length_100ns
             for phoneme in phonemes_in_note:
-                phoneme.start = t_start
-                phoneme.end = t_end
+                phoneme.start = round(t_start)
+                phoneme.end = round(t_end)
             t_start = t_end
 
     def autofill(self):
         """
         自動補完可能なものをすべて自動補完する。
         """
-        self._fill_note_contexts()
-        self._fill_syllable_contexts()
+        # この順でやらないと、p1が未設定の状態で Note.is_pau() をやってしまう
         self._fill_phoneme_contexts()
+        self._fill_syllable_contexts()
+        self._fill_note_contexts()
 
     def _fill_phoneme_contexts(self, vowels=VOWELS, pauses=PAUSES, breaks=BREAKS):
         """
@@ -620,33 +625,36 @@ class Song(UserList):
         """
         p14 と p15 (母音からの距離) を補完する。
         """
-        distance_forward = None
-        distance_backward = None
+        # p14
         for syllable in self.all_syllables:
-            # p14
+            distance = None
             for phoneme in syllable:
                 if phoneme.is_vowel():
-                    distance_forward = 1
+                    phoneme.distance_from_previous_vowel = 'xx'
+                    distance = 1
+                elif distance is None:
                     continue
-                if distance_forward is None:
-                    continue
-                if phoneme.is_consonant():
-                    phoneme.distance_from_previous_vowel = distance_forward
-                    distance_forward += 1
+                elif phoneme.is_consonant():
+                    phoneme.distance_from_previous_vowel = distance
+                    distance += 1
+                # 母音でも子音でもない場合(clとか)
                 else:
-                    distance_forward += 1
-            # p15
+                    distance += 1
+        # p15
+        for syllable in self.all_syllables:
+            distance = None
             for phoneme in reversed(syllable):
                 if phoneme.is_vowel():
-                    distance_backward = 1
+                    phoneme.distance_to_next_vowel = 'xx'
+                    distance = 1
+                elif distance is None:
                     continue
-                if distance_backward is None:
-                    continue
-                if phoneme.is_consonant():
-                    phoneme.distance_from_previous_vowel = distance_backward
-                    distance_backward += 1
+                elif phoneme.is_consonant():
+                    phoneme.distance_to_next_vowel = distance
+                    distance += 1
+                # 母音でも子音でもない場合(clとか)
                 else:
-                    distance_backward += 1
+                    distance += 1
 
     def _fill_syllable_contexts(self):
         """
@@ -667,6 +675,7 @@ class Song(UserList):
         e を補完する。
 
         必要なデータ:
+            - e1: 絶対音高
             - e5: テンポ
             - e8: ノート長(96分音符)
         補完するデータ:
@@ -676,18 +685,18 @@ class Song(UserList):
                 - e20, e21: フレーズ内での位置(100ms)
                 - e22, e23: フレーズ内での位置(96分音符)
                 - e24, e25: フレーズ内での位置(パーセント)
-            - Note.length_100ns
             - Note.position_100ns
             - Note.position_100ns_backward
+            - e57-e58: 前後のノートとの音高差
         """
         # e6, e7 を埋める。
         for note in self.all_notes:
             # e6 (ノート内音節数) を埋める
-            note.number_of_syllables = len(self)
+            note.number_of_syllables = len(note)
             # e8 の情報をもとに e7 を埋める。テンポ情報(e5)がないと困る。
             # 100ns単位での長さも登録する。
             if note.tempo != 'xx' and note.length != 'xx':
-                note.length_10ms = note.length_100ns // 100000
+                note.length_10ms = round(note.length_100ns / 100000)
 
         # フレーズ内で何番目のノートかを埋める
         self._fill_e18_e19()
@@ -698,6 +707,8 @@ class Song(UserList):
         self._fill_e20_e21_100ns()
         # フレーズ内での パーセント表記での位置を埋める。e18, e19, 100ns位置が必要
         self._fill_e24_e25()
+        # 音高の前後変化を埋める
+        self._fill_e57_e58()
 
     def _fill_e18_e19(self):
         """
@@ -866,7 +877,7 @@ class Song(UserList):
             previous_abspitch = previous_note.absolute_pitch
             current_abspitch = note.absolute_pitch
             # 直前のノートまたは今のノートが休符のときはスキップ
-            if 'xx' in (previous_abspitch, current_abspitch):
+            if (previous_note.is_pau() or note.is_pau()):
                 note.contexts[56] = 'xx'
                 continue
             # 直前のノートも今のノートも音符のとき
@@ -874,16 +885,16 @@ class Song(UserList):
             current_notenum = abspitch_to_notenum(current_abspitch)
             pitch_difference = previous_notenum - current_notenum
             note.contexts[56] = \
-                f'p{pitch_difference}' if pitch_difference >= 0 else f'm{pitch_difference}'
+                f'{"p" if pitch_difference >= 0 else "m"}{abs(pitch_difference)}'
 
         # e58 を埋める
         # 処理内容を比較しやすいようにprevious_noteにしているが、実際はnext_note
         for i, note in enumerate(reversed(notes[:-1]), 1):
-            previous_note = notes[i - 1]
+            previous_note = notes[-i]
             previous_abspitch = previous_note.absolute_pitch
             current_abspitch = note.absolute_pitch
             # 直後のノートまたは今のノートが休符のときはスキップ
-            if 'xx' in (previous_abspitch, current_abspitch):
+            if (previous_note.is_pau() or note.is_pau()):
                 note.contexts[57] = 'xx'
                 continue
             # 直前のノートも今のノートも音符のとき
@@ -891,7 +902,7 @@ class Song(UserList):
             current_notenum = abspitch_to_notenum(current_abspitch)
             pitch_difference = previous_notenum - current_notenum
             note.contexts[57] = \
-                f'p{pitch_difference}' if pitch_difference >= 0 else f'm{pitch_difference}'
+                f'{"p" if pitch_difference >= 0 else "m"}{abs(pitch_difference)}'
 
 
 class Phrase(UserList):
@@ -977,6 +988,40 @@ class Note(UserList):
             self.contexts[0] = notenum_to_abspitch(notenum)
 
     @property
+    def relative_pitch(self) -> int:
+        """
+        ノートの相対音高(p2)
+        """
+        return self.contexts[1]
+
+    @relative_pitch.setter
+    def relative_pitch(self, relative_pitch: int):
+        self.contexts[1] = relative_pitch
+
+    @property
+    def key(self):
+        """
+        ノートのキー(p3)
+        """
+        return self.contexts[2]
+
+    @key.setter
+    def key(self, key: int):
+        self.contexts[2] = key
+
+    @property
+    def beat(self):
+        """
+        拍子情報(p4)
+        3/4 とか 4/4 とか 6/8 とか
+        """
+        return self.contexts[3]
+
+    @beat.setter
+    def beat(self, beat: str):
+        self.contexts[3] = str(beat)
+
+    @property
     def notenum(self):
         """
         音高をノート番号で取得する
@@ -1043,7 +1088,7 @@ class Note(UserList):
         """
         if 'xx' in (self.tempo, self.length):
             return 'xx'
-        return round(25000000 * int(self.length) / int(self.tempo))
+        return float(25000000 * int(self.length) / int(self.tempo))
 
     @property
     def position(self):
@@ -1243,3 +1288,18 @@ def adjust_pau_contexts(full_label: HTSFullLabel, strict: bool = True) -> HTSFul
                 ol.e[0:3] = ['xx'] * 3
 
     return new_label
+
+
+def main():
+    """
+    直接実行された時にやるやつ
+    """
+    path_hts_in = input('path_hts_in: ')
+    label = load(path_hts_in)
+    label.song.autofill()
+    label.song.reset_time()
+    path_hts_out = path_hts_in.replace('.lab', '_utaupy.lab')
+    label.write(path_hts_out)
+
+if __name__ == '__main__':
+    main()
