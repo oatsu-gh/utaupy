@@ -587,6 +587,7 @@ class Song(UserList):
         self._fill_phoneme_contexts()
         self._fill_syllable_contexts()
         self._fill_note_contexts()
+        self._fill_song_contexts()
 
     def _fill_phoneme_contexts(self, vowels=VOWELS, pauses=PAUSES, breaks=BREAKS):
         """
@@ -903,6 +904,31 @@ class Song(UserList):
             pitch_difference = previous_notenum - current_notenum
             note.contexts[57] = \
                 f'{"p" if pitch_difference >= 0 else "m"}{abs(pitch_difference)}'
+
+    def _fill_song_contexts(self):
+        """
+        Songオブジェクトのコンテキストを自動補完する。
+        """
+        self.fill_j3()
+
+    def fill_j3(self):
+        """
+        Songオブジェクト内のフレーズ数(j3) の項を埋める。
+        """
+        notes = self.all_notes
+        previous_note_is_pau = notes[0].is_pau()
+
+        counter = 0
+        # 最初が音符だった時はフレーズ数1からスタート
+        if not previous_note_is_pau:
+            counter = +1
+        # 休符→音符 の並びの回数を検出する。
+        for note in notes[1:]:
+            current_note_is_pau = note.is_pau()
+            if previous_note_is_pau and not current_note_is_pau:
+                counter += 1
+            previous_note_is_pau = current_note_is_pau
+        self.number_of_phrases = counter
 
 
 class Phrase(UserList):
@@ -1300,6 +1326,7 @@ def main():
     label.song.reset_time()
     path_hts_out = path_hts_in.replace('.lab', '_utaupy.lab')
     label.write(path_hts_out)
+
 
 if __name__ == '__main__':
     main()
