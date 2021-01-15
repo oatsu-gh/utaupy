@@ -254,28 +254,6 @@ ust.reload_tempo()
 
 ```
 
-#### _get\_by\_key_
-
-任意のパラメータを取得する。存在しない場合 KeyError になる。
-
-Get the parameter of note, by key you like. This may raise KeyError.
-
-```Python
-get_by_key('Modulation')  # '0'
-get_by_key('Lyric')  # 'a か'
-get_by_key('Tag')  # '[#0000]'
-```
-
-#### *set\_by\_key*
-
-任意のパラメータを新規登録または上書きする。
-
-```Python
-print(get_by_key('Modulation'))  # KeyError
-note.set_by_key('Modulation', 0)
-print(get_by_key('Modulation'))  # '0'
-```
-
 
 #### _delete_
 
