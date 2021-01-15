@@ -1170,6 +1170,13 @@ class Note(UserList):
     def position_100ms_backward(self, position_backward: int):
         self.contexts[20] = position_backward
 
+    @property
+    def phonemes(self) -> list:
+        """
+        Note内のすべてのPhonemeオブジェクトを並べたリストを返す。
+        """
+        return list(chain.from_iterable(self))
+
     def is_pau(self):
         """
         休符かどうかを返す
