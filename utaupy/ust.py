@@ -52,7 +52,7 @@ class Ust:
         super().__init__()
         # ノート(クラスオブジェクト)からなるリスト
         self.version = None   # [#VERSION]
-        self.setting = None   # [#SETTING]
+        self.setting = Note(tag='[#SETTING]')   # [#SETTING]
         self.notes: List[Note] = []       # [#1234], [#INSERT], [#DELETE]
         self.trackend = None  # [#TRACKEND]
         self.next_note = None      # [#NEXT]
@@ -62,7 +62,7 @@ class Ust:
         # self.notesが増減するので複製したものを扱う
         duplicated_self = deepcopy(self)
         # 特殊ノートを処理
-        if self.setting is not None:
+        if len(self.setting) >= 2:
             duplicated_self.notes.insert(0, self.setting)
         if self.previous_note is not None:
             duplicated_self.notes.insert(0, self.previous_note)
