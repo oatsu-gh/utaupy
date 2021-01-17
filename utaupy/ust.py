@@ -443,6 +443,18 @@ class Note(UserDict):
     def flags(self, flags: str):
         self['Flags'] = str(flags)
 
+    @property
+    def label(self) -> str:
+        """
+        ノートのラベル
+        UTAUエディタのピアノロール画面で、ローカルテンポの上に表示されるやつ
+        """
+        return self.get('Label', '')
+
+    @label.setter
+    def label(self, label: str):
+        self['Label'] = str(label)
+
     # ここからデータ操作系-----------------------------------------------------
     def get_by_key(self, key):
         """
