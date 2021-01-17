@@ -118,16 +118,19 @@ class Label(UserList):
             phoneme.end = self[i + 1].start
 
     def write(self, path_out, mode='w',
-              encoding='utf-8', newline='\n', delimiter=' ', kiritan=False):
+              encoding='utf-8', newline='\n', delimiter=' ', time_unit='100ns'):
         """
         LABファイルを書き出し
         """
-        if kiritan:
-            lines = ['{:.7f} {:.7f} {}'.format(ph.start, ph.end, ph.symbol)
-                     for ph in self]  # 100ns -> 1s 表記変換
-        else:
+        if time_unit == '100ns':
             lines = ['{0}{3}{1}{3}{2}'.format(
                 ph.start, ph.end, ph.symbol, delimiter) for ph in self]
+        elif time_unit in ('s', '1s', 'sec'):
+            lines = ['{:.7f} {:.7f} {}'.format(
+                ph.start, ph.end, ph.symbol) for ph in self]  # 100ns -> 1s 表記変換
+        else:
+            raise ValueError("Argument time_unit must be '100ns' or 's'.")
+
         # ファイル出力
         with open(path_out, mode=mode, encoding=encoding, newline=newline) as f:
             f.write('\n'.join(lines))
@@ -146,6 +149,13 @@ class Phoneme:
 
     def __str__(self):
         return f'{self.start} {self.end} {self.symbol}'
+
+    @property
+    def duration(self) -> int:
+        """
+        発声時間
+        """
+        return self.end - self.start
 
 
 if __name__ == '__main__':
