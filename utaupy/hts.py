@@ -18,7 +18,7 @@ from itertools import chain
 # p1を埋めるのに使う。
 VOWELS = ('a', 'i', 'u', 'e', 'o', 'A', 'I', 'U', 'E', 'O', 'N', 'ae', 'AE')
 BREAKS = ('br', 'cl')
-PAUSES = ('pau', 'sil')
+RESTS = ('pau', 'sil')
 
 # e1を埋めるのに使う
 NOTENUM_TO_ABSPITCH_DICT = {
@@ -105,7 +105,8 @@ class HTSFullLabel(UserList):
         super().__init__(init)
         self.song = Song()
 
-    def write(self, path, mode='w', encoding='utf-8', strict_sinsy_style: bool = True) -> str:
+    def write(self, path, label_type='full', strict_sinsy_style: bool = True,
+              mode='w', encoding='utf-8') -> str:
         """
         ファイル出力する
         strict_sinsy_style: bool:
@@ -113,10 +114,18 @@ class HTSFullLabel(UserList):
             Trueのときは d, f における休符の長さ情報が削除されて 'xx' になる。
             Falseのときは d, f における休符の長さ情報が維持される。
         """
-        # 休符周辺の仕様をSinsyに近づける。
-        new_label = adjust_pau_contexts(self, strict=strict_sinsy_style)
-        # 文字列にする
-        s = '\n'.join(list(map(str, new_label)))
+        # モノラベルとして出力
+        if label_type == 'mono':
+            s = '\n'.join([f'{ol.start} {ol.end} {ol.phoneme.identity}' for ol in self])
+        # フルラベルとして出力
+        elif label_type == 'full':
+            # 休符周辺の仕様をSinsyに近づける。
+            new_label = adjust_pau_contexts(self, strict=strict_sinsy_style)
+            # 文字列にする
+            s = '\n'.join(list(map(str, new_label)))
+        # label_type が非対応の値だった時はエラー
+        else:
+            raise ValueError("Argument label_type must be 'full' or 'mono'.")
         # ファイル出力
         with open(path, mode=mode, encoding=encoding) as f:
             f.write(s)
@@ -548,8 +557,8 @@ class Song(UserList):
     def number_of_phrases(self, number: int):
         self.contexts[2] = number
 
-    def write(self, path, mode='w', encoding='utf-8', strict_sinsy_style: bool = True
-              ) -> HTSFullLabel:
+    def write(self, path, label_type='full', strict_sinsy_style: bool = True,
+              mode='w', encoding='utf-8') -> HTSFullLabel:
         """
         ファイル出力する。
         HTSFullLabelからではなく、USTなどからSongが直接生成されている場合に対応する。
@@ -558,7 +567,8 @@ class Song(UserList):
         full_label.song = self
         full_label.fill_contexts_from_songobj()
         full_label.write(
-            path, mode=mode, encoding=encoding, strict_sinsy_style=strict_sinsy_style
+            path, label_type=label_type, strict_sinsy_style=strict_sinsy_style,
+            mode=mode, encoding=encoding
         )
         return full_label
 
@@ -584,13 +594,13 @@ class Song(UserList):
         """
         自動補完可能なものをすべて自動補完する。
         """
-        # この順でやらないと、p1が未設定の状態で Note.is_pau() をやってしまう
+        # この順でやらないと、p1が未設定の状態で Note.is_rest() をやってしまう
         self._fill_phoneme_contexts()
         self._fill_syllable_contexts()
         self._fill_note_contexts()
         self._fill_song_contexts()
 
-    def _fill_phoneme_contexts(self, vowels=VOWELS, pauses=PAUSES, breaks=BREAKS):
+    def _fill_phoneme_contexts(self, vowels=VOWELS, rests=RESTS, breaks=BREAKS):
         """
         p1, p12, p13, p14, p15 を補完する。
         """
@@ -601,7 +611,7 @@ class Song(UserList):
                 phoneme.language_independent_identity = 'xx'
             elif phoneme_identity in vowels:
                 phoneme.language_independent_identity = 'v'
-            elif phoneme_identity in pauses:
+            elif phoneme_identity in rests:
                 phoneme.language_independent_identity = 'p'
             elif phoneme_identity in breaks:
                 phoneme.language_independent_identity = 'b'
@@ -722,7 +732,7 @@ class Song(UserList):
         # 直前の休符からの距離を数える
         for note in self.all_notes:
             # 休符のときは距離をリセット
-            if note.is_pau():
+            if note.is_rest():
                 note.position = 'xx'
                 counter = 0
             # 休符ではないけれど休符位置が分からないときは未登録のまま
@@ -734,7 +744,7 @@ class Song(UserList):
                 note.position = counter
         # 次の休符までの距離を登録する。
         for note in reversed(self.all_notes):
-            if note.is_pau():
+            if note.is_rest():
                 note.position_backward = 'xx'
                 counter = 0
             elif counter == 'xx':
@@ -887,7 +897,7 @@ class Song(UserList):
             previous_abspitch = previous_note.absolute_pitch
             current_abspitch = note.absolute_pitch
             # 直前のノートまたは今のノートが休符のときはスキップ
-            if (previous_note.is_pau() or note.is_pau()):
+            if (previous_note.is_rest() or note.is_rest()):
                 note.contexts[56] = 'xx'
                 continue
             # 直前のノートも今のノートも音符のとき
@@ -903,7 +913,7 @@ class Song(UserList):
             previous_abspitch = previous_note.absolute_pitch
             current_abspitch = note.absolute_pitch
             # 直後のノートまたは今のノートが休符のときはスキップ
-            if (previous_note.is_pau() or note.is_pau()):
+            if (previous_note.is_rest() or note.is_rest()):
                 note.contexts[57] = 'xx'
                 continue
             # 直前のノートも今のノートも音符のとき
@@ -923,18 +933,18 @@ class Song(UserList):
         Songオブジェクト内のフレーズ数(j3) の項を埋める。
         """
         notes = self.all_notes
-        previous_note_is_pau = notes[0].is_pau()
+        previous_note_is_rest = notes[0].is_rest()
 
         counter = 0
         # 最初が音符だった時はフレーズ数1からスタート
-        if not previous_note_is_pau:
+        if not previous_note_is_rest:
             counter = +1
         # 休符→音符 の並びの回数を検出する。
         for note in notes[1:]:
-            current_note_is_pau = note.is_pau()
-            if previous_note_is_pau and not current_note_is_pau:
+            current_note_is_rest = note.is_rest()
+            if previous_note_is_rest and not current_note_is_rest:
                 counter += 1
-            previous_note_is_pau = current_note_is_pau
+            previous_note_is_rest = current_note_is_rest
         self.number_of_phrases = counter
 
 
@@ -1177,12 +1187,19 @@ class Note(UserList):
         """
         return list(chain.from_iterable(self))
 
-    def is_pau(self):
+    def is_rest(self):
         """
         休符かどうかを返す
         ノート内の最初の音素が休符かどうかで判断する
         """
-        return self[0][0].is_pau()
+        return self[0][0].is_rest()
+
+    def is_pau(self):
+        """
+        後方互換のために残している。
+        'is_pau()' is now 'is_rest()'
+        """
+        return self.is_rest()
 
 
 class Syllable(UserList):
@@ -1278,11 +1295,18 @@ class Phoneme:
         """
         return self.language_independent_identity == 'c'
 
-    def is_pau(self):
+    def is_rest(self):
         """
         休符かどうか
         """
         return self.language_independent_identity == 'p'
+
+    def is_pau(self):
+        """
+        後方互換のために残した。
+        'is_pau' is now 'is_rest'
+        """
+        return self.is_rest()
 
     def is_break(self):
         """
@@ -1304,18 +1328,18 @@ def adjust_pau_contexts(full_label: HTSFullLabel, strict: bool = True) -> HTSFul
         for ol in new_label[1:]:
             if ol.previous_syllable[0].identity in ('pau', 'sil'):
                 ol.a[0:3] = ['xx'] * 3
-            if ol.previous_note.is_pau():
+            if ol.previous_note.is_rest():
                 ol.d[0:3] = ['xx'] * 3
                 ol.d[3:8] = ['xx'] * 5
         # 現在の音節とノートに関する処理
         for ol in new_label:
-            if ol.note.is_pau():
+            if ol.note.is_rest():
                 ol.e[0:2] = ['xx'] * 2
         # 次の音節とノートに関する処理
         for ol in new_label[:-1]:
             if ol.next_syllable[0].identity in ('pau', 'sil'):
                 ol.c[0:3] = ['xx'] * 3
-            if ol.next_note.is_pau():
+            if ol.next_note.is_rest():
                 ol.f[0:3] = ['xx'] * 3
                 ol.f[3:8] = ['xx'] * 5
 
@@ -1323,7 +1347,7 @@ def adjust_pau_contexts(full_label: HTSFullLabel, strict: bool = True) -> HTSFul
     else:
         new_label = deepcopy(full_label)
         for ol in new_label:
-            if ol.note.is_pau():
+            if ol.note.is_rest():
                 ol.b[0:3] = ['xx'] * 3
                 ol.e[0:3] = ['xx'] * 3
 
