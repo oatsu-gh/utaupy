@@ -105,7 +105,7 @@ class HTSFullLabel(UserList):
         super().__init__(init)
         self.song = Song()
 
-    def write(self, path, label_type='full', strict_sinsy_style: bool = True,
+    def write(self, path, strict_sinsy_style: bool = True, label_type='full',
               mode='w', encoding='utf-8') -> str:
         """
         ファイル出力する
@@ -257,20 +257,29 @@ class HTSFullLabel(UserList):
         song.data = []
         note = Note()
         syllable = Syllable()
+
         for ol in self:
             phoneme = ol.phoneme
             # すでに入っている音節や音素を取り除く。取り除かないと数が倍になる。
             ol.note.data = []
             ol.syllable.data = []
-            # 処理する行が「ノート内で1番最初の音節」かつ
-            # 「音節内でいちばん最初の音素」のとき、ノートを切り替える。
-            if str(ol.syllable.position) == '1' and str(phoneme.position) == '1':
+            # 休符のときは無条件でノートと音節を切り替える。
+            if ol.phoneme.is_rest():
                 note = ol.note
                 song.append(note)
-            # 処理する行が「音節内で1番最初の音素」なとき、音節を切り替える。
-            if str(phoneme.position) == '1':
                 syllable = ol.syllable
                 note.append(syllable)
+            # 休符以外のとき
+            else:
+                # 処理する行が「ノート内で1番最初の音節」かつ
+                # 「音節内でいちばん最初の音素」のとき、ノートを切り替える。
+                if str(ol.syllable.position) == '1' and str(phoneme.position) == '1':
+                    note = ol.note
+                    song.append(note)
+                # 処理する行が「音節内で1番最初の音素」なとき、音節を切り替える。
+                if str(phoneme.position) == '1':
+                    syllable = ol.syllable
+                    note.append(syllable)
             syllable.append(phoneme)
 
         song.autofill()
@@ -1363,7 +1372,7 @@ def main():
     label.song.autofill()
     label.song.reset_time()
     path_hts_out = path_hts_in.replace('.lab', '_utaupy.lab')
-    label.write(path_hts_out)
+    label.write(path_hts_out, strict_sinsy_style=True)
 
 
 if __name__ == '__main__':
