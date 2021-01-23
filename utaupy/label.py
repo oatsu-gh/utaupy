@@ -117,6 +117,14 @@ class Label(UserList):
         for i, phoneme in enumerate(self[:-1]):
             phoneme.end = self[i + 1].start
 
+    def round(self, step_size: int):
+        """
+        時刻を丸める。
+        """
+        for phoneme in self:
+            phoneme.start = round(phoneme.start / step_size) * step_size
+            phoneme.end = round(phoneme.end / step_size) * step_size
+
     def write(self, path_out, mode='w',
               encoding='utf-8', newline='\n', delimiter=' ', time_unit='100ns'):
         """
