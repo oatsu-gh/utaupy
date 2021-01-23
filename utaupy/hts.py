@@ -18,7 +18,8 @@ from itertools import chain
 # p1を埋めるのに使う。
 VOWELS = ('a', 'i', 'u', 'e', 'o', 'A', 'I', 'U', 'E', 'O', 'N', 'ae', 'AE')
 BREAKS = ('br', 'cl')
-RESTS = ('pau', 'sil')
+PAUSES = ('pau')
+SILENCES = ('sil')
 
 # e1を埋めるのに使う
 NOTENUM_TO_ABSPITCH_DICT = {
@@ -609,7 +610,7 @@ class Song(UserList):
         self._fill_note_contexts()
         self._fill_song_contexts()
 
-    def _fill_phoneme_contexts(self, vowels=VOWELS, rests=RESTS, breaks=BREAKS):
+    def _fill_phoneme_contexts(self, vowels=VOWELS, pauses=PAUSES, silences=SILENCES,breaks=BREAKS):
         """
         p1, p12, p13, p14, p15 を補完する。
         """
@@ -620,8 +621,10 @@ class Song(UserList):
                 phoneme.language_independent_identity = 'xx'
             elif phoneme_identity in vowels:
                 phoneme.language_independent_identity = 'v'
-            elif phoneme_identity in rests:
+            elif phoneme_identity in pauses:
                 phoneme.language_independent_identity = 'p'
+            elif phoneme_identity in silences:
+                phoneme.language_independent_identity = 's'
             elif phoneme_identity in breaks:
                 phoneme.language_independent_identity = 'b'
             else:
@@ -738,26 +741,28 @@ class Song(UserList):
         Phraseの扱いは難しいので、「休符からの距離」を代わりに用いる。
         """
         counter = 'xx'
+        notes = self.all_notes
+
+        # 最初のノートが休符でなくても動作するようにする。
+        counter = 0
         # 直前の休符からの距離を数える
-        for note in self.all_notes:
+        for note in notes:
             # 休符のときは距離をリセット
             if note.is_rest():
-                note.position = 'xx'
                 counter = 0
-            # 休符ではないけれど休符位置が分からないときは未登録のまま
-            elif counter == 'xx':
-                continue
+                note.position = 'xx'
             # 休符ではなく、休符位置が分かっているときは登録
             else:
                 counter += 1
                 note.position = counter
+
+        # 最後のノートが休符でなくても動作するようにする。
+        counter = 0
         # 次の休符までの距離を登録する。
-        for note in reversed(self.all_notes):
+        for note in reversed(notes):
             if note.is_rest():
-                note.position_backward = 'xx'
                 counter = 0
-            elif counter == 'xx':
-                continue
+                note.position_backward = 'xx'
             else:
                 counter += 1
                 note.position_backward = counter
@@ -854,11 +859,12 @@ class Song(UserList):
         「フレーズ内での位置(パーセント表記) (e24, e25)」の項を埋める。
         e18, e19, length_100ns のデータがある前提で実行する。
         """
+        notes = self.all_notes
         # フレーズの全体の長さ
         phrase_length_100ns = 0
         counter_100ns = 0
-        for note in self.all_notes:
-            if note.position == 'xx':
+        for note in notes:
+            if note.position == 'xx' or note.is_rest():
                 phrase_length_100ns = 0
                 counter_100ns = 0
                 note.contexts[23] = 'xx'
@@ -872,26 +878,35 @@ class Song(UserList):
                                             ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
                 counter_100ns += note.length_100ns
 
-        # フレーズの全体の長さ
-        phrase_length_100ns = 0
-        counter_100ns = 0
-        for note in reversed(self.all_notes):
-            # 休符のときは 'xx'
-            if note.position_backward == 'xx':
-                phrase_length = 0
-                counter_100ns = 0
+        # NOTE: 次のブロックの処理でうまくいかなかった場合、コメント部分のコードを使う。
+        for note in notes:
+            position_percent = note.contexts[23]
+            if position_percent == 'xx':
                 note.contexts[24] = 'xx'
-            # フレーズ中で最後のノートのときは時間をリセットして、累積時間を増やす。
-            elif note.position_backward == 1:
-                phrase_length = note.position_100ns + note.length_100ns
-                counter_100ns = note.length_100ns
-                note.contexts[24] = Decimal(100 * counter_100ns / phrase_length
-                                            ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
-            # 休符でもなくて最後のノートでもないときは普通に登録して、累積時間を増やす。
             else:
-                counter_100ns += note.length_100ns
-                note.contexts[24] = Decimal(100 * counter_100ns / phrase_length
-                                            ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                note.contexts[24] = 100 - note.contexts[23]
+        # NOTE: 上のブロックが動かなかったらここを使う
+        # # フレーズの全体の長さ
+        # phrase_length_100ns = 0
+        # counter_100ns = 0
+        # for note in reversed(self.all_notes):
+        #     # 休符のときは 'xx'
+        #     if note.position_backward == 'xx' or note.is_rest():
+        #         phrase_length_100ns = 0
+        #         counter_100ns = 0
+        #         note.contexts[24] = 'xx'
+        #     # フレーズ中で最後のノートのときは時間をリセットして、累積時間を増やす。
+        #     elif note.position_backward == 1:
+        #         phrase_length_100ns = note.position_100ns + note.length_100ns
+        #         counter_100ns = note.length_100ns
+        #         note.contexts[24] = Decimal(100 * counter_100ns / phrase_length_100ns
+        #                                     ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+        #     # 休符でもなくて最後のノートでもないときは普通に登録して、累積時間を増やす。
+        #     else:
+        #         counter_100ns += note.length_100ns
+        #         note.contexts[24] = Decimal(100 * counter_100ns / phrase_length_100ns
+        #                                     ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+
 
     def _fill_e57_e58(self):
         """
@@ -1308,7 +1323,7 @@ class Phoneme:
         """
         休符かどうか
         """
-        return self.language_independent_identity == 'p'
+        return self.language_independent_identity in ('s', 'p')
 
     def is_pau(self):
         """
