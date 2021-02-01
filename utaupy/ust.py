@@ -328,9 +328,9 @@ class Note(UserDict):
         self['Tempo'] = str(x)
 
     @property
-    def pbs(self):
+    def pbs(self) -> list:
         """
-        PBS (mode2ピッチ開始位置[ms]) を取得
+        PBS (mode2ピッチ開始位置[ms])
         例) PBS=-104;20.0
         """
         # 辞書には文字列で登録してある
@@ -342,10 +342,6 @@ class Note(UserDict):
 
     @pbs.setter
     def pbs(self, list_pbs):
-        """
-        PBS (mode2ピッチ開始位置[ms]) を登録
-        例) PBS=-104;20.0
-        """
         s1 = f'{int(list_pbs[0])};'
         s2 = ','.join(map(str, list_pbs[1:]))
 
@@ -353,7 +349,7 @@ class Note(UserDict):
         self['PBS'] = str_pbs
 
     @property
-    def pbw(self):
+    def pbw(self) -> list:
         """
         PBW (mode2ピッチ点の間隔[ms]) を取得
         例) PBW=77,163
@@ -367,16 +363,12 @@ class Note(UserDict):
 
     @pbw.setter
     def pbw(self, list_pbw):
-        """
-        PBW (mode2ピッチ点の間隔[ms]) を登録
-        例) PBW=77,163
-        """
         # リストを整数の文字列に変換
         str_pbw = ','.join(list(map(str, map(int, list_pbw))))
         self['PBW'] = str_pbw
 
     @property
-    def pby(self):
+    def pby(self) -> list:
         """
         PBY (mode2ピッチ点の高さ) を取得
         例) PBY=-10.6,0.0
@@ -390,16 +382,12 @@ class Note(UserDict):
 
     @pby.setter
     def pby(self, list_pby):
-        """
-        PBY (mode2ピッチ点の高さ) を登録
-        例) PBY=-10.6,0.0
-        """
         # リストを小数の文字列に変換
         str_pby = ','.join(list(map(str, map(float, list_pby))))
         self['PBY'] = str_pby
 
     @property
-    def pbm(self):
+    def pbm(self) -> list:
         """
         PBM (mode2ピッチ点の形状) を取得
         例) PBY=-10.6,0.0
@@ -413,10 +401,6 @@ class Note(UserDict):
 
     @pbm.setter
     def pbm(self, list_pbm):
-        """
-        PBM (mode2ピッチ点の形状) を登録
-        例) PBM=,r,j,s
-        """
         # リストを文字列に変換
         str_pbm = ','.join(list_pbm)
         self['PBM'] = str_pbm
