@@ -17,6 +17,7 @@ def main():
 def load(path, mode='r', encoding='shift-jis'):
     """otoiniを読み取ってオブジェクト生成"""
     # otoiniファイルを読み取る
+    path = path.strip('"')
     with open(path, mode=mode, encoding=encoding) as f:
         l = [re.split('[=,]', s.strip()) for s in f.readlines()]
     # # 入力ファイル末尾の空白行を除去
