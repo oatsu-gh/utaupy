@@ -49,6 +49,10 @@ class UtauPlugin(_ust.Ust):
     UTAUプラグインの一時ファイル用のクラス
     UST用のクラスを継承
     """
+    def __init__(self):
+        super().__init__()
+        # プラグインのときは[#TRACKEND]が不要
+        self.trackend = None
 
     def write(self, path: str, mode: str = 'w', encoding: str = 'shift-jis') -> str:
         """
