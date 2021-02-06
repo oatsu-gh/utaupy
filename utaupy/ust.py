@@ -561,20 +561,6 @@ class Note(UserDict):
     def label(self, label: str):
         self['Label'] = str(label)
 
-    # ここからデータ操作系-----------------------------------------------------
-    def get_by_key(self, key):
-        """
-        ノートの特定の情報を取得
-        UserDictになったのでいずれ消す
-        """
-        return self[key]
-
-    def set_by_key(self, key, x):
-        """ノートの特定の情報を上書きまたは登録
-        UserDictになったのでいずれ消す
-        """
-        self[key] = x
-    # ここまでデータ操作系-----------------------------------------------------
 
     # ここからノート操作系-----------------------------------------------------
     def delete(self):
