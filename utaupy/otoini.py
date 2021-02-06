@@ -242,23 +242,35 @@ class Oto:
 
     @property
     def cutoff(self):
-        """右ブランクを確認する"""
+        """
+        右ブランク
+
+        正の値のときは、絶対時刻ではなくファイル末尾からの時間
+        負の値のときは、その絶対値が左ブランクからの相対位置
+        """
         return self.__d['Cutoff']
 
     @cutoff.setter
     def cutoff(self, x):
-        """右ブランクを上書きする"""
         self.__d['Cutoff'] = x
 
     @property
     def cutoff2(self):
-        """右ブランクを絶対時刻で取得する"""
-        return max(self.__d['Cutoff'], self.__d['Offset'] - self.__d['Cutoff'])
+        """
+        右ブランクを絶対時刻で取得する
+        """
+        cutoff = self.__d['Cutoff']
+        if cutoff > 0:
+            raise ValueError(f'Cutoff(右ブランク) must be negative : {str(self)}')
+        return self.__d['Offset'] - cutoff
 
-    # OffsetがNullのとき処理できない
     @cutoff2.setter
     def cutoff2(self, x):
-        """右ブランクを絶対時刻で受け取り、負の値で上書きする"""
+        """
+        右ブランクを絶対時刻で受け取り、負の値で上書きする
+        """
+        if x < 0:
+            raise ValueError(f'Argument "x" must be positive : {x}')
         self.__d['Cutoff'] = self.__d['Offset'] - x
 
     @property
