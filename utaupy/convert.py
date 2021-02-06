@@ -272,7 +272,9 @@ def otoini2label(otoini, mode='auto', debug=False):
     # wavファイルが余計にあるときに追加される行を無視する
     otoini.data = [oto for oto in otoini if oto.alias != '']
 
-    allowed_modes = ['auto', 'mono', 'romaji_cv']
+    allowed_modes = ('auto', 'mono', 'romaji_cv')
+    if mode not in allowed_modes:
+        raise ValueError('argument "mode" must be in {}'.format(allowed_modes))
     # エイリアスのタイプ自動判別
     if mode == 'auto':
         if otoini.is_mono():
@@ -280,19 +282,17 @@ def otoini2label(otoini, mode='auto', debug=False):
         else:
             mode = 'romaji_cv'
     if mode == 'romaji_cv':
-        print('  mode: OtoIni(romaji_cv) -> Label(mono)')
+        # print('  mode: OtoIni(romaji_cv) -> Label(mono)')
         # モノフォン化
         otoini = otoini.monophonize()
-    elif mode == 'mono':
-        print('  mode: OtoIni(mono) -> Label(mono)')
-    else:
-        raise ValueError('argument \'mode\' must be in {}'.format(allowed_modes))
+    # elif mode == 'mono':
+    #     print('  mode: OtoIni(mono) -> Label(mono)')
 
     # 計算の重複を避けるために [[発音開始時刻, 発音記号], ...] の仮リストにする
     tmp = []
     for oto in otoini:
         if debug:
-            print(f'    {oto.values}')
+            print(str(oto))
         t_start = int(time_order_ratio * (oto.offset + oto.preutterance))
         tmp.append([t_start, oto.alias])
 
