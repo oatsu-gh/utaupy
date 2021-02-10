@@ -16,10 +16,10 @@ from itertools import chain
 # from pprint import pprint
 
 # p1を埋めるのに使う。
-VOWELS = ('a', 'i', 'u', 'e', 'o', 'A', 'I', 'U', 'E', 'O', 'N', 'ae', 'AE')
-BREAKS = ('br', 'cl')
-PAUSES = ('pau')
-SILENCES = ('sil')
+VOWELS = ['a', 'i', 'u', 'e', 'o', 'A', 'I', 'U', 'E', 'O', 'N', 'ae', 'AE']
+BREAKS = ['br', 'cl']
+PAUSES = ['pau']
+SILENCES = ['sil']
 
 # e1を埋めるのに使う
 NOTENUM_TO_ABSPITCH_DICT = {
