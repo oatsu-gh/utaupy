@@ -278,6 +278,13 @@ class Ust:
         if 'Tempo' in self.notes[0]:
             self.setting['Tempo'] = self.notes[0]['Tempo']
         current_tempo = self.setting['Tempo']
+
+        # [#PREV]にalternative_tempoを登録
+        previous_note = self.previous_note
+        if previous_note is not None:
+            previous_note.alternative_tempo = previous_note.get('Tempo', current_tempo)
+
+        # 通常のノートにalternative_tempoを登録
         for note in self.notes:
             if 'Tempo' in note:
                 if float(note['Tempo']) == current_tempo:
@@ -286,6 +293,12 @@ class Ust:
                     current_tempo = note['Tempo']
             # current_tempo = note.get('Tempo', current_tempo)
             note.alternative_tempo = float(current_tempo)
+
+        # [#NEXT]にalternative_tempoを登録
+        next_note = self.next_note
+        if next_note is not None:
+            next_note.alternative_tempo = next_note.get('Tempo', current_tempo)
+
         self.clean_tempo()
 
     def reload_tag_number(self, start: int = 0):
