@@ -7,11 +7,10 @@ import re
 from collections import UserDict
 from copy import deepcopy
 from os.path import join
-# from functools import lru_cache
 # from pprint import pprint
 from typing import List
 
-from .utau import utau_root, utau_appdata_root
+from .utau import utau_appdata_root, utau_root
 
 NOTENUM_TO_NOTENAME_DICT = {
     12: 'C0', 13: 'Db0', 14: 'D0', 15: 'Eb0', 16: 'E0', 17: 'F0',
@@ -56,7 +55,6 @@ NOTENUM_TO_NOTENAME_DICT = {
     '126': 'Gb9', '127': 'G9'
 }
 
-# TODO: シャープに対応する。
 NOTENAME_TO_NOTENUM_DICT = {
     'Cb0': 11, 'C0': 12, 'C#0': 13,
     'Db0': 13, 'D0': 14, 'D#0': 15,
@@ -140,7 +138,7 @@ NOTENAME_TO_NOTENUM_DICT = {
 
 def notenum_as_abc(notenum) -> str:
     """
-    音階番号をABC表記に変更する(C1=24, C4=)
+    音階番号をABC表記に変更する(C1=24, C4=60)
     """
     # raise DeprecationWarning(
     #     '関数 utaupy.ust.notenum_as_abc() は utaupy.utils.notenum2notename に名称変更しました。')
@@ -348,7 +346,7 @@ class Ust:
         歌詞を平仮名連続音から単独音にする
         """
         for note in self.notes:
-            note.lyric = note.lyric.split()[-1]
+            note.lyric = note.lyric.split(' ', 1)[-1]
     # ノート一括編集系関数ここまで----------------------------------------------
 
     def insert_note(self, i: int):
@@ -417,37 +415,40 @@ class Note(UserDict):
         return '\n'.join(lines)
 
     @property
-    def tag(self):
-        """タグを確認"""
+    def tag(self) -> str:
+        """
+        ノート識別用のタグ
+        """
         return self['Tag']
 
     @tag.setter
     def tag(self, s):
-        """タグを上書き"""
         self['Tag'] = s
 
     @property
-    def length(self):
-        """ノート長を確認[Ticks]"""
+    def length(self) -> int:
+        """
+        ノート長[Ticks]
+        """
         return int(self['Length'])
 
     @length.setter
     def length(self, x):
-        """ノート長を上書き[Ticks]"""
         self['Length'] = str(x)
 
     @property
     def length_ms(self) -> float:
-        """ノート長を確認[ms]"""
+        """
+        ノート長[ms]
+        """
         return 125 * float(self['Length']) / self.tempo
 
     @length_ms.setter
     def length_ms(self, x):
-        """ノート長を上書き[ms]"""
         self['Length'] = str(round(x * self.tempo / 125))
 
     @property
-    def lyric(self):
+    def lyric(self) -> str:
         """
         歌詞
         """
@@ -458,7 +459,7 @@ class Note(UserDict):
         self['Lyric'] = x
 
     @property
-    def notenum(self):
+    def notenum(self) -> int:
         """
         音階番号
         """
@@ -469,14 +470,14 @@ class Note(UserDict):
         self['NoteNum'] = str(x)
 
     @property
-    def notename(self):
+    def notename(self) -> str:
         """
         音名（C4などの表記）
         """
         return NOTENUM_TO_NOTENAME_DICT[self.notenum]
 
     @notename.setter
-    def notename(self, notename):
+    def notename(self, notename: str):
         self.notenum = NOTENAME_TO_NOTENUM_DICT[str(notename)]
 
     @property
@@ -512,7 +513,7 @@ class Note(UserDict):
         self['PBS'] = str_pbs
 
     @property
-    def pbw(self) -> list:
+    def pbw(self) -> List[int]:
         """
         PBW (mode2ピッチ点の間隔[ms]) を取得
         例) PBW=77,163
@@ -525,7 +526,7 @@ class Note(UserDict):
         return l_pbw
 
     @pbw.setter
-    def pbw(self, list_pbw):
+    def pbw(self, list_pbw: List[int]):
         # リストを整数の文字列に変換
         str_pbw = ','.join(list(map(str, map(int, list_pbw))))
         self['PBW'] = str_pbw
@@ -550,10 +551,10 @@ class Note(UserDict):
         self['PBY'] = str_pby
 
     @property
-    def pbm(self) -> list:
+    def pbm(self) -> List[str]:
         """
         PBM (mode2ピッチ点の形状) を取得
-        例) PBY=-10.6,0.0
+        例) PBY=,,,,
         """
         # 辞書には文字列で登録してある
         s_pby = self['PBM']
@@ -563,13 +564,13 @@ class Note(UserDict):
         return l_pbm
 
     @pbm.setter
-    def pbm(self, list_pbm):
+    def pbm(self, list_pbm: list):
         # リストを文字列に変換
         str_pbm = ','.join(list_pbm)
         self['PBM'] = str_pbm
 
     @property
-    def velocity(self):
+    def velocity(self) -> int:
         """
         子音速度
         """
