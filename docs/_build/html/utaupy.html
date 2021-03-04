@@ -1,0 +1,1385 @@
+
+<!DOCTYPE html>
+
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>utaupy package &#8212; utaupy  ドキュメント</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="utaupy.utils package" href="utaupy.utils.html" />
+    <link rel="prev" title="Welcome to utaupy&#39;s documentation!" href="index.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             accesskey="I">索引</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="utaupy.utils.html" title="utaupy.utils package"
+             accesskey="N">次へ</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to utaupy&#39;s documentation!"
+             accesskey="P">前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">utaupy  ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">utaupy package</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="utaupy-package">
+<h1>utaupy package<a class="headerlink" href="#utaupy-package" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="utaupy.utils.html">utaupy.utils package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="utaupy.utils.html#module-utaupy.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="このヘッドラインへのパーマリンク">¶</a></h2>
+</div>
+<div class="section" id="module-utaupy.backup">
+<span id="utaupy-backup-module"></span><h2>utaupy.backup module<a class="headerlink" href="#module-utaupy.backup" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>入出力ファイルのバックアップを取りたいときに使う</p>
+<dl class="py function">
+<dt id="utaupy.backup.backup_io">
+<code class="sig-prename descclassname"><span class="pre">utaupy.backup.</span></code><code class="sig-name descname"><span class="pre">backup_io</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outdirname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/backup.html#backup_io"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.backup.backup_io" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイル名に時刻を組み込んでバックアップ
+入出力ファイル向け。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-utaupy.convert">
+<span id="utaupy-convert-module"></span><h2>utaupy.convert module<a class="headerlink" href="#module-utaupy.convert" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>UTAU関連ファイルの相互変換</p>
+<dl class="py function">
+<dt id="utaupy.convert.label2otoini">
+<code class="sig-prename descclassname"><span class="pre">utaupy.convert.</span></code><code class="sig-name descname"><span class="pre">label2otoini</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_wav</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/convert.html#label2otoini"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.convert.label2otoini" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>LabelオブジェクトをOtoIniオブジェクトに変換
+モノフォン、CV、VCV とかの選択肢が必要そう
+otoini_time_order: otoiniの時間オーダー。
+label_time_order : ラベルの時間オーダー。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.convert.main">
+<code class="sig-prename descclassname"><span class="pre">utaupy.convert.</span></code><code class="sig-name descname"><span class="pre">main</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/convert.html#main"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.convert.main" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ここ書く必要なくない？</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.convert.otoini2label">
+<code class="sig-prename descclassname"><span class="pre">utaupy.convert.</span></code><code class="sig-name descname"><span class="pre">otoini2label</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">otoini</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/convert.html#otoini2label"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.convert.otoini2label" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>OtoIniクラスオブジェクトからLabelクラスオブジェクトを生成
+発声開始: オーバーラップ
+発声終了: 次のノートのオーバーラップ
+発音記号: エイリアス流用
+otoini_time_order: otoiniの時間単位の桁。
+label_time_order : ラベルの時間単位の桁。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.convert.svp2ust">
+<code class="sig-prename descclassname"><span class="pre">utaupy.convert.</span></code><code class="sig-name descname"><span class="pre">svp2ust</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">svp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/convert.html#svp2ust"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.convert.svp2ust" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>svpファイルを受け取って、簡易的なustオブジェクトにする。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.convert.ust2otoini">
+<code class="sig-prename descclassname"><span class="pre">utaupy.convert.</span></code><code class="sig-name descname"><span class="pre">ust2otoini</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ust</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_wav</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'romaji_cv'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/convert.html#ust2otoini"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.convert.ust2otoini" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
+機能選択部分</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.convert.ust2otoini_mono">
+<code class="sig-prename descclassname"><span class="pre">utaupy.convert.</span></code><code class="sig-name descname"><span class="pre">ust2otoini_mono</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ust</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_wav</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/convert.html#ust2otoini_mono"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.convert.ust2otoini_mono" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
+vowel_otoの対称は母音以外に 'N', 'cl' なども含まれる。
+mode : otoiniのエイリアス種別選択
+【パラメータ設定図】
+simple_oto---------------------------------------------------------------</p>
+<blockquote>
+<div><p>|||左ブランク・オーバーラップ・先行発声 ||固定範囲・右ブランク
+|||       ノート長 + 2dt (ms)           ||</p>
+</div></blockquote>
+<dl class="simple">
+<dt>子音・半母音用のoto------------------------------------------------------</dt><dd><p>||左ブランク・オーバーラップ <a href="#id1"><span class="problematic" id="id2">|先行発声 ||固定範囲・右ブランク
+||</span></a>          dt(ms)           | dt(ms)  ||</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>母音用のoto--------------------------------------------------------------</dt><dd><p>||左ブランク・オーバーラップ <a href="#id3"><span class="problematic" id="id4">|先行発声 |固定範囲            |右ブランク
+||</span></a>          dt(ms)           | dt(ms)  | ノート長 - dt (ms) |</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.convert.ust2otoini_romaji_cv">
+<code class="sig-prename descclassname"><span class="pre">utaupy.convert.</span></code><code class="sig-name descname"><span class="pre">ust2otoini_romaji_cv</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ust</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_wav</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">d_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/convert.html#ust2otoini_romaji_cv"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.convert.ust2otoini_romaji_cv" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
+dt   : 左ブランク - オーバーラップ - 先行発声 - 固定範囲と右ブランク の距離
+mode : otoiniのエイリアス種別選択
+【パラメータ設定図】</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">左ブランク <a href="#id5"><span class="problematic" id="id6">|オーバーラップ|</span></a> 先行発声 | 固定範囲 |   右ブランク   |</div>
+<div class="line-block">
+<div class="line">(dt)ms   |    (dt)ms    |  (dt)ms  |  (dt)ms  | (length-2dt)ms |</div>
+</div>
+</div>
+</div></blockquote>
+</dd></dl>
+
+</div>
+<div class="section" id="module-utaupy.hts">
+<span id="utaupy-hts-module"></span><h2>utaupy.hts module<a class="headerlink" href="#module-utaupy.hts" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Python3 module for HTS-full-label.
+Sinsy仕様のHTSフルコンテキストラベルを扱うモジュール</p>
+<p>forループが多いのでpypy3を使っても良いかも。(とくにdeepcopyが重い)</p>
+<dl class="py class">
+<dt id="utaupy.hts.HTSFullLabel">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.hts.</span></code><code class="sig-name descname"><span class="pre">HTSFullLabel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#HTSFullLabel"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.HTSFullLabel" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserList</span></code></p>
+<p>HTSのフルコンテキストラベルの1行を扱うクラス
+OneLine からなる list
+[OneLine, OneLine, ..., OneLine]</p>
+<dl class="py method">
+<dt id="utaupy.hts.HTSFullLabel.fill_contexts_from_songobj">
+<code class="sig-name descname"><span class="pre">fill_contexts_from_songobj</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#HTSFullLabel.fill_contexts_from_songobj"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.HTSFullLabel.fill_contexts_from_songobj" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>自身が持つSongオブジェクトをもとにコンテキスト情報を埋める。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.HTSFullLabel.fill_phonemes">
+<code class="sig-name descname"><span class="pre">fill_phonemes</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#HTSFullLabel.fill_phonemes"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.HTSFullLabel.fill_phonemes" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>phoneme をもとに、前後の音素に関する項を埋める。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.HTSFullLabel.generate_songobj">
+<code class="sig-name descname"><span class="pre">generate_songobj</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#HTSFullLabel.generate_songobj"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.HTSFullLabel.generate_songobj" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フルコンテキストラベルの情報をもとにSongオブジェクトをつくる。
+self.song に格納する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.HTSFullLabel.load">
+<code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#HTSFullLabel.load"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.HTSFullLabel.load" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイル、文字列、文字列のリスト、Songオブジェクトのいずれかより値を取得して登録する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.HTSFullLabel.write">
+<code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_sinsy_style</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference internal" href="_modules/utaupy/hts.html#HTSFullLabel.write"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.HTSFullLabel.write" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイル出力する
+strict_sinsy_style: bool:</p>
+<blockquote>
+<div><p>「休符の長さ」が前後の発声に影響するかどうかを左右する。
+Trueのときは d, f における休符の長さ情報が削除されて 'xx' になる。
+Falseのときは d, f における休符の長さ情報が維持される。</p>
+</div></blockquote>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="utaupy.hts.Note">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.hts.</span></code><code class="sig-name descname"><span class="pre">Note</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Note"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Note" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserList</span></code></p>
+<p>ノートまたは休符を扱うクラス
+1ノート（ノートと休符）を扱うクラス
+昨日のノート D (d1~d5)
+今日のノート E (e1~e60)
+明日のノート F (f1~f5)
+基本的にはEのみを操作する。
+[Syllable, Syllable, ..., Syllable]</p>
+<dl class="py method">
+<dt id="utaupy.hts.Note.absolute_pitch">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">absolute_pitch</span></code><a class="headerlink" href="#utaupy.hts.Note.absolute_pitch" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノートの絶対音高 (C0-G9) (e1)
+# TODO: 番号でもsetできるようにする。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.beat">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">beat</span></code><a class="headerlink" href="#utaupy.hts.Note.beat" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>拍子情報(p4)
+3/4 とか 4/4 とか 6/8 とか</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.is_pau">
+<code class="sig-name descname"><span class="pre">is_pau</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Note.is_pau"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Note.is_pau" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>後方互換のために残している。
+'is_pau()' is now 'is_rest()'</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.is_rest">
+<code class="sig-name descname"><span class="pre">is_rest</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Note.is_rest"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Note.is_rest" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>休符かどうかを返す
+ノート内の最初の音素が休符かどうかで判断する</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.key">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">key</span></code><a class="headerlink" href="#utaupy.hts.Note.key" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノートのキー(p3)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.length">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">length</span></code><a class="headerlink" href="#utaupy.hts.Note.length" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノート長(e8)
+96分音符いくつ分かで計算</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.length_100ns">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">length_100ns</span></code><a class="headerlink" href="#utaupy.hts.Note.length_100ns" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノート長(ラベル出力なし)
+100ns単位の整数で計算</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.length_10ms">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">length_10ms</span></code><a class="headerlink" href="#utaupy.hts.Note.length_10ms" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノート長(e7)
+10ms単位の整数で計算</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.notenum">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">notenum</span></code><a class="headerlink" href="#utaupy.hts.Note.notenum" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>音高をノート番号で取得する
+ラベルファイルには記録されないが、
+C4のような表記でe1に記録される。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.number_of_syllables">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">number_of_syllables</span></code><a class="headerlink" href="#utaupy.hts.Note.number_of_syllables" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノート内音節数(e6)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.phonemes">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">phonemes</span></code><a class="headerlink" href="#utaupy.hts.Note.phonemes" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Note内のすべてのPhonemeオブジェクトを並べたリストを返す。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.position">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">position</span></code><a class="headerlink" href="#utaupy.hts.Note.position" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フレーズ内での位置(e18)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.position_100ms">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">position_100ms</span></code><a class="headerlink" href="#utaupy.hts.Note.position_100ms" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フレーズ内での位置(e20)
+100ms単位</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.position_100ms_backward">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">position_100ms_backward</span></code><a class="headerlink" href="#utaupy.hts.Note.position_100ms_backward" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フレーズ内での後ろから数えた位置(e21)
+100ms単位</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.position_backward">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">position_backward</span></code><a class="headerlink" href="#utaupy.hts.Note.position_backward" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フレーズ内での後ろから数えた位置(e19)
+1-indexed</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.relative_pitch">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">relative_pitch</span></code><a class="headerlink" href="#utaupy.hts.Note.relative_pitch" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノートの相対音高(p2)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Note.tempo">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">tempo</span></code><a class="headerlink" href="#utaupy.hts.Note.tempo" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>テンポ(e5)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="utaupy.hts.OneLine">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.hts.</span></code><code class="sig-name descname"><span class="pre">OneLine</span></code><a class="reference internal" href="_modules/utaupy/hts.html#OneLine"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.OneLine" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>HTSのフルコンテキストラベルの1行を扱うクラス
+ファイルを読み取って HTSFullLabel を生成するときと、
+HTSFullLabel をファイル入出力するときに使う。</p>
+<dl class="py method">
+<dt id="utaupy.hts.OneLine.a">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">a</span></code><a class="headerlink" href="#utaupy.hts.OneLine.a" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>直前の音節のコンテキスト</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.OneLine.b">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">b</span></code><a class="headerlink" href="#utaupy.hts.OneLine.b" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>現在の音節のコンテキスト</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.OneLine.c">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">c</span></code><a class="headerlink" href="#utaupy.hts.OneLine.c" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>直後の音節のコンテキスト</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.OneLine.d">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">d</span></code><a class="headerlink" href="#utaupy.hts.OneLine.d" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>直前のノートのコンテキスト</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.OneLine.e">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">e</span></code><a class="headerlink" href="#utaupy.hts.OneLine.e" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>現在のノートのコンテキスト</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.OneLine.end">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">end</span></code><a class="headerlink" href="#utaupy.hts.OneLine.end" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>発声終了時刻</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.OneLine.f">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">f</span></code><a class="headerlink" href="#utaupy.hts.OneLine.f" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>直後のノートのコンテキスト</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.OneLine.g">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">g</span></code><a class="headerlink" href="#utaupy.hts.OneLine.g" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>直前のフレーズのコンテキスト</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.OneLine.h">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">h</span></code><a class="headerlink" href="#utaupy.hts.OneLine.h" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>現在のフレーズのコンテキスト</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.OneLine.i">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">i</span></code><a class="headerlink" href="#utaupy.hts.OneLine.i" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>直後のフレーズのコンテキスト</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.OneLine.j">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">j</span></code><a class="headerlink" href="#utaupy.hts.OneLine.j" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>(現在の)楽曲のコンテキスト
+1ファイル1曲。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.OneLine.p">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">p</span></code><a class="headerlink" href="#utaupy.hts.OneLine.p" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>音素に関するコンテキスト</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.OneLine.start">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">start</span></code><a class="headerlink" href="#utaupy.hts.OneLine.start" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>発声開始時刻</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="utaupy.hts.Phoneme">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.hts.</span></code><code class="sig-name descname"><span class="pre">Phoneme</span></code><a class="reference internal" href="_modules/utaupy/hts.html#Phoneme"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Phoneme" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>音素を扱うクラス
+p1~p16</p>
+<dl class="py method">
+<dt id="utaupy.hts.Phoneme.is_break">
+<code class="sig-name descname"><span class="pre">is_break</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Phoneme.is_break"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Phoneme.is_break" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>息継ぎかどうか</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Phoneme.is_consonant">
+<code class="sig-name descname"><span class="pre">is_consonant</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Phoneme.is_consonant"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Phoneme.is_consonant" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>子音かどうか</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Phoneme.is_pau">
+<code class="sig-name descname"><span class="pre">is_pau</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Phoneme.is_pau"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Phoneme.is_pau" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>後方互換のために残した。
+'is_pau' is now 'is_rest'</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Phoneme.is_rest">
+<code class="sig-name descname"><span class="pre">is_rest</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Phoneme.is_rest"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Phoneme.is_rest" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>休符かどうか</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Phoneme.is_vowel">
+<code class="sig-name descname"><span class="pre">is_vowel</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Phoneme.is_vowel"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Phoneme.is_vowel" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>母音かどうか</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="utaupy.hts.Phrase">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.hts.</span></code><code class="sig-name descname"><span class="pre">Phrase</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Phrase"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Phrase" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserList</span></code></p>
+<p>フレーズを扱うクラス
+昨日のフレーズ G (g1~g2)
+今日のフレーズ H (h1~h2)
+明日のフレーズ I (i1~i2)
+基本的にはHのみを操作する。
+[Note, Note, Note, ..., Note]</p>
+<dl class="py method">
+<dt id="utaupy.hts.Phrase.number_of_phonemes">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">number_of_phonemes</span></code><a class="headerlink" href="#utaupy.hts.Phrase.number_of_phonemes" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フレーズ内の音素数。
+OneLine からSongを生成するときに使う。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Phrase.number_of_syllables">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">number_of_syllables</span></code><a class="headerlink" href="#utaupy.hts.Phrase.number_of_syllables" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フレーズ内の音節数。</p>
+<p>OneLine からSongを生成するときに使うかも。
+フレーズの切り替わり判定をするときに使うかも。
+多分使わない。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="utaupy.hts.Song">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.hts.</span></code><code class="sig-name descname"><span class="pre">Song</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Song"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Song" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserList</span></code></p>
+<p>曲を扱うクラス
+今日の曲(j1-j3)
+[Phrase, Phrase, ..., Phrase]
+[Note, Note, ..., Note]</p>
+<dl class="py method">
+<dt id="utaupy.hts.Song.all_notes">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">all_notes</span></code><a class="headerlink" href="#utaupy.hts.Song.all_notes" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Noteをすべて並べたリストを返す。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Song.all_phonemes">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">all_phonemes</span></code><a class="headerlink" href="#utaupy.hts.Song.all_phonemes" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Phonemeをすべて並べたリストを返す。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Song.all_syllables">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">all_syllables</span></code><a class="headerlink" href="#utaupy.hts.Song.all_syllables" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Syllableをすべて並べたリストを返す。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Song.autofill">
+<code class="sig-name descname"><span class="pre">autofill</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Song.autofill"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Song.autofill" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>自動補完可能なものをすべて自動補完する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Song.fill_j3">
+<code class="sig-name descname"><span class="pre">fill_j3</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Song.fill_j3"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Song.fill_j3" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Songオブジェクト内のフレーズ数(j3) の項を埋める。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Song.number_of_phrases">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">number_of_phrases</span></code><a class="headerlink" href="#utaupy.hts.Song.number_of_phrases" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>楽曲内のフレーズ数。(j3)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Song.reset_time">
+<code class="sig-name descname"><span class="pre">reset_time</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Song.reset_time"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Song.reset_time" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノート長をもとに、Sinsyの出力と同じになるように、
+Phonemeオブジェクトのstartとendを計算して登録する。</p>
+<p>単位は100ns
+100ns単位での長さがすでに計算されているものとする。(note.length_100ns)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Song.write">
+<code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_sinsy_style</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#utaupy.hts.HTSFullLabel" title="utaupy.hts.HTSFullLabel"><span class="pre">utaupy.hts.HTSFullLabel</span></a><a class="reference internal" href="_modules/utaupy/hts.html#Song.write"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Song.write" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイル出力する。
+HTSFullLabelからではなく、USTなどからSongが直接生成されている場合に対応する。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="utaupy.hts.Syllable">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.hts.</span></code><code class="sig-name descname"><span class="pre">Syllable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Syllable"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.Syllable" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserList</span></code></p>
+<p>1音節を扱うクラス
+昨日の音節 A (a1~a5)
+今日の音節 B (b1~b5)
+明日の音節 C (c1~c5)
+[Phoneme, Phoneme, ..., Phoneme]</p>
+<dl class="py method">
+<dt id="utaupy.hts.Syllable.number_of_phonemes">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">number_of_phonemes</span></code><a class="headerlink" href="#utaupy.hts.Syllable.number_of_phonemes" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>音節内の音素数(b1)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Syllable.position">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">position</span></code><a class="headerlink" href="#utaupy.hts.Syllable.position" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノート内での位置(b2)
+1-indexed</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.hts.Syllable.position_backward">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">position_backward</span></code><a class="headerlink" href="#utaupy.hts.Syllable.position_backward" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノート内での後ろから数えた位置(b3)
+1-indexed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.hts.abspitch_to_notenum">
+<code class="sig-prename descclassname"><span class="pre">utaupy.hts.</span></code><code class="sig-name descname"><span class="pre">abspitch_to_notenum</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">abspitch</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#abspitch_to_notenum"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.abspitch_to_notenum" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>音高をノート番号に変換する</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.hts.adjust_pau_contexts">
+<code class="sig-prename descclassname"><span class="pre">utaupy.hts.</span></code><code class="sig-name descname"><span class="pre">adjust_pau_contexts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_label</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#utaupy.hts.HTSFullLabel" title="utaupy.hts.HTSFullLabel"><span class="pre">utaupy.hts.HTSFullLabel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#utaupy.hts.HTSFullLabel" title="utaupy.hts.HTSFullLabel"><span class="pre">utaupy.hts.HTSFullLabel</span></a><a class="reference internal" href="_modules/utaupy/hts.html#adjust_pau_contexts"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.adjust_pau_contexts" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>出力用に休符まわりの音節コンテキストを調整する。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.hts.load">
+<code class="sig-prename descclassname"><span class="pre">utaupy.hts.</span></code><code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#load"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.load" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>HTSフルコンテキストラベル(Sinsy用)を読み取る</p>
+<p>source: path, lines</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.hts.main">
+<code class="sig-prename descclassname"><span class="pre">utaupy.hts.</span></code><code class="sig-name descname"><span class="pre">main</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#main"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.main" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>直接実行された時にやるやつ</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.hts.notenum_to_abspitch">
+<code class="sig-prename descclassname"><span class="pre">utaupy.hts.</span></code><code class="sig-name descname"><span class="pre">notenum_to_abspitch</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">notenum</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference internal" href="_modules/utaupy/hts.html#notenum_to_abspitch"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.hts.notenum_to_abspitch" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>音高をC4のような記法に変換する</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-utaupy.label">
+<span id="utaupy-label-module"></span><h2>utaupy.label module<a class="headerlink" href="#module-utaupy.label" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>歌唱データベース用のLABファイルとデータを扱うモジュールです。</p>
+<dl class="py class">
+<dt id="utaupy.label.Label">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.label.</span></code><code class="sig-name descname"><span class="pre">Label</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/label.html#Label"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.label.Label" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserList</span></code></p>
+<p>歌唱ラベルLABファイルを想定したクラス(2019/04/19から)</p>
+<dl class="py method">
+<dt id="utaupy.label.Label.check_invalid_time">
+<code class="sig-name descname"><span class="pre">check_invalid_time</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/label.html#Label.check_invalid_time"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.label.Label.check_invalid_time" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>発声時間が一定未満な音素ラベル行を検出
+threshold: 許容される最小の発声時間(ms)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.label.Label.offset">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">offset</span></code><a class="headerlink" href="#utaupy.label.Label.offset" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>最初の音素の発声までの時間を取得する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.label.Label.reload">
+<code class="sig-name descname"><span class="pre">reload</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/label.html#Label.reload"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.label.Label.reload" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>発音開始時刻を参照して、発音終了時刻を自動補完する。
+ただし最終行の発音終了時刻だけは補完できないため、そのままにする。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.label.Label.round">
+<code class="sig-name descname"><span class="pre">round</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_size</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/label.html#Label.round"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.label.Label.round" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>時刻を丸める。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.label.Label.shift">
+<code class="sig-name descname"><span class="pre">shift</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_length_100ns</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/label.html#Label.shift"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.label.Label.shift" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>全体の時刻をずらす。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.label.Label.write">
+<code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_out</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\n'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delimiter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'100ns'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/label.html#Label.write"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.label.Label.write" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>LABファイルを書き出し</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="utaupy.label.Phoneme">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.label.</span></code><code class="sig-name descname"><span class="pre">Phoneme</span></code><a class="reference internal" href="_modules/utaupy/label.html#Phoneme"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.label.Phoneme" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>ラベルの一行分の情報を持つクラス(2020/07/23から)</p>
+<dl class="py method">
+<dt id="utaupy.label.Phoneme.duration">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">duration</span></code><a class="headerlink" href="#utaupy.label.Phoneme.duration" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>発声時間</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.label.load">
+<code class="sig-prename descclassname"><span class="pre">utaupy.label.</span></code><code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'100ns'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/label.html#load"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.label.load" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>labファイルを読み取って Label クラスオブジェクトにする
+時刻を整数にすることに注意</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.label.load_as_plainlist">
+<code class="sig-prename descclassname"><span class="pre">utaupy.label.</span></code><code class="sig-name descname"><span class="pre">load_as_plainlist</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'100ns'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/label.html#load_as_plainlist"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.label.load_as_plainlist" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>labファイルを ふつうの2次元リストとして読み取る。
+旧バージョンの utaupy.label.load() に近い動作をする。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.label.main">
+<code class="sig-prename descclassname"><span class="pre">utaupy.label.</span></code><code class="sig-name descname"><span class="pre">main</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/label.html#main"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.label.main" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>実行されたときの挙動</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-utaupy.otoini">
+<span id="utaupy-otoini-module"></span><h2>utaupy.otoini module<a class="headerlink" href="#module-utaupy.otoini" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>setParam用のINIファイルとデータを扱うモジュールです。</p>
+<dl class="py class">
+<dt id="utaupy.otoini.Oto">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.otoini.</span></code><code class="sig-name descname"><span class="pre">Oto</span></code><a class="reference internal" href="_modules/utaupy/otoini.html#Oto"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.otoini.Oto" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>oto.ini中の1モーラ</p>
+<dl class="py method">
+<dt id="utaupy.otoini.Oto.cutoff2">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">cutoff2</span></code><a class="headerlink" href="#utaupy.otoini.Oto.cutoff2" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>右ブランクを絶対時刻で取得する</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="utaupy.otoini.OtoIni">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.otoini.</span></code><code class="sig-name descname"><span class="pre">OtoIni</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">initlist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/otoini.html#OtoIni"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.otoini.OtoIni" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserList</span></code></p>
+<p>oto.iniを想定したクラス</p>
+<dl class="py method">
+<dt id="utaupy.otoini.OtoIni.is_mono">
+<code class="sig-name descname"><span class="pre">is_mono</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/otoini.html#OtoIni.is_mono"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.otoini.OtoIni.is_mono" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>モノフォン形式のエイリアスになっているか判定する。
+すべてのエイリアスに空白がなければモノフォンと判断する。
+返り値はbool。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.otoini.OtoIni.monophonize">
+<code class="sig-name descname"><span class="pre">monophonize</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/otoini.html#OtoIni.monophonize"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.otoini.OtoIni.monophonize" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>音素ごとに分割する。
+otoini→label 変換の用途を想定
+音素の発声開始位置: 左ブランク=先行発声</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.otoini.OtoIni.replace_aliases">
+<code class="sig-name descname"><span class="pre">replace_aliases</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/otoini.html#OtoIni.replace_aliases"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.otoini.OtoIni.replace_aliases" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>エイリアスを置換する</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.otoini.OtoIni.write">
+<code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'shift-jis'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/otoini.html#OtoIni.write"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.otoini.OtoIni.write" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイル出力</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.otoini.load">
+<code class="sig-prename descclassname"><span class="pre">utaupy.otoini.</span></code><code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'shift-jis'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/otoini.html#load"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.otoini.load" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>otoiniを読み取ってオブジェクト生成</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.otoini.main">
+<code class="sig-prename descclassname"><span class="pre">utaupy.otoini.</span></code><code class="sig-name descname"><span class="pre">main</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/otoini.html#main"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.otoini.main" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>直接実行されたときの挙動</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-utaupy.reaper">
+<span id="utaupy-reaper-module"></span><h2>utaupy.reaper module<a class="headerlink" href="#module-utaupy.reaper" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>REAPERのリージョンCSVを扱うモジュールです。
+BOMなしUTF-8じゃないとREAPERは読み込んでくれません。
+REAPER v5, v6 で動作確認</p>
+<p>各行は &quot;連番タグ,名前,開始時刻,終了時刻,長さ&quot; になってる。
+時刻は x.y.zz (小節.拍.割合(4/4拍子の時は8分音符:50, 16分音符:25))</p>
+<dl class="simple">
+<dt>時刻の zz は 4/4, 4/4 拍子の時は  8分音符:50 16分音符:25 の表記</dt><dd><p>6/8 拍子の時は 16分音符:50 32分音符:25 の表記</p>
+</dd>
+<dt>[例]---------------------------------------</dt><dd><p>R1,_ああんいあう,5.1.00,9.1.00,4.0.00
+R2,_いいんういえ,9.1.00,13.1.00,4.0.00</p>
+</dd>
+</dl>
+<hr class="docutils" />
+<dl class="py class">
+<dt id="utaupy.reaper.Region">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.reaper.</span></code><code class="sig-name descname"><span class="pre">Region</span></code><a class="reference internal" href="_modules/utaupy/reaper.html#Region"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.reaper.Region" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>REAPERのリージョンひとつ分のクラス
+辞書</p>
+<dl class="py method">
+<dt id="utaupy.reaper.Region.end">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">end</span></code><a class="headerlink" href="#utaupy.reaper.Region.end" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.reaper.Region.length">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">length</span></code><a class="headerlink" href="#utaupy.reaper.Region.length" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.reaper.Region.name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#utaupy.reaper.Region.name" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.reaper.Region.start">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">start</span></code><a class="headerlink" href="#utaupy.reaper.Region.start" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.reaper.Region.values">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">values</span></code><a class="headerlink" href="#utaupy.reaper.Region.values" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>値を確認</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="utaupy.reaper.RegionCsv">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.reaper.</span></code><code class="sig-name descname"><span class="pre">RegionCsv</span></code><a class="reference internal" href="_modules/utaupy/reaper.html#RegionCsv"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.reaper.RegionCsv" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>REAPERのリージョンCSV用のクラス</p>
+<dl class="py method">
+<dt id="utaupy.reaper.RegionCsv.append">
+<code class="sig-name descname"><span class="pre">append</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">region</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/reaper.html#RegionCsv.append"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.reaper.RegionCsv.append" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Regionオブジェクトを末尾に追加</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.reaper.RegionCsv.values">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">values</span></code><a class="headerlink" href="#utaupy.reaper.RegionCsv.values" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>値を確認</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.reaper.RegionCsv.write">
+<code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/reaper.html#RegionCsv.write"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.reaper.RegionCsv.write" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>REAPERのリージョンに適したCSVを出力する。</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.reaper.load">
+<code class="sig-prename descclassname"><span class="pre">utaupy.reaper.</span></code><code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/reaper.html#load"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.reaper.load" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>REAPERのリージョンCSVを読み取る。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.reaper.main">
+<code class="sig-prename descclassname"><span class="pre">utaupy.reaper.</span></code><code class="sig-name descname"><span class="pre">main</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/reaper.html#main"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.reaper.main" title="この定義へのパーマリンク">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-utaupy.reclist">
+<span id="utaupy-reclist-module"></span><h2>utaupy.reclist module<a class="headerlink" href="#module-utaupy.reclist" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>UTAUの録音リストを扱うモジュール
+録音リストは休憩する部分で空白行を入れてね</p>
+<dl class="py function">
+<dt id="utaupy.reclist.load">
+<code class="sig-prename descclassname"><span class="pre">utaupy.reclist.</span></code><code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'shift-jis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove_blankline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oremo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/reclist.html#load"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.reclist.load" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>録音リストを読み取ってオブジェクト生成
+path    : 録音リストのパス
+mode    : ファイルをopen()するときののモード
+rmblank : 空行を削除するかどうか
+oremo   : 録音ソフトウェア「OREMO」用のコメントの有無。あるならTrue</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.reclist.main">
+<code class="sig-prename descclassname"><span class="pre">utaupy.reclist.</span></code><code class="sig-name descname"><span class="pre">main</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/reclist.html#main"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.reclist.main" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>直接実行されたときの動作</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-utaupy.setparam">
+<span id="utaupy-setparam-module"></span><h2>utaupy.setparam module<a class="headerlink" href="#module-utaupy.setparam" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>setParamプラグイン用モジュール
+## リンク
+- setParam: <a class="reference external" href="http://nwp8861.web.fc2.com/soft/setParam">http://nwp8861.web.fc2.com/soft/setParam</a>
+- setParamプラグインの入出力ファイルの仕様: <a class="reference external" href="http://nwp8861.blog92.fc2.com/blog-entry-365.html">http://nwp8861.blog92.fc2.com/blog-entry-365.html</a></p>
+<dl class="py function">
+<dt id="utaupy.setparam.run">
+<code class="sig-prename descclassname"><span class="pre">utaupy.setparam.</span></code><code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">your_function</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/setparam.html#run"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.setparam.run" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>setParamプラグイン用ファイルの入出力をする。</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-utaupy.shiro">
+<span id="utaupy-shiro-module"></span><h2>utaupy.shiro module<a class="headerlink" href="#module-utaupy.shiro" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>SHIRO (<a class="reference external" href="https://github.com/Sleepwalking/SHIRO">https://github.com/Sleepwalking/SHIRO</a>) 関連のファイルを扱う。</p>
+<dl class="py class">
+<dt id="utaupy.shiro.Index">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.shiro.</span></code><code class="sig-name descname"><span class="pre">Index</span></code><a class="reference internal" href="_modules/utaupy/shiro.html#Index"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.shiro.Index" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="simple">
+<dt>wavに含まれる音素一覧を提示する 'index file' を扱うクラス。</dt><dd><p>音声ファイル名1,音素1-1 音素1-2 音素1-3 音素1-4 ...
+音声ファイル名2,音素2-1 音素2-2 音素3-3 音素4-4 ...
+...</p>
+</dd>
+</dl>
+<p>ってフォーマットのファイル。</p>
+<dl class="py method">
+<dt id="utaupy.shiro.Index.values">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">values</span></code><a class="headerlink" href="#utaupy.shiro.Index.values" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>値を取得</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.shiro.Index.write">
+<code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'shift-jis'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">newline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'\n'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/shiro.html#Index.write"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.shiro.Index.write" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>indexfile(CSV)を保存</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.shiro.load_index">
+<code class="sig-prename descclassname"><span class="pre">utaupy.shiro.</span></code><code class="sig-name descname"><span class="pre">load_index</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'shift-jis'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/shiro.html#load_index"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.shiro.load_index" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>index fileを読み取ってIndexを返す</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-utaupy.svp">
+<span id="utaupy-svp-module"></span><h2>utaupy.svp module<a class="headerlink" href="#module-utaupy.svp" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>SynthVのS5PとSVPを扱うモジュールです。
+読み取り機能のみです。</p>
+<dl class="py function">
+<dt id="utaupy.svp.load">
+<code class="sig-prename descclassname"><span class="pre">utaupy.svp.</span></code><code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_svp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/svp.html#load"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.svp.load" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>SVPを読み取って辞書を返す</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-utaupy.table">
+<span id="utaupy-table-module"></span><h2>utaupy.table module<a class="headerlink" href="#module-utaupy.table" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>日本語とアルファベットの対応表を扱うモジュールです。</p>
+<dl class="py function">
+<dt id="utaupy.table.load">
+<code class="sig-prename descclassname"><span class="pre">utaupy.table.</span></code><code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/table.html#load"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.table.load" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>テーブルを読み取ってインスタンス生成</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.table.main">
+<code class="sig-prename descclassname"><span class="pre">utaupy.table.</span></code><code class="sig-name descname"><span class="pre">main</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/table.html#main"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.table.main" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>呼び出されても特に何もしない</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-utaupy.ust">
+<span id="utaupy-ust-module"></span><h2>utaupy.ust module<a class="headerlink" href="#module-utaupy.ust" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>USTファイルとデータを扱うモジュールです。</p>
+<dl class="py class">
+<dt id="utaupy.ust.Note">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.ust.</span></code><code class="sig-name descname"><span class="pre">Note</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'[#INSERT]'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#Note"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Note" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserDict</span></code></p>
+<p>UST内のノート</p>
+<dl class="py method">
+<dt id="utaupy.ust.Note.delete">
+<code class="sig-name descname"><span class="pre">delete</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#Note.delete"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Note.delete" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>選択ノートを削除</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.flags">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">flags</span></code><a class="headerlink" href="#utaupy.ust.Note.flags" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>フラグ</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.label">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">label</span></code><a class="headerlink" href="#utaupy.ust.Note.label" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノートのラベル
+UTAUエディタのピアノロール画面で、ローカルテンポの上に表示されるやつ</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.length">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">length</span></code><a class="headerlink" href="#utaupy.ust.Note.length" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノート長[Ticks]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.length_ms">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">length_ms</span></code><a class="headerlink" href="#utaupy.ust.Note.length_ms" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノート長[ms]</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.lyric">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">lyric</span></code><a class="headerlink" href="#utaupy.ust.Note.lyric" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>歌詞</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.notename">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">notename</span></code><a class="headerlink" href="#utaupy.ust.Note.notename" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>音名（C4などの表記）</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.notenum">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">notenum</span></code><a class="headerlink" href="#utaupy.ust.Note.notenum" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>音階番号</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.pbm">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">pbm</span></code><a class="headerlink" href="#utaupy.ust.Note.pbm" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>PBM (mode2ピッチ点の形状) を取得
+例) PBY=,,,,</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.pbs">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">pbs</span></code><a class="headerlink" href="#utaupy.ust.Note.pbs" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>PBS (mode2ピッチ開始位置[ms])
+例) PBS=-104;20.0</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.pbw">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">pbw</span></code><a class="headerlink" href="#utaupy.ust.Note.pbw" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>PBW (mode2ピッチ点の間隔[ms]) を取得
+例) PBW=77,163</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.pby">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">pby</span></code><a class="headerlink" href="#utaupy.ust.Note.pby" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>PBY (mode2ピッチ点の高さ) を取得
+例) PBY=-10.6,0.0</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.refresh">
+<code class="sig-name descname"><span class="pre">refresh</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#Note.refresh"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Note.refresh" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノートの情報を引き継ぎつつ、自由にいじれるようにする
+UTAUプラグインは値の上書きはできるが削除はできない。
+一旦ノートを削除して新規ノートとして扱う必要がある。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.suppin">
+<code class="sig-name descname"><span class="pre">suppin</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#Note.suppin"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Note.suppin" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノートの情報を最小限にする</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.tag">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">tag</span></code><a class="headerlink" href="#utaupy.ust.Note.tag" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ノート識別用のタグ</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.tempo">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">tempo</span></code><a class="headerlink" href="#utaupy.ust.Note.tempo" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ローカルBPM</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Note.velocity">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">velocity</span></code><a class="headerlink" href="#utaupy.ust.Note.velocity" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>子音速度</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="utaupy.ust.Ust">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.ust.</span></code><code class="sig-name descname"><span class="pre">Ust</span></code><a class="reference internal" href="_modules/utaupy/ust.html#Ust"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Ust" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>UST (UTAU Sequence Text) ファイルを扱うためのクラス</p>
+<dl class="py method">
+<dt id="utaupy.ust.Ust.clean_tempo">
+<code class="sig-name descname"><span class="pre">clean_tempo</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#Ust.clean_tempo"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Ust.clean_tempo" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ローカルテンポが不要な部分を削除する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Ust.delete_note">
+<code class="sig-name descname"><span class="pre">delete_note</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#Ust.delete_note"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Ust.delete_note" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>i 番目のノートを [#DELETE] する。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Ust.insert_note">
+<code class="sig-name descname"><span class="pre">insert_note</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#Ust.insert_note"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Ust.insert_note" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>i 番目の区切りに新規ノートを挿入する。
+このときの i は音符のみのインデックス。
+編集するために、挿入したノートを返す。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Ust.load">
+<code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'shift-jis'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#Ust.load"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Ust.load" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ファイルからインスタンス生成</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Ust.make_finalnote_R">
+<code class="sig-name descname"><span class="pre">make_finalnote_R</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#Ust.make_finalnote_R"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Ust.make_finalnote_R" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>Ustの最後のノートが休符 になるようにする</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Ust.reload_tag_number">
+<code class="sig-name descname"><span class="pre">reload_tag_number</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#Ust.reload_tag_number"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Ust.reload_tag_number" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>start: 開始番号 (0なら[#0000]から)
+各ノートのノート番号を振りなおす。
+ファイル出力時に実行することを想定。</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Ust.reload_tempo">
+<code class="sig-name descname"><span class="pre">reload_tempo</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#Ust.reload_tempo"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Ust.reload_tempo" title="この定義へのパーマリンク">¶</a></dt>
+<dd><ol class="arabic simple">
+<li><p>グローバルテンポを1ノート目のテンポで上書きする。</p></li>
+<li><p>各ノートでBPMが取得できるように note.alternative_tempo を全ノートに仕込む。</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Ust.replace_lyrics">
+<code class="sig-name descname"><span class="pre">replace_lyrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">before</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#Ust.replace_lyrics"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Ust.replace_lyrics" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>歌詞を一括置換（文字列指定・破壊的処理）</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Ust.tempo">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">tempo</span></code><a class="headerlink" href="#utaupy.ust.Ust.tempo" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>USTのグローバルテンポ</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Ust.translate_lyrics">
+<code class="sig-name descname"><span class="pre">translate_lyrics</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">after</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#Ust.translate_lyrics"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Ust.translate_lyrics" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>歌詞を一括置換（複数文字指定・破壊的処理）</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Ust.vcv2cv">
+<code class="sig-name descname"><span class="pre">vcv2cv</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#Ust.vcv2cv"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Ust.vcv2cv" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>歌詞を平仮名連続音から単独音にする</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Ust.voicedir">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">voicedir</span></code><a class="headerlink" href="#utaupy.ust.Ust.voicedir" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>UTAU音源のフォルダのパスを返す</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="utaupy.ust.Ust.write">
+<code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'w'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'shift-jis'</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference internal" href="_modules/utaupy/ust.html#Ust.write"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.Ust.write" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>USTをファイル出力</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.ust.load">
+<code class="sig-prename descclassname"><span class="pre">utaupy.ust.</span></code><code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'shift-jis'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#load"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.load" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>USTを読み取り</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.ust.main">
+<code class="sig-prename descclassname"><span class="pre">utaupy.ust.</span></code><code class="sig-name descname"><span class="pre">main</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/ust.html#main"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.main" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>実行されたときの挙動</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.ust.notenum_as_abc">
+<code class="sig-prename descclassname"><span class="pre">utaupy.ust.</span></code><code class="sig-name descname"><span class="pre">notenum_as_abc</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">notenum</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference internal" href="_modules/utaupy/ust.html#notenum_as_abc"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.ust.notenum_as_abc" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>音階番号をABC表記に変更する(C1=24, C4=60)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-utaupy.utau">
+<span id="utaupy-utau-module"></span><h2>utaupy.utau module<a class="headerlink" href="#module-utaupy.utau" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>UTAU音源を扱うモジュール</p>
+<dl class="py class">
+<dt id="utaupy.utau.PrefixMap">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.utau.</span></code><code class="sig-name descname"><span class="pre">PrefixMap</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/utau.html#PrefixMap"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.utau.PrefixMap" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserDict</span></code></p>
+<p>UTAUの多音階音源用の prefixmap ファイルを扱うクラス。
+prefixmap_obj[音階名] または prefixmap_obj[音階番号] で
+サフィックス文字列を取得できるようにしたい。</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="utaupy.utau.UtauVoiceBank">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.utau.</span></code><code class="sig-name descname"><span class="pre">UtauVoiceBank</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/utau.html#UtauVoiceBank"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.utau.UtauVoiceBank" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>UTAU音源の原音設定を扱うクラス。
+音階と歌詞（連続音）を指定したら、原音設定を返すようにしたい。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.utau.autoadjust_parameters">
+<code class="sig-prename descclassname"><span class="pre">utaupy.utau.</span></code><code class="sig-name descname"><span class="pre">autoadjust_parameters</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voicebank</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utaupy_ust_ust</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/utau.html#autoadjust_parameters"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.utau.autoadjust_parameters" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>voicebank       : utaupy.utau.UtauVoiceBank オブジェクト
+utaupy_ust_ust  : utaupy.Ust.Ust オブジェクト</p>
+<p># TODO: プラグイン用に'&#64;'パラメータに対応させる。
+UTAUの「パラメータ自動調整」機能に相当するメソッド。
+・エイリアス(&#64;alias)
+・STP(StartPoint)
+・オーバーラップ(VoiceOverlap)
+・先行発声(PreUtterance)
+の4つの値を調整する。</p>
+<p># TODO: 子音速度100以外に対応させる。
+仕様
+前のノートが休符な時は、原音値をそのまま入力する。
+前のノートが休符でない場合</p>
+<blockquote>
+<div><dl class="simple">
+<dt>前のノートの長さの半分が、oto.overlapからoto.preutteranceまでの長さよりも短い場合</dt><dd><p>差分をSTPで削る</p>
+</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.utau.autoselect_alias">
+<code class="sig-prename descclassname"><span class="pre">utaupy.utau.</span></code><code class="sig-name descname"><span class="pre">autoselect_alias</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voicebank</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utaupy_ust_note</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/utau.html#autoselect_alias"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.utau.autoselect_alias" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>voicebank       : utaupy.utau.UtauVoiceBank オブジェクト
+utaupy_ust_note : utaupy.Ust.Note オブジェクト
+use_atalias     : Noteオブジェクトの <a class="reference external" href="mailto:'&#37;&#52;&#48;alias">'<span>&#64;</span>alias</a>' を使用するかどうか。</p>
+<blockquote>
+<div><p>voicebankで指定しているUTAU音源が 対象USTのUTAU音源とは違う場合、
+Falseにするほうがよい。</p>
+</div></blockquote>
+<p>Noteオブジェクトの歌詞と音程から、使用する原音に対応するエイリアスを決定する。
+ノート情報に &#64;alias があればそのエイリアスを使用し、
+無い場合は prefix.map を使って決定する。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.utau.get_oto">
+<code class="sig-prename descclassname"><span class="pre">utaupy.utau.</span></code><code class="sig-name descname"><span class="pre">get_oto</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voicebank</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">utaupy_ust_note</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix_exists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/utau.html#get_oto"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.utau.get_oto" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>voicebank       : utaupy.utau.UtauVoiceBank オブジェクト
+utaupy_ust_note : utaupy.Ust.Note オブジェクト
+use_atparam     : Noteオブジェクトの <a class="reference external" href="mailto:'&#37;&#52;&#48;alias">'<span>&#64;</span>alias</a>' などを使用するかどうか。</p>
+<blockquote>
+<div><p>voicebankで指定しているUTAU音源が 対象USTのUTAU音源とは違う場合、
+Falseにするほうがよい。</p>
+</div></blockquote>
+<p>Noteオブジェクトに対応する原音設定の値を取得する。</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.utau.utau_appdata_root">
+<code class="sig-prename descclassname"><span class="pre">utaupy.utau.</span></code><code class="sig-name descname"><span class="pre">utau_appdata_root</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference internal" href="_modules/utaupy/utau.html#utau_appdata_root"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.utau.utau_appdata_root" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>プラグインとか音源が置いてあるフォルダのパスを返す。
+C:Users{username}AppDataRoamingUTAU</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.utau.utau_root">
+<code class="sig-prename descclassname"><span class="pre">utaupy.utau.</span></code><code class="sig-name descname"><span class="pre">utau_root</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference internal" href="_modules/utaupy/utau.html#utau_root"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.utau.utau_root" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>utau.exe のフォルダのパスを返す。</p>
+<ul class="simple">
+<li><p>拡張子 '.ust' は UTAUSequenceText としてレジストリに登録されている。</p></li>
+<li><p>UTAUSequenceText に関連付けられている UTAU.exeのパスを取得する。</p></li>
+</ul>
+</dd></dl>
+
+</div>
+<div class="section" id="module-utaupy.utauplugin">
+<span id="utaupy-utauplugin-module"></span><h2>utaupy.utauplugin module<a class="headerlink" href="#module-utaupy.utauplugin" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>UTAUのプラグイン用のモジュール
+utaupy.ust.Ust をもとに、ファイル入出力機能を変更したもの。</p>
+<dl class="py class">
+<dt id="utaupy.utauplugin.UtauPlugin">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.utauplugin.</span></code><code class="sig-name descname"><span class="pre">UtauPlugin</span></code><a class="reference internal" href="_modules/utaupy/utauplugin.html#UtauPlugin"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.utauplugin.UtauPlugin" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>ベースクラス: <a class="reference internal" href="#utaupy.ust.Ust" title="utaupy.ust.Ust"><code class="xref py py-class docutils literal notranslate"><span class="pre">utaupy.ust.Ust</span></code></a></p>
+<p>UTAUプラグインの一時ファイル用のクラス
+UST用のクラスを継承</p>
+<dl class="py method">
+<dt id="utaupy.utauplugin.UtauPlugin.write">
+<code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'w'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'shift-jis'</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="reference internal" href="_modules/utaupy/utauplugin.html#UtauPlugin.write"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.utauplugin.UtauPlugin.write" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>USTをファイル出力</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.utauplugin.load">
+<code class="sig-prename descclassname"><span class="pre">utaupy.utauplugin.</span></code><code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'shift-jis'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/utauplugin.html#load"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.utauplugin.load" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>UTAUプラグイン一時ファイルを読み取る
+USTのやつを一部改変</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="utaupy.utauplugin.run">
+<code class="sig-prename descclassname"><span class="pre">utaupy.utauplugin.</span></code><code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">your_function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">option</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/utauplugin.html#run"><span class="viewcode-link"><span class="pre">[ソース]</span></span></a><a class="headerlink" href="#utaupy.utauplugin.run" title="この定義へのパーマリンク">¶</a></dt>
+<dd><p>UTAUプラグインスクリプトファイルの入出力をする。
+your_function: 実行したい関数
+arguments: 実行オプションとか
+path: UTAUから出力されるプラグインスクリプトのパス</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-utaupy">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-utaupy" title="このヘッドラインへのパーマリンク">¶</a></h2>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">utaupy package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-utaupy.backup">utaupy.backup module</a></li>
+<li><a class="reference internal" href="#module-utaupy.convert">utaupy.convert module</a></li>
+<li><a class="reference internal" href="#module-utaupy.hts">utaupy.hts module</a></li>
+<li><a class="reference internal" href="#module-utaupy.label">utaupy.label module</a></li>
+<li><a class="reference internal" href="#module-utaupy.otoini">utaupy.otoini module</a></li>
+<li><a class="reference internal" href="#module-utaupy.reaper">utaupy.reaper module</a></li>
+<li><a class="reference internal" href="#module-utaupy.reclist">utaupy.reclist module</a></li>
+<li><a class="reference internal" href="#module-utaupy.setparam">utaupy.setparam module</a></li>
+<li><a class="reference internal" href="#module-utaupy.shiro">utaupy.shiro module</a></li>
+<li><a class="reference internal" href="#module-utaupy.svp">utaupy.svp module</a></li>
+<li><a class="reference internal" href="#module-utaupy.table">utaupy.table module</a></li>
+<li><a class="reference internal" href="#module-utaupy.ust">utaupy.ust module</a></li>
+<li><a class="reference internal" href="#module-utaupy.utau">utaupy.utau module</a></li>
+<li><a class="reference internal" href="#module-utaupy.utauplugin">utaupy.utauplugin module</a></li>
+<li><a class="reference internal" href="#module-utaupy">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="index.html"
+                        title="前の章へ">Welcome to utaupy's documentation!</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="utaupy.utils.html"
+                        title="次の章へ">utaupy.utils package</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/utaupy.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>ナビゲーション</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="総合索引"
+             >索引</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Pythonモジュール索引"
+             >モジュール</a> |</li>
+        <li class="right" >
+          <a href="utaupy.utils.html" title="utaupy.utils package"
+             >次へ</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to utaupy&#39;s documentation!"
+             >前へ</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">utaupy  ドキュメント</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">utaupy package</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Author.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.5.1.
+    </div>
+  </body>
+</html>
