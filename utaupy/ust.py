@@ -6,9 +6,12 @@ USTファイルとデータを扱うモジュールです。
 import re
 from collections import UserDict
 from copy import deepcopy
+from os.path import join
 # from functools import lru_cache
 # from pprint import pprint
 from typing import List
+
+from .utau import utau_root, utau_appdata_root
 
 NOTENUM_TO_NOTENAME_DICT = {
     12: 'C0', 13: 'Db0', 14: 'D0', 15: 'Eb0', 16: 'E0', 17: 'F0',
@@ -143,6 +146,7 @@ def notenum_as_abc(notenum) -> str:
     #     '関数 utaupy.ust.notenum_as_abc() は utaupy.utils.notenum2notename に名称変更しました。')
     return NOTENUM_TO_NOTENAME_DICT[int(notenum)]
 
+
 def load(path: str, encoding: str = 'shift-jis'):
     """
     USTを読み取り
@@ -256,6 +260,20 @@ class Ust:
         # self.notes[0].tempo = tempo
         self.reload_tempo()
 
+    @property
+    def voicedir(self):
+        """
+        UTAU音源のフォルダのパスを返す
+        """
+        voicedir = self.setting['VoiceDir']
+        voicedir = voicedir.replace('%VOICE%', f'{utau_root()}\\voice')
+        voicedir = voicedir.replace('%DATA%', utau_appdata_root())
+        return voicedir
+
+    @voicedir.setter
+    def voicedir(self, path):
+        self.setting['VoiceDir'] = path.strip('\'"')
+
     def clean_tempo(self):
         """
         ローカルテンポが不要な部分を削除する。
@@ -312,17 +330,23 @@ class Ust:
 
     # ノート一括編集系関数ここから----------------------------------------------
     def replace_lyrics(self, before: str, after: str):
-        """歌詞を一括置換（文字列指定・破壊的処理）"""
+        """
+        歌詞を一括置換（文字列指定・破壊的処理）
+        """
         for note in self.notes:
             note.lyric = note.lyric.replace(before, after)
 
     def translate_lyrics(self, before, after):
-        """歌詞を一括置換（複数文字指定・破壊的処理）"""
+        """
+        歌詞を一括置換（複数文字指定・破壊的処理）
+        """
         for note in self.notes:
             note.lyric = note.lyric.translate(before, after)
 
     def vcv2cv(self):
-        """歌詞を平仮名連続音から単独音にする"""
+        """
+        歌詞を平仮名連続音から単独音にする
+        """
         for note in self.notes:
             note.lyric = note.lyric.split()[-1]
     # ノート一括編集系関数ここまで----------------------------------------------
@@ -334,7 +358,7 @@ class Ust:
         編集するために、挿入したノートを返す。
         """
         note = Note()
-        note.tag = '[#INSERT]'
+        # note.tag = '[#INSERT]'
         self.notes.insert(i, note)
         return note
 
@@ -345,7 +369,9 @@ class Ust:
         self.notes[i].tag = '[#DELETE]'
 
     def make_finalnote_R(self):
-        """Ustの最後のノートが休符 になるようにする"""
+        """
+        Ustの最後のノートが休符 になるようにする
+        """
         last_note = self.notes[-1]
         # Ust内の最後はTRACKENDなので後ろから2番目のノートで判定
         if last_note.lyric not in ('pau', 'sil', 'R'):
@@ -377,9 +403,11 @@ class Ust:
 
 
 class Note(UserDict):
-    """UST内のノート"""
+    """
+    UST内のノート
+    """
 
-    def __init__(self, tag: str = '[#UNDEFINED]'):
+    def __init__(self, tag: str = '[#INSERT]'):
         super().__init__()
         self['Tag'] = tag
         self.alternative_tempo = None
@@ -574,8 +602,8 @@ class Note(UserDict):
     def label(self, label: str):
         self['Label'] = str(label)
 
-
     # ここからノート操作系-----------------------------------------------------
+
     def delete(self):
         """選択ノートを削除"""
         self.tag = '[#DELETE]'
@@ -595,7 +623,9 @@ class Note(UserDict):
         self.tag = '[#DELETE]\n[#INSERT]'
 
     def suppin(self):
-        """ノートの情報を最小限にする"""
+        """
+        ノートの情報を最小限にする
+        """
         new_data = {}
         new_data['Tag'] = '[#DELETE]\n[#INSERT]'
         new_data['Lyric'] = self.lyric
@@ -606,7 +636,9 @@ class Note(UserDict):
 
 
 def main():
-    """実行されたときの挙動"""
+    """
+    実行されたときの挙動
+    """
     print('デフォ子かわいいよデフォ子\n')
 
     print('ust読み取りテストをします。')
