@@ -7,7 +7,9 @@ from collections import UserList
 
 
 def main():
-    """実行されたときの挙動"""
+    """
+    実行されたときの挙動
+    """
     print('labファイル読み取り動作テストをします。')
     path_lab = input('path_lab: ')
     label = load(path_lab)
@@ -82,9 +84,26 @@ class Label(UserList):
     """
 
     def __str__(self):
-        """文字列として扱うときのフォーマット"""
+        """
+        文字列として扱うときのフォーマット
+        """
         label_as_str = '\n'.join(str(phoneme) for phoneme in self)
         return label_as_str
+
+    @property
+    def offset(self) -> int:
+        """
+        最初の音素の発声までの時間を取得する。
+        """
+        return self[0].start
+
+    def shift(self, time_length_100ns:int):
+        """
+        全体の時刻をずらす。
+        """
+        for phoneme in self:
+            phoneme.start += time_length_100ns
+            phoneme.end += time_length_100ns
 
     def check_invalid_time(self, threshold=0):
         """
