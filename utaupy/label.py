@@ -46,6 +46,7 @@ def load(path, mode='r', encoding='utf-8', time_unit='100ns'):
     labファイルを読み取って Label クラスオブジェクトにする
     時刻を整数にすることに注意
     """
+    path = path.strip('"')
     # lab ファイル読み取り
     with open(path, mode=mode, encoding=encoding) as f:
         lines = [s.strip().split(maxsplit=2) for s in f.readlines()]
