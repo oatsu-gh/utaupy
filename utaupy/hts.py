@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # Copyright (c) 2020 oatsu
-"""
-Python3 module for HTS-full-label.
-Sinsy仕様のHTSフルコンテキストラベルを扱うモジュール
+"""Python3 module for HTS-full-label.
 
+Sinsy仕様のHTSフルコンテキストラベルを扱うモジュール
 forループが多いのでpypy3を使っても良いかも。(とくにdeepcopyが重い)
 """
 # import json
@@ -12,6 +11,7 @@ from collections import UserList
 from copy import deepcopy
 from decimal import ROUND_HALF_UP, Decimal
 from itertools import chain
+from typing import Union
 
 # from pprint import pprint
 
@@ -72,8 +72,7 @@ ABSPITCH_TO_NOTENUM_DICT = {
 
 
 def load(source):
-    """
-    HTSフルコンテキストラベル(Sinsy用)を読み取る
+    """HTSフルコンテキストラベル(Sinsy用)を読み取る
 
     source: path, lines
     """
@@ -236,7 +235,7 @@ class HTSFullLabel(UserList):
 
     def fill_phonemes(self):
         """
-        phoneme をもとに、前後の音素に関する項を埋める。
+        Phoneme をもとに、前後の音素に関する項を埋める。
         """
         extended_self = [OneLine(), OneLine()] + self.data + [OneLine(), OneLine()]
         # ol is OneLine objec
@@ -600,20 +599,30 @@ class Song(UserList):
                 phoneme.end = Decimal(t_end).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
             t_start = t_end
 
-    def autofill(self):
+    def autofill(self, hts_conf: Union[None, dict] = None):
         """
         自動補完可能なものをすべて自動補完する。
         """
         # この順でやらないと、p1が未設定の状態で Note.is_rest() をやってしまう
-        self._fill_phoneme_contexts()
+        self._fill_phoneme_contexts(hts_conf)
         self._fill_syllable_contexts()
         self._fill_note_contexts()
         self._fill_song_contexts()
 
-    def _fill_phoneme_contexts(self, vowels=VOWELS, pauses=PAUSES, silences=SILENCES,breaks=BREAKS):
+    def _fill_phoneme_contexts(self, hts_conf: Union[None, dict]):
         """
         p1, p12, p13, p14, p15 を補完する。
         """
+        # p12, p13, p14, p15を埋める
+        if hts_conf is None:
+            self._fill_p1(vowels=VOWELS, pauses=PAUSES, silences=SILENCES, breaks=BREAKS)
+        else:
+            self._fill_p1(vowels=hts_conf['VOWELS'], pauses=hts_conf['PAUSES'],
+                          silences=hts_conf['SILENCES'], breaks=hts_conf['BREAKS'])
+        self._fill_p12_p13()
+        self._fill_p14_p15()
+
+    def _fill_p1(self, vowels, pauses, silences, breaks):
         # p1 を埋める
         for phoneme in self.all_phonemes:
             phoneme_identity = phoneme.identity
@@ -629,9 +638,6 @@ class Song(UserList):
                 phoneme.language_independent_identity = 'b'
             else:
                 phoneme.language_independent_identity = 'c'
-        # p12, p13, p14, p15を埋める
-        self._fill_p12_p13()
-        self._fill_p14_p15()
 
     def _fill_p12_p13(self):
         """
@@ -695,8 +701,7 @@ class Song(UserList):
                 syllable.position_backward = len_note - i
 
     def _fill_note_contexts(self):
-        """
-        e を補完する。
+        """e を補完する。
 
         必要なデータ:
             - e1: 絶対音高
@@ -818,8 +823,8 @@ class Song(UserList):
                 note.position_100ns_backward = counter_100ns
 
     def _fill_e22_e23(self):
-        """
-        「フレーズ内での位置(96分音符単位) (e22, e23)」の項を埋める。
+        """「フレーズ内での位置(96分音符単位) (e22, e23)」の項を埋める。
+
         e18とe19のデータがある前提で実行する。
         """
         counter = 0
@@ -907,7 +912,6 @@ class Song(UserList):
         #         note.contexts[24] = Decimal(100 * counter_100ns / phrase_length_100ns
         #                                     ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
 
-
     def _fill_e57_e58(self):
         """
         「前後のノートとの音高差 (e57, e58)」の項を埋める。
@@ -950,9 +954,9 @@ class Song(UserList):
         """
         Songオブジェクトのコンテキストを自動補完する。
         """
-        self.fill_j3()
+        self._fill_j3()
 
-    def fill_j3(self):
+    def _fill_j3(self):
         """
         Songオブジェクト内のフレーズ数(j3) の項を埋める。
         """
@@ -973,8 +977,8 @@ class Song(UserList):
 
 
 class Phrase(UserList):
-    """
-    フレーズを扱うクラス
+    """フレーズを扱うクラス
+
     昨日のフレーズ G (g1~g2)
     今日のフレーズ H (h1~h2)
     明日のフレーズ I (i1~i2)
@@ -1326,7 +1330,8 @@ class Phoneme:
         return self.language_independent_identity in ('s', 'p')
 
     def is_pau(self):
-        """
+        """休符かどうかを判定
+
         後方互換のために残した。
         'is_pau' is now 'is_rest'
         """
