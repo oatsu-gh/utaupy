@@ -8,10 +8,12 @@ forループが多いのでpypy3を使っても良いかも。(とくにdeepcopy
 # import json
 import re
 from collections import UserList
-from copy import deepcopy
+from copy import copy, deepcopy
 from decimal import ROUND_HALF_UP, Decimal
 from itertools import chain
 from typing import Union
+
+from . import label as _label
 
 # from pprint import pprint
 
@@ -105,8 +107,20 @@ class HTSFullLabel(UserList):
         super().__init__(init)
         self.song = Song()
 
-    def write(self, path, strict_sinsy_style: bool = True, label_type='full',
-              mode='w', encoding='utf-8') -> str:
+    def as_mono(self) -> _label.Label:
+        """
+        モノラベルに変換する
+        """
+        mono_label = _label.Label()
+        for oneline in self:
+            mono_phoneme = _label.Phoneme()
+            mono_phoneme.start = copy(oneline.phoneme.start)
+            mono_phoneme.end = copy(oneline.phoneme.end)
+            mono_phoneme.symbol = copy(oneline.phoneme.identity)
+            mono_label.append(mono_phoneme)
+        return mono_label
+
+    def write(self, path, strict_sinsy_style: bool = True, mode='w', encoding='utf-8') -> str:
         """
         ファイル出力する
         strict_sinsy_style: bool:
@@ -114,18 +128,11 @@ class HTSFullLabel(UserList):
             Trueのときは d, f における休符の長さ情報が削除されて 'xx' になる。
             Falseのときは d, f における休符の長さ情報が維持される。
         """
-        # モノラベルとして出力
-        if label_type == 'mono':
-            s = '\n'.join([f'{ol.start} {ol.end} {ol.phoneme.identity}' for ol in self])
-        # フルラベルとして出力
-        elif label_type == 'full':
-            # 休符周辺の仕様をSinsyに近づける。
-            new_label = adjust_pau_contexts(self, strict=strict_sinsy_style)
-            # 文字列にする
-            s = '\n'.join(list(map(str, new_label)))
-        # label_type が非対応の値だった時はエラー
-        else:
-            raise ValueError("Argument label_type must be 'full' or 'mono'.")
+        # 休符周辺の仕様をSinsyに近づける。
+        new_label = adjust_pau_contexts(self, strict=strict_sinsy_style)
+        # 文字列にする
+        s = '\n'.join(list(map(str, new_label)))
+
         # ファイル出力
         with open(path, mode=mode, encoding=encoding) as f:
             f.write(s)
@@ -566,6 +573,19 @@ class Song(UserList):
     def number_of_phrases(self, number: int):
         self.contexts[2] = number
 
+    def as_mono(self) -> _label.Label:
+        """
+        モノラベルに変換する
+        """
+        mono_label = _label.Label()
+        for full_phoneme in self.all_phonemes:
+            mono_phoneme = _label.Phoneme()
+            mono_phoneme.start = copy(full_phoneme.start)
+            mono_phoneme.end = copy(full_phoneme.end)
+            mono_phoneme.symbol = copy(full_phoneme.identity)
+            mono_label.append(mono_phoneme)
+        return mono_label
+
     def write(self, path, label_type='full', strict_sinsy_style: bool = True,
               mode='w', encoding='utf-8') -> HTSFullLabel:
         """
@@ -576,7 +596,7 @@ class Song(UserList):
         full_label.song = self
         full_label.fill_contexts_from_songobj()
         full_label.write(
-            path, label_type=label_type, strict_sinsy_style=strict_sinsy_style,
+            path, strict_sinsy_style=strict_sinsy_style,
             mode=mode, encoding=encoding
         )
         return full_label
