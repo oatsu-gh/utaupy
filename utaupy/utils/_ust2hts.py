@@ -60,7 +60,10 @@ def ustnote2htsnote(
         # p4
         hts_phoneme.identity = phoneme
         # p9
-        hts_phoneme.flag = ust_note.flags
+        if ust_note.flags == '':
+            hts_phoneme.flag = 'xx'
+        else:
+            hts_phoneme.flag = ust_note.flags
         # 音節に追加
         hts_syllable.append(hts_phoneme)
     hts_note.append(hts_syllable)
