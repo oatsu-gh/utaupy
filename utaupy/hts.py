@@ -134,7 +134,7 @@ class HTSFullLabel(UserList):
         s = '\n'.join(list(map(str, new_label)))
 
         # ファイル出力
-        with open(path, mode=mode, encoding=encoding) as f:
+        with open(path, mode=mode, encoding=encoding, newline='\n') as f:
             f.write(s)
         return s
 
