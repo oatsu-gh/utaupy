@@ -4,31 +4,45 @@
 """
 UTAU音源を扱うモジュール
 """
-import winreg
+import platform
 from collections import UserDict
 from glob import glob
 from os.path import dirname, expandvars
 
 from . import otoini as _otoini
 
+# Windowsのとき
+if platform.system == 'Windows':
+    import winreg
 
-def utau_root() -> str:
-    """
-    utau.exe のフォルダのパスを返す。
+    def utau_root() -> str:
+        """
+        utau.exe のフォルダのパスを返す。
 
-    - 拡張子 '.ust' は UTAUSequenceText としてレジストリに登録されている。
-    - UTAUSequenceText に関連付けられている UTAU.exeのパスを取得する。
-    """
-    # 現在のユーザーにおいて、ustファイルに関連付けられているコマンド取得して、
-    # '"C:\\UTAU\\utau.exe" "%1"' のような文字列を得る
-    reg_key = winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER,
-                               r'Software\Classes\UTAUSequenceText\shell\open\command')
-    reg_data, _ = winreg.QueryValueEx(reg_key, '')
-    winreg.CloseKey(reg_key)
-    # reg_data の前半部分だけ取り出して 'C:\\UTAU\\utau.exe' にする
-    path_utau_exe = reg_data.split(r'" "')[0].strip('"')  #
-    # 'C:\\UTAU' の形にして返す
-    return dirname(path_utau_exe)
+        - 拡張子 '.ust' は UTAUSequenceText としてレジストリに登録されている。
+        - UTAUSequenceText に関連付けられている UTAU.exeのパスを取得する。
+        """
+        # 現在のユーザーにおいて、ustファイルに関連付けられているコマンド取得して、
+        # '"C:\\UTAU\\utau.exe" "%1"' のような文字列を得る
+        reg_key = winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER,
+                                   r'Software\Classes\UTAUSequenceText\shell\open\command')
+        reg_data, _ = winreg.QueryValueEx(reg_key, '')
+        winreg.CloseKey(reg_key)
+        # reg_data の前半部分だけ取り出して 'C:\\UTAU\\utau.exe' にする
+        path_utau_exe = reg_data.split(r'" "')[0].strip('"')  #
+        # 'C:\\UTAU' の形にして返す
+        return dirname(path_utau_exe)
+# Windowsじゃないとき
+else:
+    def utau_root() -> str:
+        """
+        utau.exe のフォルダのパスを返す。
+
+        - 拡張子 '.ust' は UTAUSequenceText としてレジストリに登録されている。
+        - UTAUSequenceText に関連付けられている UTAU.exeのパスを取得する。
+        """
+        # 'C:\\UTAU' の形にして返す
+        return ''
 
 
 def utau_appdata_root() -> str:
