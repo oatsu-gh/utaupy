@@ -36,17 +36,22 @@ def svp2ust(svp, debug=False):
     # プロジェクト設定のノートを追加
     ust.setting.set_by_key('Tempo', svp['time']['tempo'][0]['bpm'])
 
-    # 前奏の休符を追加
-    utaunote = _ust.Note()
-    utaunote.lyric = 'R'
-    utaunote.length = svnotes[0]['onset'] // 1470000
-    ust.notes.append(utaunote)
-
-    # DEBUG: 休符が挟まってるかどうかを判定して、休符を追加する処理を実装する必要がある。
+    previous_onset = 0
     for svnote in svnotes:
+        onset = svnote['onset'] // 1470000
+        duration = svnote['duration'] // 1470000
+
+        # 必要の場合、休符を追加
+        if previous_onset < onset:
+            breaknote = _ust.Note()
+            breaknote.lyric = 'R'
+            breaknote.length = onset - previous_onset
+            ust.notes.append(breaknote)
+
         utaunote = _ust.Note()
         utaunote.lyric = svnote['lyrics']
-        utaunote.length = svnote['duration'] // 1470000
+        utaunote.length = duration
+        previous_onset = onset + duration
         ust.notes.append(utaunote)
         if debug:
             print(utaunote.values)
