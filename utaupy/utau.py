@@ -188,11 +188,11 @@ def autoadjust_parameters(voicebank, utaupy_ust_ust):
         if halflen < oto.preutterance - oto.overlap:
             at_preuttr = halflen * oto.preutterance / (oto.preutterance - oto.overlap)
             at_overlap = halflen * oto.overlap / (oto.preutterance - oto.overlap)
-            note.set_by_key('StartPoint', oto.preutterance - at_preuttr)
-            note.set_by_key('PreUtterance', at_preuttr)
-            note.set_by_key('VoiceOverlap', at_overlap)
+            note['StartPoint'] = oto.preutterance - at_preuttr
+            note['PreUtterance'] = at_preuttr
+            note['VoiceOverlap'] = at_overlap
             print('adjust')
         else:
-            note.set_by_key('StartPoint', 0)
-            note.set_by_key('PreUtterance', oto.preutterance)
-            note.set_by_key('VoiceOverlap', oto.overlap)
+            note['StartPoint'] = 0
+            note['PreUtterance'] = oto.preutterance
+            note['VoiceOverlap'] = oto.overlap
