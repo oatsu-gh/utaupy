@@ -231,9 +231,9 @@ mode : otoiniのエイリアス種別選択
 </div>
 <div class="section" id="module-utaupy.hts">
 <span id="utaupy-hts-module"></span><h2>utaupy.hts module<a class="headerlink" href="#module-utaupy.hts" title="Permalink to this headline">¶</a></h2>
-<p>Python3 module for HTS-full-label.
-Sinsy仕様のHTSフルコンテキストラベルを扱うモジュール</p>
-<p>forループが多いのでpypy3を使っても良いかも。(とくにdeepcopyが重い)</p>
+<p>Python3 module for HTS-full-label.</p>
+<p>Sinsy仕様のHTSフルコンテキストラベルを扱うモジュール
+forループが多いのでpypy3を使っても良いかも。(とくにdeepcopyが重い)</p>
 <dl class="py class">
 <dt id="utaupy.hts.HTSFullLabel">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.hts.</span></code><code class="sig-name descname"><span class="pre">HTSFullLabel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#HTSFullLabel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.hts.HTSFullLabel" title="Permalink to this definition">¶</a></dt>
@@ -242,6 +242,11 @@ Sinsy仕様のHTSフルコンテキストラベルを扱うモジュール</p>
 OneLine からなる list
 [OneLine, OneLine, …, OneLine]</p>
 <dl class="py method">
+<dt id="utaupy.hts.HTSFullLabel.as_mono">
+<code class="sig-name descname"><span class="pre">as_mono</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> → <a class="reference internal" href="#utaupy.label.Label" title="utaupy.label.Label"><span class="pre">utaupy.label.Label</span></a><a class="reference internal" href="_modules/utaupy/hts.html#HTSFullLabel.as_mono"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.hts.HTSFullLabel.as_mono" title="Permalink to this definition">¶</a></dt>
+<dd><p>モノラベルに変換する</p>
+</dd></dl>
+<dl class="py method">
 <dt id="utaupy.hts.HTSFullLabel.fill_contexts_from_songobj">
 <code class="sig-name descname"><span class="pre">fill_contexts_from_songobj</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#HTSFullLabel.fill_contexts_from_songobj"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.hts.HTSFullLabel.fill_contexts_from_songobj" title="Permalink to this definition">¶</a></dt>
 <dd><p>自身が持つSongオブジェクトをもとにコンテキスト情報を埋める。</p>
@@ -249,7 +254,7 @@ OneLine からなる list
 <dl class="py method">
 <dt id="utaupy.hts.HTSFullLabel.fill_phonemes">
 <code class="sig-name descname"><span class="pre">fill_phonemes</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#HTSFullLabel.fill_phonemes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.hts.HTSFullLabel.fill_phonemes" title="Permalink to this definition">¶</a></dt>
-<dd><p>phoneme をもとに、前後の音素に関する項を埋める。</p>
+<dd><p>Phoneme をもとに、前後の音素に関する項を埋める。</p>
 </dd></dl>
 <dl class="py method">
 <dt id="utaupy.hts.HTSFullLabel.generate_songobj">
@@ -264,7 +269,7 @@ self.song に格納する。</p>
 </dd></dl>
 <dl class="py method">
 <dt id="utaupy.hts.HTSFullLabel.write">
-<code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_sinsy_style</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span> → <span class="pre">str</span><a class="reference internal" href="_modules/utaupy/hts.html#HTSFullLabel.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.hts.HTSFullLabel.write" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_sinsy_style</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_mono</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span> → <span class="pre">str</span><a class="reference internal" href="_modules/utaupy/hts.html#HTSFullLabel.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.hts.HTSFullLabel.write" title="Permalink to this definition">¶</a></dt>
 <dd><p>ファイル出力する
 strict_sinsy_style: bool:</p>
 <blockquote>
@@ -476,7 +481,8 @@ p1~p16</p>
 <dl class="py method">
 <dt id="utaupy.hts.Phoneme.is_pau">
 <code class="sig-name descname"><span class="pre">is_pau</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Phoneme.is_pau"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.hts.Phoneme.is_pau" title="Permalink to this definition">¶</a></dt>
-<dd><p>後方互換のために残した。
+<dd><p>休符かどうかを判定</p>
+<p>後方互換のために残した。
 ‘is_pau’ is now ‘is_rest’</p>
 </dd></dl>
 <dl class="py method">
@@ -494,8 +500,8 @@ p1~p16</p>
 <dt id="utaupy.hts.Phrase">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">utaupy.hts.</span></code><code class="sig-name descname"><span class="pre">Phrase</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Phrase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.hts.Phrase" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.UserList</span></code></p>
-<p>フレーズを扱うクラス
-昨日のフレーズ G (g1~g2)
+<p>フレーズを扱うクラス</p>
+<p>昨日のフレーズ G (g1~g2)
 今日のフレーズ H (h1~h2)
 明日のフレーズ I (i1~i2)
 基本的にはHのみを操作する。
@@ -539,14 +545,14 @@ OneLine からSongを生成するときに使う。</p>
 <dd><p>Syllableをすべて並べたリストを返す。</p>
 </dd></dl>
 <dl class="py method">
-<dt id="utaupy.hts.Song.autofill">
-<code class="sig-name descname"><span class="pre">autofill</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Song.autofill"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.hts.Song.autofill" title="Permalink to this definition">¶</a></dt>
-<dd><p>自動補完可能なものをすべて自動補完する。</p>
+<dt id="utaupy.hts.Song.as_mono">
+<code class="sig-name descname"><span class="pre">as_mono</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> → <a class="reference internal" href="#utaupy.label.Label" title="utaupy.label.Label"><span class="pre">utaupy.label.Label</span></a><a class="reference internal" href="_modules/utaupy/hts.html#Song.as_mono"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.hts.Song.as_mono" title="Permalink to this definition">¶</a></dt>
+<dd><p>モノラベルに変換する</p>
 </dd></dl>
 <dl class="py method">
-<dt id="utaupy.hts.Song.fill_j3">
-<code class="sig-name descname"><span class="pre">fill_j3</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Song.fill_j3"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.hts.Song.fill_j3" title="Permalink to this definition">¶</a></dt>
-<dd><p>Songオブジェクト内のフレーズ数(j3) の項を埋める。</p>
+<dt id="utaupy.hts.Song.autofill">
+<code class="sig-name descname"><span class="pre">autofill</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hts_conf</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">None</span><span class="p"><span class="pre">,</span> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/hts.html#Song.autofill"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.hts.Song.autofill" title="Permalink to this definition">¶</a></dt>
+<dd><p>自動補完可能なものをすべて自動補完する。</p>
 </dd></dl>
 <dl class="py method">
 <dt id="utaupy.hts.Song.number_of_phrases">
@@ -563,7 +569,7 @@ Phonemeオブジェクトのstartとendを計算して登録する。</p>
 </dd></dl>
 <dl class="py method">
 <dt id="utaupy.hts.Song.write">
-<code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_sinsy_style</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span> → <a class="reference internal" href="#utaupy.hts.HTSFullLabel" title="utaupy.hts.HTSFullLabel"><span class="pre">utaupy.hts.HTSFullLabel</span></a><a class="reference internal" href="_modules/utaupy/hts.html#Song.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.hts.Song.write" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">write</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_sinsy_style</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_mono</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span> → <span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#utaupy.hts.HTSFullLabel" title="utaupy.hts.HTSFullLabel"><span class="pre">utaupy.hts.HTSFullLabel</span></a><span class="p"><span class="pre">,</span> </span><a class="reference internal" href="#utaupy.label.Label" title="utaupy.label.Label"><span class="pre">utaupy.label.Label</span></a><span class="p"><span class="pre">]</span></span><a class="reference internal" href="_modules/utaupy/hts.html#Song.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.hts.Song.write" title="Permalink to this definition">¶</a></dt>
 <dd><p>ファイル出力する。
 HTSFullLabelからではなく、USTなどからSongが直接生成されている場合に対応する。</p>
 </dd></dl>
@@ -898,7 +904,17 @@ oremo   : 録音ソフトウェア「OREMO」用のコメントの有無。あ�
 <p>日本語とアルファベットの対応表を扱うモジュールです。</p>
 <dl class="py function">
 <dt id="utaupy.table.load">
-<code class="sig-prename descclassname"><span class="pre">utaupy.table.</span></code><code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utaupy/table.html#load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.table.load" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">utaupy.table.</span></code><code class="sig-name descname"><span class="pre">load</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span> → <span class="pre">dict</span><a class="reference internal" href="_modules/utaupy/table.html#load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.table.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>テーブルを読み取ってインスタンス生成</p>
+</dd></dl>
+<dl class="py function">
+<dt id="utaupy.table.load_conf_file">
+<code class="sig-prename descclassname"><span class="pre">utaupy.table.</span></code><code class="sig-name descname"><span class="pre">load_conf_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_conf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span> → <span class="pre">dict</span><a class="reference internal" href="_modules/utaupy/table.html#load_conf_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.table.load_conf_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>音素分類用のファイルを読み取って辞書を返す</p>
+</dd></dl>
+<dl class="py function">
+<dt id="utaupy.table.load_table_file">
+<code class="sig-prename descclassname"><span class="pre">utaupy.table.</span></code><code class="sig-name descname"><span class="pre">load_table_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span> → <span class="pre">dict</span><a class="reference internal" href="_modules/utaupy/table.html#load_table_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#utaupy.table.load_table_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>テーブルを読み取ってインスタンス生成</p>
 </dd></dl>
 <dl class="py function">

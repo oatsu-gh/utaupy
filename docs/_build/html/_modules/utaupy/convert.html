@@ -1,41 +1,137 @@
+<!doctype html>
+<html class="no-js">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
 
-<!DOCTYPE html>
+    <meta name="generator" content="sphinx-3.5.1, furo 2021.02.28.beta28"/>
+        <title>utaupy.convert - utaupy documentation</title>
+      <link rel="stylesheet" href="../../_static/styles/furo.css?digest=be5985a4059b5c2cd56ed0804790452beca62674">
+    <link rel="stylesheet" href="../../_static/pygments.css">
+    <link media="(prefers-color-scheme: dark)" rel="stylesheet" href="../../_static/pygments_dark.css">
+    
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>utaupy.convert &#8212; utaupy  documentation</title>
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <link rel="index" title="Index" href="../../genindex.html" />
-    <link rel="search" title="Search" href="../../search.html" />
-   
-  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+
+<style>
+  :root {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+  }
+
+  /* For allowing end-user-specific overrides */
+  .override-light {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  .override-dark {
+    --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+  }
+</style><link rel="stylesheet" href="../../_static/styles/furo-extensions.css?digest=d391b54134226e4196576da3bdb6dddb7e05ba2b"></head>
+  <body dir="">
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z"/>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <line x1="10" y1="12" x2="20" y2="12" />
+      <line x1="6" y1="18" x2="20" y2="18" />
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      class="feather feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">utaupy  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
-  </head><body>
+  <span class="sidebar-brand-text">utaupy  documentation</span>
   
+</a><form class="sidebar-search-container" method="get" action="../../search.html">
+  <input class="sidebar-search" placeholder=Search name="q">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../utaupy.html">utaupy package</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label for="toctree-checkbox-1"><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../utaupy.utils.html">utaupy.utils package</a></li>
+</ul>
+</li>
+</ul>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          
-
-          <div class="body" role="main">
-            
-  <h1>Source code for utaupy.convert</h1><div class="highlight"><pre>
+</div>
+</div>
+      </div>
+      
+    </div>
+  </aside>
+  <main class="main">
+    <div class="content">
+      <article role="main">
+        <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+        </label>
+        <h1>Source code for utaupy.convert</h1><div class="highlight"><pre>
 <span></span><span class="ch">#! /usr/bin/env python3</span>
 <span class="c1"># coding: utf-8</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="sd">UTAU関連ファイルの相互変換</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 <span class="c1"># from pysnooper import snoop</span>
 <span class="c1"># from pprint import pprint</span>
 
@@ -49,15 +145,15 @@
 
 
 <div class="viewcode-block" id="main"><a class="viewcode-back" href="../../utaupy.html#utaupy.convert.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;ここ書く必要なくない？&quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;AtomとReaperが好き&#39;</span><span class="p">)</span></div>
+    <span class="sd">"""ここ書く必要なくない？"""</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'AtomとReaperが好き'</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="svp2ust"><a class="viewcode-back" href="../../utaupy.html#utaupy.convert.svp2ust">[docs]</a><span class="k">def</span> <span class="nf">svp2ust</span><span class="p">(</span><span class="n">svp</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">"""</span>
 <span class="sd">    svpファイルを受け取って、簡易的なustオブジェクトにする。</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">svnotes</span> <span class="o">=</span> <span class="n">svp</span><span class="p">[</span><span class="s1">&#39;tracks&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;mainGroup&#39;</span><span class="p">][</span><span class="s1">&#39;notes&#39;</span><span class="p">]</span>
+<span class="sd">    """</span>
+    <span class="n">svnotes</span> <span class="o">=</span> <span class="n">svp</span><span class="p">[</span><span class="s1">'tracks'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'mainGroup'</span><span class="p">][</span><span class="s1">'notes'</span><span class="p">]</span>
 
     <span class="c1"># ust.Noteを入れておくリスト</span>
     <span class="n">ust</span> <span class="o">=</span> <span class="n">_ust</span><span class="o">.</span><span class="n">Ust</span><span class="p">()</span>
@@ -67,46 +163,51 @@
     <span class="c1"># ust.append(utaunote)</span>
 
     <span class="c1"># プロジェクト設定のノートを追加</span>
-    <span class="n">ust</span><span class="o">.</span><span class="n">setting</span><span class="o">.</span><span class="n">set_by_key</span><span class="p">(</span><span class="s1">&#39;Tempo&#39;</span><span class="p">,</span> <span class="n">svp</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">][</span><span class="s1">&#39;tempo&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;bpm&#39;</span><span class="p">])</span>
+    <span class="n">ust</span><span class="o">.</span><span class="n">setting</span><span class="o">.</span><span class="n">set_by_key</span><span class="p">(</span><span class="s1">'Tempo'</span><span class="p">,</span> <span class="n">svp</span><span class="p">[</span><span class="s1">'time'</span><span class="p">][</span><span class="s1">'tempo'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'bpm'</span><span class="p">])</span>
 
-    <span class="c1"># 前奏の休符を追加</span>
-    <span class="n">utaunote</span> <span class="o">=</span> <span class="n">_ust</span><span class="o">.</span><span class="n">Note</span><span class="p">()</span>
-    <span class="n">utaunote</span><span class="o">.</span><span class="n">lyric</span> <span class="o">=</span> <span class="s1">&#39;R&#39;</span>
-    <span class="n">utaunote</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">svnotes</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;onset&#39;</span><span class="p">]</span> <span class="o">//</span> <span class="mi">1470000</span>
-    <span class="n">ust</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">utaunote</span><span class="p">)</span>
-
-    <span class="c1"># DEBUG: 休符が挟まってるかどうかを判定して、休符を追加する処理を実装する必要がある。</span>
+    <span class="n">previous_onset</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">for</span> <span class="n">svnote</span> <span class="ow">in</span> <span class="n">svnotes</span><span class="p">:</span>
+        <span class="n">onset</span> <span class="o">=</span> <span class="n">svnote</span><span class="p">[</span><span class="s1">'onset'</span><span class="p">]</span> <span class="o">//</span> <span class="mi">1470000</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">svnote</span><span class="p">[</span><span class="s1">'duration'</span><span class="p">]</span> <span class="o">//</span> <span class="mi">1470000</span>
+
+        <span class="c1"># 必要の場合、休符を追加</span>
+        <span class="k">if</span> <span class="n">previous_onset</span> <span class="o">&lt;</span> <span class="n">onset</span><span class="p">:</span>
+            <span class="n">breaknote</span> <span class="o">=</span> <span class="n">_ust</span><span class="o">.</span><span class="n">Note</span><span class="p">()</span>
+            <span class="n">breaknote</span><span class="o">.</span><span class="n">lyric</span> <span class="o">=</span> <span class="s1">'R'</span>
+            <span class="n">breaknote</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">onset</span> <span class="o">-</span> <span class="n">previous_onset</span>
+            <span class="n">ust</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">breaknote</span><span class="p">)</span>
+
         <span class="n">utaunote</span> <span class="o">=</span> <span class="n">_ust</span><span class="o">.</span><span class="n">Note</span><span class="p">()</span>
-        <span class="n">utaunote</span><span class="o">.</span><span class="n">lyric</span> <span class="o">=</span> <span class="n">svnote</span><span class="p">[</span><span class="s1">&#39;lyrics&#39;</span><span class="p">]</span>
-        <span class="n">utaunote</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">svnote</span><span class="p">[</span><span class="s1">&#39;duration&#39;</span><span class="p">]</span> <span class="o">//</span> <span class="mi">1470000</span>
+        <span class="n">utaunote</span><span class="o">.</span><span class="n">lyric</span> <span class="o">=</span> <span class="n">svnote</span><span class="p">[</span><span class="s1">'lyrics'</span><span class="p">]</span>
+        <span class="n">utaunote</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">duration</span>
+        <span class="n">previous_onset</span> <span class="o">=</span> <span class="n">onset</span> <span class="o">+</span> <span class="n">duration</span>
         <span class="n">ust</span><span class="o">.</span><span class="n">notes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">utaunote</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">utaunote</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ust</span></div>
 
 
-<div class="viewcode-block" id="ust2otoini"><a class="viewcode-back" href="../../utaupy.html#utaupy.convert.ust2otoini">[docs]</a><span class="k">def</span> <span class="nf">ust2otoini</span><span class="p">(</span><span class="n">ust</span><span class="p">,</span> <span class="n">name_wav</span><span class="p">,</span> <span class="n">d_table</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;romaji_cv&#39;</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ust2otoini"><a class="viewcode-back" href="../../utaupy.html#utaupy.convert.ust2otoini">[docs]</a><span class="k">def</span> <span class="nf">ust2otoini</span><span class="p">(</span><span class="n">ust</span><span class="p">,</span> <span class="n">name_wav</span><span class="p">,</span> <span class="n">d_table</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'romaji_cv'</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">"""</span>
 <span class="sd">    UstクラスオブジェクトからOtoIniクラスオブジェクトを生成</span>
 <span class="sd">    機能選択部分</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">allowed_modes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;mono&#39;</span><span class="p">,</span> <span class="s1">&#39;romaji_cv&#39;</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;romaji_cv&#39;</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  変換モード : ひらがな歌詞 → ローマ字CV&#39;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">allowed_modes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'mono'</span><span class="p">,</span> <span class="s1">'romaji_cv'</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">'romaji_cv'</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'  変換モード : ひらがな歌詞 → ローマ字CV'</span><span class="p">)</span>
         <span class="n">otoini</span> <span class="o">=</span> <span class="n">ust2otoini_romaji_cv</span><span class="p">(</span><span class="n">ust</span><span class="p">,</span> <span class="n">name_wav</span><span class="p">,</span> <span class="n">d_table</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="n">replace</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;mono&#39;</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;  変換モード : ひらがな歌詞 → ローマ字モノフォン&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">'mono'</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">'  変換モード : ひらがな歌詞 → ローマ字モノフォン'</span><span class="p">)</span>
         <span class="n">otoini</span> <span class="o">=</span> <span class="n">ust2otoini_mono</span><span class="p">(</span><span class="n">ust</span><span class="p">,</span> <span class="n">name_wav</span><span class="p">,</span> <span class="n">d_table</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;argument </span><span class="se">\&#39;</span><span class="s1">mode</span><span class="se">\&#39;</span><span class="s1"> must be in </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">allowed_modes</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'argument </span><span class="se">\'</span><span class="s1">mode</span><span class="se">\'</span><span class="s1"> must be in </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">allowed_modes</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">otoini</span></div>
 
 
 <div class="viewcode-block" id="ust2otoini_mono"><a class="viewcode-back" href="../../utaupy.html#utaupy.convert.ust2otoini_mono">[docs]</a><span class="k">def</span> <span class="nf">ust2otoini_mono</span><span class="p">(</span><span class="n">ust</span><span class="p">,</span> <span class="n">name_wav</span><span class="p">,</span> <span class="n">d_table</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">"""</span>
 <span class="sd">    UstクラスオブジェクトからOtoIniクラスオブジェクトを生成</span>
-<span class="sd">    vowel_otoの対称は母音以外に &#39;N&#39;, &#39;cl&#39; なども含まれる。</span>
+<span class="sd">    vowel_otoの対称は母音以外に 'N', 'cl' なども含まれる。</span>
 <span class="sd">    mode : otoiniのエイリアス種別選択</span>
 <span class="sd">    【パラメータ設定図】</span>
 <span class="sd">    simple_oto---------------------------------------------------------------</span>
@@ -121,7 +222,7 @@
 <span class="sd">      ||左ブランク・オーバーラップ |先行発声 |固定範囲            |右ブランク</span>
 <span class="sd">      ||          dt(ms)           | dt(ms)  | ノート長 - dt (ms) |</span>
 <span class="sd">    -------------------------------------------------------------------------</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">ust</span><span class="o">.</span><span class="n">make_finalnote_R</span><span class="p">()</span>  <span class="c1"># 最終ノートが休符じゃない場合を対策</span>
 
     <span class="c1"># UstのNoteオブジェクトごとにOtoオブジェクトを生成</span>
@@ -144,14 +245,14 @@
     <span class="n">mono_otoini</span> <span class="o">=</span> <span class="n">_otoini</span><span class="o">.</span><span class="n">OtoIni</span><span class="p">()</span>  <span class="c1"># mono_otoを入れるリスト</span>
     <span class="k">for</span> <span class="n">simple_oto</span> <span class="ow">in</span> <span class="n">kana_otoini</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    </span><span class="si">{</span><span class="n">simple_oto</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    </span><span class="si">{</span><span class="n">simple_oto</span><span class="o">.</span><span class="n">values</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">phonemes</span> <span class="o">=</span> <span class="n">d_table</span><span class="p">[</span><span class="n">simple_oto</span><span class="o">.</span><span class="n">alias</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;KeyError in utaupy.convert.ust2otoini_mono---------&#39;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ひらがなローマ字変換に失敗しました。半角スペースで音素分割してぶち込みます。&#39;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;エラー詳細:&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;--------------------------------------</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'KeyError in utaupy.convert.ust2otoini_mono---------'</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'ひらがなローマ字変換に失敗しました。半角スペースで音素分割してぶち込みます。'</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'エラー詳細:'</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'--------------------------------------</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">phonemes</span> <span class="o">=</span> <span class="n">simple_oto</span><span class="o">.</span><span class="n">alias</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">phonemes</span><span class="p">)</span>
         <span class="c1"># 子音+母音 「か(k a)」</span>
@@ -220,7 +321,7 @@
             <span class="n">oto</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">simple_oto</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">-</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span>
             <span class="n">mono_otoini</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oto</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;len(alias) must be in [1, 2, 3]&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'len(alias) must be in [1, 2, 3]'</span><span class="p">)</span>
 
     <span class="n">mono_otoini</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">mono_otoini</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">preutterance</span> <span class="o">=</span> <span class="mi">0</span>
@@ -228,14 +329,14 @@
 
 
 <div class="viewcode-block" id="ust2otoini_romaji_cv"><a class="viewcode-back" href="../../utaupy.html#utaupy.convert.ust2otoini_romaji_cv">[docs]</a><span class="k">def</span> <span class="nf">ust2otoini_romaji_cv</span><span class="p">(</span><span class="n">ust</span><span class="p">,</span> <span class="n">name_wav</span><span class="p">,</span> <span class="n">d_table</span><span class="p">,</span> <span class="n">dt</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">"""</span>
 <span class="sd">    UstクラスオブジェクトからOtoIniクラスオブジェクトを生成</span>
 <span class="sd">    dt   : 左ブランク - オーバーラップ - 先行発声 - 固定範囲と右ブランク の距離</span>
 <span class="sd">    mode : otoiniのエイリアス種別選択</span>
 <span class="sd">    【パラメータ設定図】</span>
 <span class="sd">      | 左ブランク |オーバーラップ| 先行発声 | 固定範囲 |   右ブランク   |</span>
 <span class="sd">      |   (dt)ms   |    (dt)ms    |  (dt)ms  |  (dt)ms  | (length-2dt)ms |</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">ust</span><span class="o">.</span><span class="n">make_finalnote_R</span><span class="p">()</span>  <span class="c1"># 最終ノートが休符じゃない場合を対策</span>
     <span class="n">otoini</span> <span class="o">=</span> <span class="n">_otoini</span><span class="o">.</span><span class="n">OtoIni</span><span class="p">()</span>
     <span class="n">t</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># ノート開始時刻を記録</span>
@@ -243,18 +344,18 @@
     <span class="c1"># NOTE: ここnotes[2:-1]とust.values[2:-1]で処理時間に差は出る？</span>
     <span class="k">for</span> <span class="n">note</span> <span class="ow">in</span> <span class="n">ust</span><span class="o">.</span><span class="n">notes</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    </span><span class="si">{</span><span class="n">ust</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    </span><span class="si">{</span><span class="n">ust</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">phonemes</span> <span class="o">=</span> <span class="n">d_table</span><span class="p">[</span><span class="n">note</span><span class="o">.</span><span class="n">lyric</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;    [WARN] KeyError in utaupy.convert.ust2otoini_romaji_cv : </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'    [WARN] KeyError in utaupy.convert.ust2otoini_romaji_cv : </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">phonemes</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">lyric</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
 
         <span class="n">length</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">length_ms</span>
         <span class="n">oto</span> <span class="o">=</span> <span class="n">_otoini</span><span class="o">.</span><span class="n">Oto</span><span class="p">()</span>
         <span class="n">oto</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">name_wav</span>     <span class="c1"># wavファイル名</span>
         <span class="k">if</span> <span class="n">replace</span><span class="p">:</span>
-            <span class="n">oto</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">phonemes</span><span class="p">)</span>  <span class="c1"># エイリアスは音素ごとに空白区切り</span>
+            <span class="n">oto</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">phonemes</span><span class="p">)</span>  <span class="c1"># エイリアスは音素ごとに空白区切り</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">oto</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="n">note</span><span class="o">.</span><span class="n">lyric</span>
         <span class="n">oto</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">t</span> <span class="o">-</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">dt</span><span class="p">)</span>   <span class="c1"># 左ブランクはノート開始位置より2段手前</span>
@@ -272,9 +373,9 @@
 
         <span class="c1"># 4音素以上には未対応。特殊音素と判断して1音素として処理</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">[WARN] when setting alias : phonemes = </span><span class="si">{}</span><span class="s1">-------------&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">phonemes</span><span class="p">))</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;1エイリアスあたり 1, 2, 3 音素しか対応していません。&#39;</span><span class="p">)</span>
-            <span class="n">oto</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">phonemes</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">[WARN] when setting alias : phonemes = </span><span class="si">{}</span><span class="s1">-------------'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">phonemes</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">'1エイリアスあたり 1, 2, 3 音素しか対応していません。'</span><span class="p">)</span>
+            <span class="n">oto</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="s1">''</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">phonemes</span><span class="p">)</span>
             <span class="n">oto</span><span class="o">.</span><span class="n">overlap</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="n">otoini</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">oto</span><span class="p">)</span>
@@ -288,38 +389,38 @@
     <span class="k">return</span> <span class="n">otoini</span></div>
 
 
-<div class="viewcode-block" id="otoini2label"><a class="viewcode-back" href="../../utaupy.html#utaupy.convert.otoini2label">[docs]</a><span class="k">def</span> <span class="nf">otoini2label</span><span class="p">(</span><span class="n">otoini</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="otoini2label"><a class="viewcode-back" href="../../utaupy.html#utaupy.convert.otoini2label">[docs]</a><span class="k">def</span> <span class="nf">otoini2label</span><span class="p">(</span><span class="n">otoini</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'auto'</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">"""</span>
 <span class="sd">    OtoIniクラスオブジェクトからLabelクラスオブジェクトを生成</span>
 <span class="sd">    発声開始: オーバーラップ</span>
 <span class="sd">    発声終了: 次のノートのオーバーラップ</span>
 <span class="sd">    発音記号: エイリアス流用</span>
 <span class="sd">    otoini_time_order: otoiniの時間単位の桁。</span>
 <span class="sd">    label_time_order : ラベルの時間単位の桁。</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># ms(10^-4) -&gt; 100ns(10^-7) の換算</span>
     <span class="n">time_order_ratio</span> <span class="o">=</span> <span class="mi">10000</span>
     <span class="c1"># time_order_ratio = otoini_time_order / label_time_order</span>
-    <span class="c1"># print(&#39;  time_order_ratio:&#39;, time_order_ratio)</span>
+    <span class="c1"># print('  time_order_ratio:', time_order_ratio)</span>
 
     <span class="c1"># wavファイルが余計にあるときに追加される行を無視する</span>
-    <span class="n">otoini</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">oto</span> <span class="k">for</span> <span class="n">oto</span> <span class="ow">in</span> <span class="n">otoini</span> <span class="k">if</span> <span class="n">oto</span><span class="o">.</span><span class="n">alias</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">]</span>
+    <span class="n">otoini</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">oto</span> <span class="k">for</span> <span class="n">oto</span> <span class="ow">in</span> <span class="n">otoini</span> <span class="k">if</span> <span class="n">oto</span><span class="o">.</span><span class="n">alias</span> <span class="o">!=</span> <span class="s1">''</span><span class="p">]</span>
 
-    <span class="n">allowed_modes</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span> <span class="s1">&#39;mono&#39;</span><span class="p">,</span> <span class="s1">&#39;romaji_cv&#39;</span><span class="p">)</span>
+    <span class="n">allowed_modes</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'auto'</span><span class="p">,</span> <span class="s1">'mono'</span><span class="p">,</span> <span class="s1">'romaji_cv'</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_modes</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;argument &quot;mode&quot; must be in </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">allowed_modes</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">'argument "mode" must be in </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">allowed_modes</span><span class="p">))</span>
     <span class="c1"># エイリアスのタイプ自動判別</span>
-    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;auto&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">'auto'</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">otoini</span><span class="o">.</span><span class="n">is_mono</span><span class="p">():</span>
-            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;mono&#39;</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">'mono'</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;romaji_cv&#39;</span>
-    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;romaji_cv&#39;</span><span class="p">:</span>
-        <span class="c1"># print(&#39;  mode: OtoIni(romaji_cv) -&gt; Label(mono)&#39;)</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s1">'romaji_cv'</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s1">'romaji_cv'</span><span class="p">:</span>
+        <span class="c1"># print('  mode: OtoIni(romaji_cv) -&gt; Label(mono)')</span>
         <span class="c1"># モノフォン化</span>
         <span class="n">otoini</span> <span class="o">=</span> <span class="n">otoini</span><span class="o">.</span><span class="n">monophonize</span><span class="p">()</span>
-    <span class="c1"># elif mode == &#39;mono&#39;:</span>
-    <span class="c1">#     print(&#39;  mode: OtoIni(mono) -&gt; Label(mono)&#39;)</span>
+    <span class="c1"># elif mode == 'mono':</span>
+    <span class="c1">#     print('  mode: OtoIni(mono) -&gt; Label(mono)')</span>
 
     <span class="c1"># 計算の重複を避けるために [[発音開始時刻, 発音記号], ...] の仮リストにする</span>
     <span class="n">tmp</span> <span class="o">=</span> <span class="p">[]</span>
@@ -350,12 +451,12 @@
 
 
 <div class="viewcode-block" id="label2otoini"><a class="viewcode-back" href="../../utaupy.html#utaupy.convert.label2otoini">[docs]</a><span class="k">def</span> <span class="nf">label2otoini</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">name_wav</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">"""</span>
 <span class="sd">    LabelオブジェクトをOtoIniオブジェクトに変換</span>
 <span class="sd">    モノフォン、CV、VCV とかの選択肢が必要そう</span>
 <span class="sd">    otoini_time_order: otoiniの時間オーダー。</span>
 <span class="sd">    label_time_order : ラベルの時間オーダー。</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># time_order_ratio = label_time_order / otoini_time_order</span>
     <span class="n">time_order_ratio</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">)</span>
 
@@ -374,76 +475,41 @@
     <span class="k">return</span> <span class="n">otoini</span></div>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__init__&#39;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">'__init__'</span><span class="p">:</span>
     <span class="k">pass</span>
 </pre></div>
-
-          </div>
+      </article>
+      <footer>
+        
+        <div class="related-pages">
+          
           
         </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h1 class="logo"><a href="../../index.html">utaupy</a></h1>
 
-
-
-
-
-
-
-
-<h3>Navigation</h3>
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../utaupy.html">utaupy package</a></li>
-</ul>
-
-<div class="relations">
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="../../index.html">Documentation overview</a><ul>
-  <li><a href="../index.html">Module code</a><ul>
-  </ul></li>
-  </ul></li>
-</ul>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
-
-
-
-
-
-
-
-
+        <div class="related-information">
+              Copyright &#169; 2021, Author
+            |
+            Built with <a href="https://www.sphinx-doc.org/">Sphinx</a>
+              and
+              <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+              <a href="https://github.com/pradyunsg/furo">Furo theme</a>.
         </div>
-      </div>
-      <div class="clearer"></div>
+        
+      </footer>
     </div>
-    <div class="footer">
-      &copy;2021, Author.
+    <aside class="toc-drawer no-toc">
       
-      |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
-    </div>
-
-    
-
-    
-  </body>
+      
+    </aside>
+  </main>
+</div>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/scripts/main.js?digest=e931d09b2a40c1bb82b542effe772014573baf67"></script></body>
 </html>
