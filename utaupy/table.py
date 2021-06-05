@@ -12,12 +12,12 @@ def main():
 
 def load(path, encoding='utf-8') -> dict:
     """テーブルを読み取ってインスタンス生成"""
-    path = str(path).strip('"')
+    path = str(path).strip('\'"')
     if path.endswith('.table'):
         return load_table_file(path, encoding=encoding)
     if path.endswith('.conf'):
         return load_conf_file(path, encoding=encoding)
-    raise ValueError("Input path must end with '.table' or '.conf'.")
+    raise ValueError(f'Input path must end with ".table" or ".conf".: {path}')
 
 
 def load_table_file(path_table, encoding='utf-8') -> dict:
@@ -68,6 +68,3 @@ def load_conf_file(path_conf, encoding='utf-8') -> dict:
 
 if __name__ == '__main__':
     main()
-
-if __name__ == '__init__':
-    print('utaupy.table imported')
