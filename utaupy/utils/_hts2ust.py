@@ -68,7 +68,7 @@ def hts2ust(path_hts, path_ust, path_table=None, joint: str = ''):
     """
     d_table = up.table.load(path_table) if path_table is not None else None
     full_label = up.hts.load(path_hts)
-    ust = songobj2ustobj(full_label.song, d_table, joint='')
+    ust = songobj2ustobj(full_label.song, d_table, joint=joint)
     ust.write(path_ust)
 
 
