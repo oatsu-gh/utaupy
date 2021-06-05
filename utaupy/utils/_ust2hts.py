@@ -98,7 +98,8 @@ def ustobj2songobj(
 
 
 def ust2hts(
-        path_ust: str, path_hts: str, path_table: str, strict_sinsy_style: bool = True):
+        path_ust: str, path_hts: str, path_table: str,
+        strict_sinsy_style: bool = True, as_mono: bool = False):
     """
     USTファイルをLABファイルに変換する。
     """
@@ -108,7 +109,7 @@ def ust2hts(
     hts_song = ustobj2songobj(ust, d_table)
     # HTSFullLabel中の重複データを削除して整理
     # ファイル出力
-    hts_song.write(path_hts, strict_sinsy_style=strict_sinsy_style)
+    hts_song.write(path_hts, strict_sinsy_style=strict_sinsy_style, as_mono=as_mono)
 
 
 # def main():
