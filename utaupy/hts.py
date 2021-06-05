@@ -120,7 +120,8 @@ class HTSFullLabel(UserList):
             mono_label.append(mono_phoneme)
         return mono_label
 
-    def write(self, path, strict_sinsy_style: bool = True, mode='w', encoding='utf-8') -> str:
+    def write(self, path, strict_sinsy_style: bool = True, as_mono: bool = False,
+              mode='w', encoding='utf-8') -> str:
         """
         ファイル出力する
         strict_sinsy_style: bool:
@@ -586,19 +587,24 @@ class Song(UserList):
             mono_label.append(mono_phoneme)
         return mono_label
 
-    def write(self, path, label_type='full', strict_sinsy_style: bool = True,
-              mode='w', encoding='utf-8') -> HTSFullLabel:
+    def write(self, path, strict_sinsy_style: bool = True, as_mono: bool = False,
+              mode='w', encoding='utf-8') -> Union[HTSFullLabel, _label.Label]:
         """
         ファイル出力する。
         HTSFullLabelからではなく、USTなどからSongが直接生成されている場合に対応する。
         """
         full_label = HTSFullLabel()
         full_label.song = self
+
         full_label.fill_contexts_from_songobj()
+        if as_mono is True:
+            mono_label = full_label.as_mono()
+            mono_label.write(path, mode=mode, encoding=encoding)
+            return mono_label
+
         full_label.write(
             path, strict_sinsy_style=strict_sinsy_style,
-            mode=mode, encoding=encoding
-        )
+            mode=mode, encoding=encoding)
         return full_label
 
     def reset_time(self):
@@ -816,8 +822,8 @@ class Song(UserList):
                 counter_100ns += note.length_100ns
             # 休符でもなくて最初のノートでもないとき
             else:
-                note.position_100ms = \
-                    Decimal(counter_100ns / 1000000).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                note.position_100ms = Decimal(
+                    counter_100ns / 1000000).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
                 note.position_100ns = counter_100ns
                 counter_100ns += note.length_100ns
 
@@ -832,14 +838,14 @@ class Song(UserList):
             # フレーズ中で最後のノートのときは時間をリセットして、累積時間を増やす。
             elif note.position_backward == 1:
                 counter_100ns = note.length_100ns
-                note.position_100ms_backward = \
-                    Decimal(counter_100ns / 1000000).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                note.position_100ms_backward = Decimal(
+                    counter_100ns / 1000000).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
                 note.position_100ns_backward = counter_100ns
             # 休符でもなくて最後のノートでもないとき
             else:
                 counter_100ns += note.length_100ns
-                note.position_100ms_backward = \
-                    Decimal(counter_100ns / 1000000).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                note.position_100ms_backward = Decimal(
+                    counter_100ns / 1000000).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
                 note.position_100ns_backward = counter_100ns
 
     def _fill_e22_e23(self):
@@ -1010,7 +1016,7 @@ class Phrase(UserList):
         super().__init__(init)
         self.contexts = ['xx'] * 2
 
-    @property
+    @ property
     def number_of_syllables(self):
         """
         フレーズ内の音節数。
@@ -1021,11 +1027,11 @@ class Phrase(UserList):
         """
         return self.contexts[0]
 
-    @number_of_syllables.setter
+    @ number_of_syllables.setter
     def number_of_syllables(self, number):
         self.contexts[0] = number
 
-    @property
+    @ property
     def number_of_phonemes(self):
         """
         フレーズ内の音素数。
@@ -1033,7 +1039,7 @@ class Phrase(UserList):
         """
         return self.contexts[1]
 
-    @number_of_phonemes.setter
+    @ number_of_phonemes.setter
     def number_of_phonemes(self, number):
         self.contexts[1] = number
 
@@ -1055,7 +1061,7 @@ class Note(UserList):
         self.position_100ns: int = None
         self.position_100ns_backward: int = None
 
-    @property
+    @ property
     def absolute_pitch(self):
         """
         ノートの絶対音高 (C0-G9) (e1)
@@ -1063,7 +1069,7 @@ class Note(UserList):
         """
         return self.contexts[0]
 
-    @absolute_pitch.setter
+    @ absolute_pitch.setter
     def absolute_pitch(
             self, absolute_pitch: str = None, notenum: int = None):
         """
@@ -1078,29 +1084,29 @@ class Note(UserList):
         else:
             self.contexts[0] = notenum_to_abspitch(notenum)
 
-    @property
+    @ property
     def relative_pitch(self) -> int:
         """
         ノートの相対音高(p2)
         """
         return self.contexts[1]
 
-    @relative_pitch.setter
+    @ relative_pitch.setter
     def relative_pitch(self, relative_pitch: int):
         self.contexts[1] = relative_pitch
 
-    @property
+    @ property
     def key(self):
         """
         ノートのキー(p3)
         """
         return self.contexts[2]
 
-    @key.setter
+    @ key.setter
     def key(self, key: int):
         self.contexts[2] = key
 
-    @property
+    @ property
     def beat(self):
         """
         拍子情報(p4)
@@ -1108,11 +1114,11 @@ class Note(UserList):
         """
         return self.contexts[3]
 
-    @beat.setter
+    @ beat.setter
     def beat(self, beat: str):
         self.contexts[3] = str(beat)
 
-    @property
+    @ property
     def notenum(self):
         """
         音高をノート番号で取得する
@@ -1121,33 +1127,33 @@ class Note(UserList):
         """
         return abspitch_to_notenum(self.absolute_pitch)
 
-    @notenum.setter
+    @ notenum.setter
     def notenum(self, notenum):
         self.absolute_pitch = notenum_to_abspitch(notenum)
 
-    @property
+    @ property
     def tempo(self):
         """
         テンポ(e5)
         """
         return self.contexts[4]
 
-    @tempo.setter
+    @ tempo.setter
     def tempo(self, tempo: int):
         self.contexts[4] = tempo
 
-    @property
+    @ property
     def number_of_syllables(self):
         """
         ノート内音節数(e6)
         """
         return self.contexts[5]
 
-    @number_of_syllables.setter
+    @ number_of_syllables.setter
     def number_of_syllables(self, number: int):
         self.contexts[5] = number
 
-    @property
+    @ property
     def length_10ms(self):
         """
         ノート長(e7)
@@ -1155,11 +1161,11 @@ class Note(UserList):
         """
         return self.contexts[6]
 
-    @length_10ms.setter
+    @ length_10ms.setter
     def length_10ms(self, length: int):
         self.contexts[6] = length
 
-    @property
+    @ property
     def length(self):
         """
         ノート長(e8)
@@ -1167,11 +1173,11 @@ class Note(UserList):
         """
         return self.contexts[7]
 
-    @length.setter
+    @ length.setter
     def length(self, length: int):
         self.contexts[7] = length
 
-    @property
+    @ property
     def length_100ns(self):
         """
         ノート長(ラベル出力なし)
@@ -1181,18 +1187,18 @@ class Note(UserList):
             return 'xx'
         return float(25000000 * int(self.length) / int(self.tempo))
 
-    @property
+    @ property
     def position(self):
         """
         フレーズ内での位置(e18)
         """
         return self.contexts[17]
 
-    @position.setter
+    @ position.setter
     def position(self, position: int):
         self.contexts[17] = position
 
-    @property
+    @ property
     def position_backward(self):
         """
         フレーズ内での後ろから数えた位置(e19)
@@ -1200,11 +1206,11 @@ class Note(UserList):
         """
         return self.contexts[18]
 
-    @position_backward.setter
+    @ position_backward.setter
     def position_backward(self, position_backward: int):
         self.contexts[18] = position_backward
 
-    @property
+    @ property
     def position_100ms(self):
         """
         フレーズ内での位置(e20)
@@ -1212,11 +1218,11 @@ class Note(UserList):
         """
         return self.contexts[19]
 
-    @position_100ms.setter
+    @ position_100ms.setter
     def position_100ms(self, position: int):
         self.contexts[19] = position
 
-    @property
+    @ property
     def position_100ms_backward(self):
         """
         フレーズ内での後ろから数えた位置(e21)
@@ -1224,11 +1230,11 @@ class Note(UserList):
         """
         return self.contexts[20]
 
-    @position_100ms_backward.setter
+    @ position_100ms_backward.setter
     def position_100ms_backward(self, position_backward: int):
         self.contexts[20] = position_backward
 
-    @property
+    @ property
     def phonemes(self) -> list:
         """
         Note内のすべてのPhonemeオブジェクトを並べたリストを返す。
@@ -1263,18 +1269,18 @@ class Syllable(UserList):
         super().__init__(init)
         self.contexts = ['xx'] * 5
 
-    @property
+    @ property
     def number_of_phonemes(self):
         """
         音節内の音素数(b1)
         """
         return self.contexts[0]
 
-    @number_of_phonemes.setter
+    @ number_of_phonemes.setter
     def number_of_phonemes(self, number: int):
         self.contexts[0] = number
 
-    @property
+    @ property
     def position(self):
         """
         ノート内での位置(b2)
@@ -1282,11 +1288,11 @@ class Syllable(UserList):
         """
         return self.contexts[1]
 
-    @position.setter
+    @ position.setter
     def position(self, position: int):
         self.contexts[1] = position
 
-    @property
+    @ property
     def position_backward(self):
         """
 
@@ -1295,7 +1301,7 @@ class Syllable(UserList):
         """
         return self.contexts[2]
 
-    @position_backward.setter
+    @ position_backward.setter
     def position_backward(self, position_backward: int):
         self.contexts[2] = position_backward
 
