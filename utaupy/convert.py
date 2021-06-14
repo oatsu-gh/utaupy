@@ -34,7 +34,7 @@ def svp2ust(svp, debug=False):
     # ust.append(utaunote)
 
     # プロジェクト設定のノートを追加
-    ust.setting.set_by_key('Tempo', svp['time']['tempo'][0]['bpm'])
+    ust.setting['Tempo'] = str(svp['time']['tempo'][0]['bpm'])
 
     previous_onset = 0
     for svnote in svnotes:
