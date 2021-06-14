@@ -96,15 +96,53 @@ class Label(UserList):
         """
         最初の音素の発声までの時間を取得する。
         """
-        return self[0].start
+        return self.data[0].start
 
-    def shift(self, time_length_100ns:int):
+    def shift(self, time_length_100ns: int):
         """
         全体の時刻をずらす。
         """
         for phoneme in self:
             phoneme.start += time_length_100ns
             phoneme.end += time_length_100ns
+
+    def is_valid(self, threshold: int = 0, time_unit='ms') -> bool:
+        """
+        発声時間が一定未満な音素ラベル行を検出
+        threshold: 許容される最小の発声時間(ms)
+        """
+        # TODO: printじゃなくする
+
+        if time_unit == 'ms':
+            threshold_100ns = int(threshold * (10**4))
+        elif time_unit == '100ns':
+            threshold_100ns = threshold
+        else:
+            raise ValueError('Argument "time_unit" must be "ms" or "100ns".')
+        # 既定の長さに達しない音素を検出
+        invalid_phonemes = []
+        for phoneme in self:
+            duration = phoneme.end - phoneme.start
+            if duration < threshold_100ns:
+                invalid_phonemes.append(phoneme)
+                print(f'  [ERROR] 発声時間が {threshold}{time_unit} 未満か負です : {phoneme}')
+
+        # 前後の音素の開始・終了時刻と一致するかチェック
+        for i, phoneme in enumerate(self[1:-1], 1):
+            previous_phoneme = self[i - 1]
+            next_phoneme = self[i + 1]
+            if phoneme.start != previous_phoneme.end:
+                print('  [ERROR] 発声開始時刻が直前の発声終了時刻と一致しません')
+                print('          previous_phoneme:', str(previous_phoneme))
+                print('          current_phoneme :', str(phoneme))
+                invalid_phonemes.append(phoneme)
+            if phoneme.end != next_phoneme.start:
+                print('  [ERROR] 発声終了時刻が直後の発声開始時刻と一致しません')
+                print('          current_phoneme :', str(phoneme))
+                print('          next_phoneme    :', str(next_phoneme))
+                invalid_phonemes.append(phoneme)
+
+        return len(invalid_phonemes) == 0
 
     def check_invalid_time(self, threshold=0):
         """
