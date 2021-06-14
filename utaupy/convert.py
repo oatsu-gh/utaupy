@@ -94,7 +94,8 @@ def ust2otoini_mono(ust, name_wav, d_table, dt=100, debug=False):
       ||          dt(ms)           | dt(ms)  | ノート長 - dt (ms) |
     -------------------------------------------------------------------------
     """
-    ust.make_finalnote_R()  # 最終ノートが休符じゃない場合を対策
+    # WARNING: 削除↓
+    # ust.make_finalnote_R()  # 最終ノートが休符じゃない場合を対策
 
     # UstのNoteオブジェクトごとにOtoオブジェクトを生成
     kana_otoini = _otoini.OtoIni()  # simple_otoを入れるリスト
@@ -208,7 +209,9 @@ def ust2otoini_romaji_cv(ust, name_wav, d_table, dt=100, replace=True, debug=Fal
       | 左ブランク |オーバーラップ| 先行発声 | 固定範囲 |   右ブランク   |
       |   (dt)ms   |    (dt)ms    |  (dt)ms  |  (dt)ms  | (length-2dt)ms |
     """
-    ust.make_finalnote_R()  # 最終ノートが休符じゃない場合を対策
+    # WARNING: ↓削除
+    # ust.make_finalnote_R()  # 最終ノートが休符じゃない場合を対策
+
     otoini = _otoini.OtoIni()
     t = 0  # ノート開始時刻を記録
 
