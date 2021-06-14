@@ -373,7 +373,6 @@ class Ust:
         last_note = self.notes[-1]
         # Ust内の最後はTRACKENDなので後ろから2番目のノートで判定
         if last_note.lyric not in ('pau', 'sil', 'R'):
-            print('  末尾に休符を自動追加します。')
             rest_note = deepcopy(last_note)
             rest_note.lyric = 'R'
             self.notes.append(rest_note)
