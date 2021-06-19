@@ -25,7 +25,7 @@ def main():
     print('-----------------------------------')
 
 
-def load(path, mode='r', encoding='shift-jis', remove_blankline=True, oremo=False):
+def load(path, mode='r', encoding='cp932', remove_blankline=True, oremo=False):
     """
     録音リストを読み取ってオブジェクト生成
     path    : 録音リストのパス

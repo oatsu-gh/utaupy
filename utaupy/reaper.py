@@ -37,7 +37,7 @@ def load(path, mode='r', encoding='utf-8'):
     REAPERのリージョンCSVを読み取る。
     """
     # 文字コードの候補
-    choices = ['utf-8', 'shift-jis']
+    choices = ['utf-8', 'cp932']
     if encoding in choices:
         choices.remove(encoding)
 

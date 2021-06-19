@@ -59,7 +59,7 @@ def _load(path: str, encoding='utf-8') -> dict:
         with open(path, mode='r', encoding=encoding) as f:
             lines = [line.rstrip('\r\n') for line in f.readlines()]
     except UnicodeDecodeError:
-        with open(path, mode='r', encoding='sjis') as f:
+        with open(path, mode='r', encoding='cp932') as f:
             lines = [line.rstrip('\r\n') for line in f.readlines()]
     return _load_hts_lines(lines)
 

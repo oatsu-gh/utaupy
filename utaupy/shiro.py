@@ -7,7 +7,7 @@ SHIRO (https://github.com/Sleepwalking/SHIRO) 関連のファイルを扱う。
 import re
 
 
-def load_index(path, mode='r', encoding='shift-jis'):
+def load_index(path, mode='r', encoding='cp932'):
     """index fileを読み取ってIndexを返す"""
     # labファイル読み取り
     with open(path, mode=mode, encoding=encoding) as f:
@@ -30,7 +30,7 @@ class Index:
         """二次元リスト [[開始時刻, 音素, 音素, 音素, ...], [], ...]"""
         self.__values = []
 
-    def write(self, path, mode='w', encoding='shift-jis', newline='\n'):
+    def write(self, path, mode='w', encoding='cp932', newline='\n'):
         """indexfile(CSV)を保存"""
         l = self.values
         s = ''

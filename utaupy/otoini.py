@@ -15,7 +15,7 @@ def main():
     print('耳ロボPとsetParamに卍感謝卍')
 
 
-def load(path, mode='r', encoding='shift-jis'):
+def load(path, mode='r', encoding='cp932'):
     """
     otoiniを読み取ってオブジェクト生成
     """
@@ -102,7 +102,7 @@ class OtoIni(UserList):
                 mono_otoini.append(oto)
         return mono_otoini
 
-    def write(self, path, mode='w', encoding='shift-jis'):
+    def write(self, path, mode='w', encoding='cp932'):
         """
         ファイル出力
         """

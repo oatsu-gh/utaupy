@@ -33,7 +33,7 @@ def run(your_function, option=None, path=None):
     plugin.write(path)
 
 
-def load(path: str, encoding='shift-jis'):
+def load(path: str, encoding='cp932'):
     """
     UTAUプラグイン一時ファイルを読み取る
     USTのやつを一部改変
@@ -54,7 +54,7 @@ class UtauPlugin(_ust.Ust):
         # プラグインのときは[#TRACKEND]が不要
         self.trackend = None
 
-    def write(self, path: str, mode: str = 'w', encoding: str = 'shift-jis') -> str:
+    def write(self, path: str, mode: str = 'w', encoding: str = 'cp932') -> str:
         """
         USTをファイル出力
         """

@@ -167,7 +167,7 @@ class HTSFullLabel(UserList):
             with open(path, mode='r', encoding=encoding) as f:
                 lines = [line.rstrip('\r\n') for line in f.readlines()]
         except UnicodeDecodeError:
-            with open(path, mode='r', encoding='sjis') as f:
+            with open(path, mode='r', encoding='cp932') as f:
                 lines = [line.rstrip('\r\n') for line in f.readlines()]
         # 行ごとに分割したリストをもとに情報を登録する。
         self._load_from_lines(lines)

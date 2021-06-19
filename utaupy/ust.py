@@ -145,7 +145,7 @@ def notenum_as_abc(notenum) -> str:
     return NOTENUM_TO_NOTENAME_DICT[int(notenum)]
 
 
-def load(path: str, encoding: str = 'shift-jis'):
+def load(path: str, encoding: str = 'cp932'):
     """
     USTを読み取り
     """
@@ -189,7 +189,7 @@ class Ust:
             s = '\n'.join((str_version, s))
         return s
 
-    def load(self, path: str, encoding='shift-jis'):
+    def load(self, path: str, encoding='cp932'):
         """
         ファイルからインスタンス生成
         """
@@ -378,7 +378,7 @@ class Ust:
             self.notes.append(rest_note)
         self.reload_tempo()
 
-    def write(self, path: str, mode: str = 'w', encoding: str = 'shift-jis') -> str:
+    def write(self, path: str, mode: str = 'w', encoding: str = 'cp932') -> str:
         """
         USTをファイル出力
         """
