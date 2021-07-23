@@ -163,8 +163,11 @@ class Ust:
         super().__init__()
         # ノート(クラスオブジェクト)からなるリスト
         self.version = None   # [#VERSION]
-        self.setting = Note(tag='[#SETTING]')  # [#SETTING]
         self.notes: List[Note] = []  # [#1234], [#INSERT], [#DELETE]
+        self.setting = Note(tag='[#SETTING]')  # [#SETTING]
+        self.setting['Tempo'] = 120
+        del self.setting['Length']
+        del self.setting['NoteNum']
         self.trackend = Note(tag='[#TRACKEND]')  # [#TRACKEND]
         self.next_note = None  # [#NEXT]
         self.previous_note = None  # [#PREV]
@@ -408,6 +411,8 @@ class Note(UserDict):
         super().__init__()
         self['Tag'] = tag
         self.alternative_tempo = None
+        self.length = 480
+        self.notenum = 60
 
     def __str__(self):
         lines = [self['Tag']] + [f'{k}={v}' for (k, v) in self.items() if k != 'Tag']
