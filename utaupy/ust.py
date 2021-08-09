@@ -378,6 +378,7 @@ class Ust:
         if last_note.lyric not in ('pau', 'sil', 'R'):
             rest_note = deepcopy(last_note)
             rest_note.lyric = 'R'
+            rest_note.length = 480
             self.notes.append(rest_note)
         self.reload_tempo()
 
