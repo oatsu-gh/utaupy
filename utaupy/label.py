@@ -3,6 +3,7 @@
 """
 歌唱データベース用のLABファイルとデータを扱うモジュールです。
 """
+import logging
 from collections import UserList
 
 
@@ -54,9 +55,10 @@ def load(path, mode='r', encoding='utf-8', time_unit='100ns'):
     while lines[-1] == ['']:
         del lines[-1]
 
+    label = Label()
+    # label.original_path = path
     # リストにする [[開始時刻, 終了時刻, 発音], [], ...]
     if time_unit in ('s', 'sec', 'second'):
-        label = Label()
         for v in lines:
             phoneme = Phoneme()
             phoneme.start = int(10000000 * float(v[0]))
@@ -66,7 +68,6 @@ def load(path, mode='r', encoding='utf-8', time_unit='100ns'):
 
     # Sinsyのモノラベル形式の場合、時刻が 1234567[100ns] なのでintにする。
     elif time_unit in ('100ns', 'subus', 'subμs'):
-        label = Label()
         for v in lines:
             phoneme = Phoneme()
             phoneme.start = int(v[0])
@@ -83,6 +84,12 @@ class Label(UserList):
     """
     歌唱ラベルLABファイルを想定したクラス(2019/04/19から)
     """
+
+    # def __init__(self):
+        # なんかうまく実装できない
+        # ループしようとすると TypeError: __init__() takes 1 positional argument but 2 were given になる
+        # super().__init__()
+        # self.original_path = None
 
     def __str__(self):
         """
@@ -111,8 +118,6 @@ class Label(UserList):
         発声時間が一定未満な音素ラベル行を検出
         threshold: 許容される最小の発声時間(ms)
         """
-        # TODO: printじゃなくする
-
         if time_unit == 'ms':
             threshold_100ns = int(threshold * (10**4))
         elif time_unit == '100ns':
@@ -125,21 +130,26 @@ class Label(UserList):
             duration = phoneme.end - phoneme.start
             if duration < threshold_100ns:
                 invalid_phonemes.append(phoneme)
-                print(f'  [ERROR] 発声時間が {threshold}{time_unit} 未満か負です : {phoneme}')
+                logging.error('発声時間が %s%s 未満か負です : %s %s',
+                              threshold, time_unit, phoneme.start, phoneme.end)
 
         # 前後の音素の開始・終了時刻と一致するかチェック
         for i, phoneme in enumerate(self[1:-1], 1):
             previous_phoneme = self[i - 1]
             next_phoneme = self[i + 1]
             if phoneme.start != previous_phoneme.end:
-                print('  [ERROR] 発声開始時刻が直前の発声終了時刻と一致しません')
-                print('          previous_phoneme:', str(previous_phoneme))
-                print('          current_phoneme :', str(phoneme))
+                error_message = '\n'.join([
+                    '発声開始時刻が直前の発声終了時刻と一致しません',
+                    f'  previous_phoneme    : {previous_phoneme.start} {previous_phoneme.end}',
+                    f'  current_phoneme : {phoneme.start} {phoneme.end}'])
+                logging.error(error_message)
                 invalid_phonemes.append(phoneme)
             if phoneme.end != next_phoneme.start:
-                print('  [ERROR] 発声終了時刻が直後の発声開始時刻と一致しません')
-                print('          current_phoneme :', str(phoneme))
-                print('          next_phoneme    :', str(next_phoneme))
+                error_message = '\n'.join([
+                    '発声終了時刻が直後の発声終了時刻と一致しません',
+                    f'  current_phoneme : {phoneme.start} {phoneme.end}',
+                    f'  next_phoneme    : {next_phoneme.start} {next_phoneme.end}'])
+                logging.error(error_message)
                 invalid_phonemes.append(phoneme)
 
         return len(invalid_phonemes) == 0
@@ -153,19 +163,22 @@ class Label(UserList):
         for phoneme in self:
             duration = phoneme.end - phoneme.start
             if duration < threshold_100ns:
-                print(
-                    f'    [ERROR] 発声時間が {threshold}ms 未満か負です : {phoneme}')
-        for i, current_phoneme in enumerate(self[1:-1], 1):
+                error_message = f'発声時間が {threshold}ms 未満か負です'
+                logging.error(error_message)
+        for i, phoneme in enumerate(self[1:-1], 1):
             previous_phoneme = self[i - 1]
             next_phoneme = self[i + 1]
-            if current_phoneme.start != previous_phoneme.end:
-                print('    [ERROR] 発声開始時刻が直前の発声終了時刻と一致しません')
-                print('            previous_phoneme:', str(previous_phoneme))
-                print('            current_phoneme :', str(current_phoneme))
-            if current_phoneme.end != next_phoneme.start:
-                print('    [ERROR] 発声終了時刻が直後の発声開始時刻と一致しません')
-                print('            current_phoneme :', str(current_phoneme))
-                print('            next_phoneme    :', str(next_phoneme))
+            if phoneme.start != previous_phoneme.end:
+                error_message = '\n'.join([
+                    '発声開始時刻が直前の発声終了時刻と一致しません',
+                    f'  previous_phoneme: {str(previous_phoneme)}',
+                    f'  current_phoneme : {str(phoneme)}'])
+                logging.error(error_message)
+            if phoneme.end != next_phoneme.start:
+                error_message = '\n'.join([
+                    '発声終了時刻が直後の発声終了時刻と一致しません',
+                    f'  current_phoneme : {str(phoneme)}',
+                    f'  next_phoneme    : {str(next_phoneme)}'])
 
     def reload(self):
         """
