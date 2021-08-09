@@ -1,12 +1,11 @@
 #! /usr/bin/env python3
-# coding: utf-8
-# Copyright (c) oatsu
+# Copyright (c) 2020-2021 oatsu
 """
 Python script for PyPI registation
 """
 from setuptools import find_packages, setup
 
-version = '1.13.0'
+version = '1.13.2'
 
 try:
     with open("README.md", mode='r') as f:
@@ -31,5 +30,5 @@ setup(
     classifiers=[
         'Programming Language :: Python :: 3'
     ],
-    keywords=['UTAU', 'setParam']
+    keywords=['UTAU']
 )
