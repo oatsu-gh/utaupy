@@ -111,6 +111,7 @@ class HTSFullLabel(UserList):
         """
         モノラベルに変換する
         """
+        # TODO: 内包表記かlambda式で高速化
         mono_label = _label.Label()
         for oneline in self:
             mono_phoneme = _label.Phoneme()
@@ -367,7 +368,17 @@ class OneLine:
 
     @property
     def duration(self) -> int:
+        """
+        発声時間の長さ (発声終了時刻-発声開始時刻)
+        """
         return self.phoneme.end - self.phoneme.start
+
+    @property
+    def symbol(self) -> str:
+        """
+        音素記号
+        """
+        return self.phoneme.identity
 
     @property
     def p(self) -> list:
