@@ -5,6 +5,7 @@
 """
 import logging
 from collections import UserList
+from typing import List
 
 
 def main():
@@ -86,10 +87,10 @@ class Label(UserList):
     """
 
     # def __init__(self):
-        # なんかうまく実装できない
-        # ループしようとすると TypeError: __init__() takes 1 positional argument but 2 were given になる
-        # super().__init__()
-        # self.original_path = None
+    # なんかうまく実装できない
+    # ループしようとすると TypeError: __init__() takes 1 positional argument but 2 were given になる
+    # super().__init__()
+    # self.original_path = None
 
     def __str__(self):
         """
@@ -104,6 +105,45 @@ class Label(UserList):
         最初の音素の発声までの時間を取得する。
         """
         return self.data[0].start
+
+    @property
+    def start_times(self):
+        """
+        発声開始時刻のリスト
+        """
+        return [phoneme.start for phoneme in self.data]
+
+    @start_times.setter
+    def start_times(self, l: List[int]):
+        assert len(l) == self.data
+        for phoneme, new_start in zip(self.data, l):
+            phoneme.start = new_start
+
+    @property
+    def end_times(self):
+        """
+        発声終了時刻のリスト
+        """
+        return [phoneme.end for phoneme in self.data]
+
+    @end_times.setter
+    def end_times(self, l: List[int]):
+        assert len(l) == self.data
+        for phoneme, new_end in zip(self.data, l):
+            phoneme.end = new_end
+
+    @property
+    def contexts(self):
+        """
+        発声終了時刻のリスト
+        """
+        return [phoneme.symbol for phoneme in self.data]
+
+    @contexts.setter
+    def contexts(self, l: List[int]):
+        assert len(l) == self.data
+        for phoneme, new_contexts in zip(self.data, l):
+            phoneme.symbol = new_contexts
 
     def shift(self, time_length_100ns: int):
         """
