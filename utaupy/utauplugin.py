@@ -9,11 +9,12 @@ utaupy.ust.Ust をもとに、ファイル入出力機能を変更したもの�
 from copy import deepcopy
 # from pprint import pprint
 from sys import argv
+from typing import Callable
 
 from utaupy import ust as _ust
 
 
-def run(your_function, option=None, path=None):
+def run(your_function: Callable, option=None, path=None):
     """
     UTAUプラグインスクリプトファイルの入出力をする。
     your_function: 実行したい関数
