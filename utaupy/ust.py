@@ -6,8 +6,6 @@ USTファイルとデータを扱うモジュールです。
 import re
 from collections import UserDict
 from copy import deepcopy
-from os.path import join
-# from pprint import pprint
 from typing import List
 
 from .utau import utau_appdata_root, utau_root
@@ -294,6 +292,10 @@ class Ust:
         1. グローバルテンポを1ノート目のテンポで上書きする。
         2. 各ノートでBPMが取得できるように note.alternative_tempo を全ノートに仕込む。
         """
+        # ノートがないときは何もしない
+        if len(self.notes) == 0:
+            return
+        # ここからはノートが1つ以上あるとき
         if 'Tempo' in self.notes[0]:
             self.setting['Tempo'] = self.notes[0]['Tempo']
         current_tempo = self.setting['Tempo']
