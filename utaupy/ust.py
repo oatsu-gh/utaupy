@@ -167,6 +167,8 @@ class Ust:
         del self.setting['Length']
         del self.setting['NoteNum']
         self.trackend = Note(tag='[#TRACKEND]')  # [#TRACKEND]
+        del self.trackend['Length']
+        del self.trackend['NoteNum']
         self.next_note = None  # [#NEXT]
         self.previous_note = None  # [#PREV]
 
