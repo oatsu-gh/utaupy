@@ -50,6 +50,7 @@ class UtauPlugin(_ust.Ust):
     UTAUプラグインの一時ファイル用のクラス
     UST用のクラスを継承
     """
+
     def __init__(self):
         super().__init__()
         # プラグインのときは[#TRACKEND]が不要
@@ -65,3 +66,17 @@ class UtauPlugin(_ust.Ust):
         with open(path, mode=mode, encoding=encoding) as f:
             f.write(s)
         return s
+
+    def as_ust(self) -> _ust.Ust:
+        """
+        utaupy.ust.Ustオブジェクトに変換する。
+        USTファイルとして保存するときに使う。
+        """
+        plugin = deepcopy(self)
+        # Ustオブジェクトを生成
+        ust = _ust.Ust()
+        # [#SETTING] の情報をコピー
+        ust.version = plugin.version   # [#VERSION]
+        ust.setting = plugin.setting  # [#SETTING]
+        ust.notes = plugin.notes  # [#1234], [#INSERT], [#DELETE]
+        return ust
