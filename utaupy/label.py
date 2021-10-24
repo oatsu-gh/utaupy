@@ -115,7 +115,7 @@ class Label(UserList):
 
     @start_times.setter
     def start_times(self, l: List[int]):
-        assert len(l) == self.data
+        assert len(l) == len(self.data)
         for phoneme, new_start in zip(self.data, l):
             phoneme.start = new_start
 
@@ -128,7 +128,7 @@ class Label(UserList):
 
     @end_times.setter
     def end_times(self, l: List[int]):
-        assert len(l) == self.data
+        assert len(l) == len(self.data)
         for phoneme, new_end in zip(self.data, l):
             phoneme.end = new_end
 
@@ -141,7 +141,7 @@ class Label(UserList):
 
     @contexts.setter
     def contexts(self, l: List[int]):
-        assert len(l) == self.data
+        assert len(l) == len(self.data)
         for phoneme, new_contexts in zip(self.data, l):
             phoneme.symbol = new_contexts
 
