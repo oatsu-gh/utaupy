@@ -7,9 +7,9 @@ utaupy.ust.Ust をもとに、ファイル入出力機能を変更したもの�
 """
 
 from copy import deepcopy
-# from pprint import pprint
 from sys import argv
 from typing import Callable
+from os.path import splitext
 
 from utaupy import ust as _ust
 
@@ -30,8 +30,13 @@ def run(your_function: Callable, option=None, path=None):
         your_function(plugin)
     else:
         your_function(plugin, option)
+
+    # 拡張子がustの時は、プラグインとしてではなくUSTとして上書き保存する。
+    if splitext(path)[1] in ['.ust', '.UST']:
+        plugin.as_ust().write(path)
     # プラグインスクリプトを上書き
-    plugin.write(path)
+    else:
+        plugin.write(path)
 
 
 def load(path: str, encoding='cp932'):
