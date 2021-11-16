@@ -225,7 +225,7 @@ class Ust:
                 self.version = lines[1].replace('UST Version ', '')
                 continue
             elif tag == '[#SETTING]':
-                self.setting = note
+                note = self.setting
             elif tag == '[#PREV]':
                 self.previous_note = note
             elif tag == '[#NEXT]':
@@ -590,6 +590,17 @@ class Note(UserDict):
         self['Velocity'] = int(x)
 
     @property
+    def flag(self) -> str:
+        """
+        フラグ
+        """
+        return self.get('Flags', '')
+
+    @flag.setter
+    def flag(self, flags: str):
+        self['Flags'] = str(flags)
+
+    @property
     def flags(self) -> str:
         """
         フラグ
@@ -599,6 +610,7 @@ class Note(UserDict):
     @flags.setter
     def flags(self, flags: str):
         self['Flags'] = str(flags)
+
 
     @property
     def label(self) -> str:
