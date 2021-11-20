@@ -158,38 +158,40 @@ class Ust:
     """
 
     def __init__(self):
-        super().__init__()
-        # ノート(クラスオブジェクト)からなるリスト
         self.version = None   # [#VERSION]
         self.notes: List[Note] = []  # [#1234], [#INSERT], [#DELETE]
         self.setting = Note(tag='[#SETTING]')  # [#SETTING]
+        self.trackend = Note(tag='[#TRACKEND]')  # [#TRACKEND]
+        self.next_note = None      # [#NEXT]
+        self.previous_note = None  # [#PREV]
+        # 初期値を設定したり消したりする
         self.setting['Tempo'] = 120
         del self.setting['Length']
         del self.setting['NoteNum']
-        self.trackend = Note(tag='[#TRACKEND]')  # [#TRACKEND]
         del self.trackend['Length']
         del self.trackend['NoteNum']
-        self.next_note = None  # [#NEXT]
-        self.previous_note = None  # [#PREV]
 
     def __str__(self):
-        # self.notesが増減するので複製したものを扱う
-        duplicated_self = deepcopy(self)
-        # 特殊ノートを処理
-        if len(self.setting) >= 2:
-            duplicated_self.notes.insert(0, self.setting)
-        if self.previous_note is not None:
-            duplicated_self.notes.insert(0, self.previous_note)
-        if self.next_note is not None:
-            duplicated_self.notes.append(self.next_note)
-        if self.trackend is not None:
-            duplicated_self.notes.append(self.trackend)
-        # 通常ノートを文字列にする
-        s = '\n'.join(str(note) for note in duplicated_self.notes)
-        # バージョン情報があれば先頭に追記
+        l: List[str] = []
+        # [#VERSION]
         if self.version is not None:
-            str_version = f'[#VERSION]\nUST Version {str(duplicated_self.version)}'
-            s = '\n'.join((str_version, s))
+            l.append(f'[#VERSION]\nUST Version {str(self.version)}')
+        # [#SETTING]
+        if len(self.setting) >= 2:
+            l.append(str(self.setting))
+        # [#PREV]
+        if self.previous_note is not None:
+            l.append(str(self.previous_note))
+        # 歌詞とかが入ってるメインのノート群を追加
+        l.append('\n'.join(str(note) for note in self.notes))
+        # [#NEXT]
+        if self.next_note is not None:
+            l.append(str(self.next_note))
+        # [#TRACKEND]
+        if self.trackend is not None:
+            l.append(str(self.trackend))
+        # 改行で結合
+        s = '\n'.join(l)
         return s
 
     def load(self, path: str, encoding='cp932'):
@@ -216,22 +218,20 @@ class Ust:
         for lines in l_2d:
             # 1行目: ノートの種類
             tag = lines[0]
-            # print('reading entry:', tag)  # デバッグ用出力
-            note = Note(tag=tag)
             # どこに登録するか決める
-            if tag not in ('[#VERSION]', '[#SETTING]', '[#TRACKEND]', '[#PREV]', '[#NEXT]'):
-                self.notes.append(note)
+            if tag not in {'[#VERSION]', '[#SETTING]', '[#TRACKEND]', '[#PREV]', '[#NEXT]'}:
+                self.notes.append(Note(tag=tag))
             elif tag == '[#VERSION]':
-                self.version = lines[1].replace('UST Version ', '')
+                self.version = lines[1].replace(' ', '').lower().replace('ustversion', '')
                 continue
             elif tag == '[#SETTING]':
                 note = self.setting
             elif tag == '[#PREV]':
-                self.previous_note = note
+                note = self.previous_note
             elif tag == '[#NEXT]':
-                self.next_note = note
+                note = self.next_note
             elif tag == '[#TRACKEND]':
-                self.trackend = note
+                note = self.trackend
             else:
                 raise Exception('想定外のエラーです。開発者に連絡してください。:', tag, str(note))
             # 2行目移行: タグ以外の情報
@@ -373,7 +373,7 @@ class Ust:
         """
         self.notes[i].tag = '[#DELETE]'
 
-    def make_finalnote_R(self):
+    def make_final_note_R(self):
         """
         Ustの最後のノートが休符 になるようにする
         """
@@ -385,6 +385,12 @@ class Ust:
             rest_note.length = 480
             self.notes.append(rest_note)
         self.reload_tempo()
+
+    def make_finalnote_R(self):
+        """
+        旧バージョンに対する互換性維持
+        """
+        self.make_final_note_R()
 
     def write(self, path: str, mode: str = 'w', encoding: str = 'cp932') -> str:
         """
@@ -610,7 +616,6 @@ class Note(UserDict):
     @flags.setter
     def flags(self, flags: str):
         self['Flags'] = str(flags)
-
 
     @property
     def label(self) -> str:
