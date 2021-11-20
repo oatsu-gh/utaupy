@@ -36,7 +36,7 @@ LICENSE ファイルをご覧ください。
 
 ---
 
-### Ust(collections.UserList)
+### Ust
 
 UST ファイルを取り扱うためのクラス
 
