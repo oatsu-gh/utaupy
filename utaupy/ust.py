@@ -218,20 +218,26 @@ class Ust:
         for lines in l_2d:
             # 1行目: ノートの種類
             tag = lines[0]
+            note = Note(tag=tag)
             # どこに登録するか決める
             if tag not in {'[#VERSION]', '[#SETTING]', '[#TRACKEND]', '[#PREV]', '[#NEXT]'}:
-                self.notes.append(Note(tag=tag))
+                self.notes.append(note)
             elif tag == '[#VERSION]':
                 self.version = lines[1].replace(' ', '').lower().replace('ustversion', '')
+                del note
                 continue
             elif tag == '[#SETTING]':
-                note = self.setting
+                del note['Length']
+                del note['NoteNum']
+                self.setting = note
             elif tag == '[#PREV]':
-                note = self.previous_note
+                self.previous_note = note
             elif tag == '[#NEXT]':
-                note = self.next_note
+                self.next_note = note
             elif tag == '[#TRACKEND]':
-                note = self.trackend
+                del note['Length']
+                del note['NoteNum']
+                self.trackend = note
             else:
                 raise Exception('想定外のエラーです。開発者に連絡してください。:', tag, str(note))
             # 2行目移行: タグ以外の情報
@@ -636,10 +642,10 @@ class Note(UserDict):
         self.tag = '[#DELETE]'
         return self
 
-    # def insert(self):
-    #     """ノートを挿入(したい)"""
-    #     self.tag = '[#INSERT]'
-    #     return self
+    def insert(self):
+        """ノートを挿入(したい)"""
+        self.tag = '[#INSERT]'
+        return self
 
     def refresh(self):
         """
