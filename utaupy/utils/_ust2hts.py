@@ -112,22 +112,26 @@ def ust2hts(
     hts_song.write(path_hts, strict_sinsy_style=strict_sinsy_style, as_mono=as_mono)
 
 
-# def main():
-#     """
-#     USTファイルをLABファイルおよびJSONファイルに変換する。
-#     """
-#     # 各種パスを指定
-#     path_table = input('path_table: ')
-#     path_ust_in = input('path_ust: ')
-#     path_hts_out = \
-#         dirname(path_ust_in) + '/' + splitext(basename(path_ust_in))[0] + '_ust2hts.lab'
-#     path_json_out = \
-#         dirname(path_ust_in) + '/' + splitext(basename(path_ust_in))[0] + '_ust2hts.json'
-#     # 変換
-#     ust2hts(path_ust_in, path_hts_out, path_table, strict_sinsy_style=False)
-#     # jsonファイルにも出力する。
-#     hts2json(path_hts_out, path_json_out)
-#
-#
-# if __name__ == '__main__':
-#     main()
+def main():
+    """
+    USTファイルをLABファイルおよびJSONファイルに変換する。
+    """
+    from glob import glob
+    from os.path import isfile, join, splitext
+
+    # 各種パスを指定
+    ust_dir = input('Select a directory or a UST file: ').strip('"')
+    ust_files = [ust_dir] if isfile(ust_dir) else glob(join(ust_dir, '*.ust'))
+    path_table = input('path_table: ')
+
+    for path_in in ust_files:
+        try:
+            path_out = f'{splitext(path_in)[0]}.lab'
+            # 変換
+            ust2hts(path_in, path_out, path_table, strict_sinsy_style=False)
+        except Exception as e:
+            raise Exception(f'Some exception was raised while processing {path_in}') from e
+
+
+if __name__ == '__main__':
+    main()
