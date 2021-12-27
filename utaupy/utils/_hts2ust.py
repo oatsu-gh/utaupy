@@ -6,7 +6,7 @@ HTSフルラベルをUSTファイルに変換する。
 import utaupy as up
 
 
-def htsnote2ustnote(hts_note: up.hts.Note, d_table: dict = None, joint: str = '') -> up.ust.Note:
+def htsnote2ustnote(hts_note: up.hts.Note, d_table: dict = None, joint: str = ' ') -> up.ust.Note:
     """
     utaupy.hts.Note を utaupy.ust.Note に変換する。
 
@@ -45,7 +45,7 @@ def clean_beat(ust):
             beat = note.label
 
 
-def songobj2ustobj(hts_song: up.hts.Song, d_table: dict = None, joint: str = '') -> up.ust.Ust:
+def songobj2ustobj(hts_song: up.hts.Song, d_table: dict = None, joint: str = ' ') -> up.ust.Ust:
     """
     Song オブジェクトを Ust オブジェクトに変換する。
     joint: 音素記号を結合するときにはさむ文字
@@ -62,7 +62,7 @@ def songobj2ustobj(hts_song: up.hts.Song, d_table: dict = None, joint: str = '')
     return ust
 
 
-def hts2ust(path_hts, path_ust, path_table=None, joint: str = ''):
+def hts2ust(path_hts, path_ust, path_table=None, joint: str = ' '):
     """
     HTSフルコンテキストラベルファイルをUSTファイルに変換する。
     """
@@ -76,10 +76,20 @@ def main():
     """
     ファイル変換をする。
     """
-    path_hts = input('path_hts: ')
-    path_ust = path_hts.replace('.lab', '_hts2ust.ust')
+    from glob import glob
+    from os.path import isfile, join, splitext
+
+    lab_dir = input('Select a directory or a full-LAB file: ').strip('"')
+    lab_files = [lab_dir] if isfile(lab_dir) else glob(join(lab_dir, '*.lab'))
+
     path_table = input('path_table: ')
-    hts2ust(path_hts, path_ust, path_table)
+
+    for path_in in lab_files:
+        path_out = f'{splitext(path_in)[0]}.ust'
+        try:
+            hts2ust(path_in, path_out, path_table)
+        except Exception as e:
+            raise Exception(f'Some exception was raised while processing {path_in}') from e
 
 
 if __name__ == '__main__':
