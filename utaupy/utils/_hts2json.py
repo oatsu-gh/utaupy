@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
-# coding: utf-8
-# Copyright (c) 2020 oatsu
+# Copyright (c) 2020-2021 oatsu
 """
 HTSフルコンテキストラベルをJSONと相互変換する。
 """
@@ -77,12 +76,12 @@ def _export_flatjson(d: dict, path) -> str:
     return s
 
 
-def hts2json(path_lab, path_json):
+def hts2json(path_lab_in, path_json_out):
     """
     HTSフルコンテキストラベルファイル(.lab) を
     JSONファイル(.json) に変換する。
     """
-    _export_flatjson(_load(path_lab), path_json)
+    _export_flatjson(_load(path_lab_in), path_json_out)
 
 
 def main():
@@ -90,9 +89,18 @@ def main():
     直接起動したときの動作。
     1つのラベルファイルをJSONに変換する。
     """
-    path_lab = input('path_lab: ')
-    path_json = path_lab.replace('.lab', '.json')
-    hts2json(path_lab, path_json)
+    from glob import glob
+    from os.path import isfile, join, splitext
+
+    lab_dir = input('Select a directory or a LAB file: ').strip('"')
+    lab_files = [lab_dir] if isfile(lab_dir) else glob(join(lab_dir, '*.lab'))
+
+    for path_in in lab_files:
+        path_out = f'{splitext(path_in)[0]}.json'
+        try:
+            hts2json(path_in, path_out)
+        except Exception as e:
+            raise Exception(f'Some exception was raised while processing {path_in}') from e
 
 
 if __name__ == '__main__':
