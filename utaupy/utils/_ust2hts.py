@@ -40,7 +40,12 @@ def ustnote2htsnote(
         hts_note.relative_pitch = (ust_note.notenum - key_of_the_note) % 12
         # e3
         hts_note.key = key_of_the_note
-    # e5
+    # e4
+    if ust_note.timesignatures is not None:
+        hts_note.beat = '/'.join(
+            ust_note.timesignatures.strip('()').split('/')[:2]
+        )
+# e5c cvbgeQazwsxdrfccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr5555555555555555555555555555555555555                                                                                                                                                                                               d4errrrrrrrrrrrrrrrrrrerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr4ree 
     hts_note.tempo = round(ust_note.tempo)
     # e8
     hts_note.length = round(ust_note.length / 20)

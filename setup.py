@@ -5,10 +5,10 @@ Python script for PyPI registation
 """
 from setuptools import find_packages, setup
 
-version = '1.16.2'
+version = '1.17.0'
 
 try:
-    with open("README.md", mode='r') as f:
+    with open("README.md", mode='r', encoding='utf-8') as f:
         long_description = f.read()
 except UnicodeDecodeError:
     with open("README.md", mode='r', encoding='utf-8') as f:

@@ -7,6 +7,7 @@ import re
 from collections import UserDict
 from copy import deepcopy
 from typing import List
+from warnings import warn
 
 from .utau import utau_appdata_root, utau_root
 
@@ -245,8 +246,9 @@ class Ust:
                 key, value = line.split('=', maxsplit=1)
                 note[key] = value
 
-        # 隠しパラメータ alternative_tempo を全ノートに設定
+        # 隠しパラメータ _hidden_dict['Tempo'] を全ノートに設定
         self.reload_tempo()
+        self.reload_timesignatures()
         return self
 
     @property
@@ -285,52 +287,128 @@ class Ust:
         """
         ローカルテンポが不要な部分を削除する。
         """
+        # # まずはグローバルテンポを取得
+        # current_tempo = self.tempo
+        # # 不要なデータを削除
+        # for note in self.notes:
+        #     if 'Tempo' in note:
+        #         if note['Tempo'] == current_tempo:
+        #             del note['Tempo']
+        #     else:
+        #         current_tempo = note.tempo
+        self._clean_local_value('Tempo')
+
+    def _clean_local_value(self, key:str):
+        """
+        テンポや拍子情報のように、グローバル値とローカル値を
+        持ちうるパラメータの余分なものを削除する。
+        """
         # まずはグローバルテンポを取得
-        current_tempo = self.tempo
+        first_note = self.notes[0]
+        first_local_value = first_note.get(key, first_note._hidden_dict[key]) # pylint: disable=protected-access
+        current_value = self.setting.get(key, first_local_value)
         # 不要なデータを削除
         for note in self.notes:
-            if 'Tempo' in note:
-                if note['Tempo'] == current_tempo:
-                    del note['Tempo']
+            if key in note:
+                if note[key] == current_value:
+                    del note[key]
             else:
-                current_tempo = note.tempo
+                current_value = note.get(key, note._hidden_dict[key]) # pylint: disable=protected-access
 
-    def reload_tempo(self):
+    def reload_local_value(self, key:str):
         """
+        テンポや拍子情報など、グローバルな値とローカルな値を持ちうる変数の
+        ローカル情報を一時的に格納するためのパラメーターを、
+        最新の状態に更新する。
+
+        # テンポの場合の例
         1. グローバルテンポを1ノート目のテンポで上書きする。
-        2. 各ノートでBPMが取得できるように note.alternative_tempo を全ノートに仕込む。
+        2. 各ノートでBPMが取得できるように note._hidden_dict['Tempo'] を全ノートに仕込む。
         """
         # ノートがないときは何もしない
         if len(self.notes) == 0:
             return
         # ここからはノートが1つ以上あるとき
-        if 'Tempo' in self.notes[0]:
-            self.setting['Tempo'] = self.notes[0]['Tempo']
-        current_tempo = self.setting['Tempo']
+        if key in self.notes[0]:
+            self.setting[key] = self.notes[0][key]
+        current_value = self.setting[key]
 
-        # [#PREV]にalternative_tempoを登録
+        # [#PREV]に_hidden_dict['Tempo']を登録
         previous_note = self.previous_note
         if previous_note is not None:
-            previous_note.alternative_tempo = previous_note.get('Tempo', current_tempo)
+            previous_note._hidden_dict[key] = previous_note.get(key, current_value) #pylint: disable=protected-access
 
-        # 通常のノートにalternative_tempoを登録
+        # 通常のノートに_hidden_dict['Tempo']を登録
         for note in self.notes:
-            if 'Tempo' in note:
-                if float(note['Tempo']) == current_tempo:
-                    del note['Tempo']
+            if key in note:
+                if note[key] == current_value:
+                    del note[key]
                 else:
-                    current_tempo = note['Tempo']
-            # current_tempo = note.get('Tempo', current_tempo)
-            note.alternative_tempo = float(current_tempo)
+                    current_value = note[key]
+            # current_value = note.get(key, current_value)
+            note._hidden_dict[key] = current_value #pylint: disable=protected-access
 
-        # [#NEXT]にalternative_tempoを登録
+        # [#NEXT]に_hidden_dict['Tempo']を登録
         next_note = self.next_note
         if next_note is not None:
-            next_note.alternative_tempo = next_note.get('Tempo', current_tempo)
+            next_note._hidden_dict[key] = next_note.get(key, current_value) #pylint: disable=protected-access
 
-        self.clean_tempo()
+        # 全ノートに登録する必要はないので、不要なものを削除
+        self._clean_local_value(key)
 
-    def reload_tag_number(self, start: int = 0):
+
+    def reload_tempo(self):
+        """
+        1. グローバルテンポを1ノート目のテンポで上書きする。
+        2. 各ノートでBPMが取得できるように note._hidden_dict['Tempo'] を全ノートに仕込む。
+        """
+        # 2021年12月までの実装----------------------------
+        # # ノートがないときは何もしない
+        # if len(self.notes) == 0:
+        #     return
+        # # ここからはノートが1つ以上あるとき
+        # if 'Tempo' in self.notes[0]:
+        #     self.setting['Tempo'] = self.notes[0]['Tempo']
+        # current_tempo = self.setting['Tempo']
+        #
+        # # [#PREV]に_hidden_dict['Tempo']を登録
+        # previous_note = self.previous_note
+        # if previous_note is not None:
+        #     previous_note._hidden_dict['Tempo'] = previous_note.get('Tempo', current_tempo)
+        #
+        # # 通常のノートに_hidden_dict['Tempo']を登録
+        # for note in self.notes:
+        #     if 'Tempo' in note:
+        #         if float(note['Tempo']) == current_tempo:
+        #             del note['Tempo']
+        #         else:
+        #             current_tempo = note['Tempo']
+        #     # current_tempo = note.get('Tempo', current_tempo)
+        #     note._hidden_dict['Tempo'] = float(current_tempo)
+        #
+        # # [#NEXT]に_hidden_dict['Tempo']を登録
+        # next_note = self.next_note
+        # if next_note is not None:
+        #     next_note._hidden_dict['Tempo'] = next_note.get('Tempo', current_tempo)
+        #
+        # self.clean_tempo()
+        # -------------------------------------------------
+        self.reload_local_value('Tempo')
+
+    def jmesignatures(self):
+        """
+        1. グローバルテンポを1ノート目のテンポで上書きする。
+        2. 各ノートでBPMが取得できるように note._hidden_dict['$TimeSignatures'] を全ノートに仕込む。
+        """
+        self.reload_local_value('$TimeSignatures')
+
+    # def reload_tempo(self):
+    #     """
+    #     1. グローバルテンポを1ノート目のテンポで上書きする。
+    #     2. 各ノートでBPMが取得できるように note._hidden_dict['Tempo'] を全ノートに仕込む。
+    #     """
+
+    def reload_index(self, start: int = 0):
         """
         start: 開始番号 (0なら[#0000]から)
         各ノートのノート番号を振りなおす。
@@ -338,6 +416,15 @@ class Ust:
         """
         for i, note in enumerate(self.notes, start):
             note.tag = f'[#{str(i).zfill(4)}]'
+
+    def reload_tag_number(self, start: int = 0):
+        """
+        start: 開始番号 (0なら[#0000]から)
+        各ノートのノート番号を振りなおす。
+        ファイル出力時に実行することを想定。
+        """
+        warn('Use utaupy.Ust.reload_index() instead of utaupy.Ust.reload_tag_number()', DeprecationWarning)
+        self.reload_index(start=start)
 
     # ノート一括編集系関数ここから----------------------------------------------
     def replace_lyrics(self, before: str, after: str):
@@ -427,9 +514,10 @@ class Note(UserDict):
     def __init__(self, tag: str = '[#INSERT]'):
         super().__init__()
         self['Tag'] = tag
-        self.alternative_tempo = None
         self.length = 480
         self.notenum = 60
+        # 計算用のローカルBPMなどを管理する。
+        self._hidden_dict: dict = {'Tempo': None, '$TimeSignatures': None}
 
     def __str__(self):
         lines = [self['Tag']] + [f'{k}={v}' for (k, v) in self.items() if k != 'Tag']
@@ -506,11 +594,25 @@ class Note(UserDict):
         """
         ローカルBPM
         """
-        return float(self.get('Tempo', self.alternative_tempo))
+        return float(self.get('Tempo', self._hidden_dict['Tempo']))
 
     @tempo.setter
     def tempo(self, x):
         self['Tempo'] = str(x)
+
+    @property
+    def timesignatures(self):
+        """
+        拍子記号
+        """
+        try:
+            return str(self.get('$TimeSignatures', self._hidden_dict['$TimeSignatures']))
+        except KeyError:
+            return str(self.get('TimeSignatures', self._hidden_dict['TimeSignatures']))
+
+    @timesignatures.setter
+    def timesignatures(self, s: str):
+        self['$TimeSignatures'] = str(s)
 
     @property
     def pbs(self) -> list:

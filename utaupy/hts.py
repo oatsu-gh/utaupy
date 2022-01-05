@@ -1102,7 +1102,7 @@ class Note(UserList):
     @property
     def relative_pitch(self) -> int:
         """
-        ノートの相対音高(p2)
+        ノートの相対音高(e2)
         """
         return self.contexts[1]
 
@@ -1113,7 +1113,7 @@ class Note(UserList):
     @property
     def key(self):
         """
-        ノートのキー(p3)
+        ノートのキー(e3)
         """
         return self.contexts[2]
 
@@ -1124,7 +1124,7 @@ class Note(UserList):
     @property
     def beat(self):
         """
-        拍子情報(p4)
+        拍子情報(e4)
         3/4 とか 4/4 とか 6/8 とか
         """
         return self.contexts[3]
@@ -1132,6 +1132,14 @@ class Note(UserList):
     @beat.setter
     def beat(self, beat: str):
         self.contexts[3] = str(beat)
+
+    @property
+    def timesignatures(self):
+        return self.beat
+
+    @timesignatures.setter
+    def timesignatures(self, timesignatures: str):
+        self.beat = timesignatures
 
     @property
     def notenum(self):
