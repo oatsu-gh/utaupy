@@ -40,11 +40,13 @@ def ustnote2htsnote(
         hts_note.relative_pitch = (ust_note.notenum - key_of_the_note) % 12
         # e3
         hts_note.key = key_of_the_note
-    # e4
-    if ust_note.timesignatures is not None:
-        hts_note.beat = '/'.join(
-            ust_note.timesignatures.strip('()').split('/')[:2]
-        )
+    # e4----------------------------------------
+    # NOTE: 拍子情報を扱うTimeSignaturesエントリがUSTに実装されたら有効化する。
+    # if ust_note.timesignatures is not None:
+    #     hts_note.beat = '/'.join(
+    #         ust_note.timesignatures.strip('()').split('/')[:2]
+    #     )
+    # ------------------------------------------
     # e5
     hts_note.tempo = round(ust_note.tempo)
     # e8
@@ -92,7 +94,8 @@ def ustobj2songobj(
     ust_notes = ust.notes
     # Noteオブジェクトの種類を変換
     for ust_note in ust_notes:
-        hts_note = ustnote2htsnote(ust_note, d_table, key_of_the_note=key_of_the_note)
+        hts_note = ustnote2htsnote(
+            ust_note, d_table, key_of_the_note=key_of_the_note)
         song.append(hts_note)
 
     # ノート長や位置などを自動補完
@@ -114,7 +117,8 @@ def ust2hts(
     hts_song = ustobj2songobj(ust, d_table)
     # HTSFullLabel中の重複データを削除して整理
     # ファイル出力
-    hts_song.write(path_hts, strict_sinsy_style=strict_sinsy_style, as_mono=as_mono)
+    hts_song.write(
+        path_hts, strict_sinsy_style=strict_sinsy_style, as_mono=as_mono)
 
 
 def main():
@@ -135,7 +139,8 @@ def main():
             # 変換
             ust2hts(path_in, path_out, path_table, strict_sinsy_style=False)
         except Exception as e:
-            raise Exception(f'Some exception was raised while processing {path_in}') from e
+            raise Exception(
+                f'Some exception was raised while processing {path_in}') from e
 
 
 if __name__ == '__main__':
