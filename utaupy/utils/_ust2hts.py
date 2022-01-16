@@ -45,7 +45,7 @@ def ustnote2htsnote(
         hts_note.beat = '/'.join(
             ust_note.timesignatures.strip('()').split('/')[:2]
         )
-# e5c cvbgeQazwsxdrfccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr5555555555555555555555555555555555555                                                                                                                                                                                               d4errrrrrrrrrrrrrrrrrrerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr4ree 
+    # e5
     hts_note.tempo = round(ust_note.tempo)
     # e8
     hts_note.length = round(ust_note.length / 20)
