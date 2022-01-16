@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2020 oatsu
+# Copyright (c) 2020-2022 oatsu
 """Python3 module for HTS-full-label.
 
 Sinsy仕様のHTSフルコンテキストラベルを扱うモジュール
@@ -13,7 +13,7 @@ from decimal import ROUND_HALF_UP, Decimal
 from itertools import chain
 from typing import Union
 
-from . import label as _label
+from . import label as _label  # pylint: disable=relative-beyond-top-level
 
 # from pprint import pprint
 
@@ -121,8 +121,7 @@ class HTSFullLabel(UserList):
             mono_label.append(mono_phoneme)
         return mono_label
 
-    def write(self, path, strict_sinsy_style: bool = True, as_mono: bool = False,
-              mode='w', encoding='utf-8') -> str:
+    def write(self, path, strict_sinsy_style: bool = True, mode='w', encoding='utf-8') -> str:
         """
         ファイル出力する
         strict_sinsy_style: bool:
@@ -130,8 +129,10 @@ class HTSFullLabel(UserList):
             Trueのときは d, f における休符の長さ情報が削除されて 'xx' になる。
             Falseのときは d, f における休符の長さ情報が維持される。
         """
+        # 促音ノートの音高情報を削除する。
+        new_label = adjust_break_contexts(self)
         # 休符周辺の仕様をSinsyに近づける。
-        new_label = adjust_pau_contexts(self, strict=strict_sinsy_style)
+        new_label = adjust_pau_contexts(new_label, strict=strict_sinsy_style)
         # 文字列にする
         s = '\n'.join(list(map(str, new_label)))
 
@@ -142,7 +143,8 @@ class HTSFullLabel(UserList):
 
     def load(self, source, encoding='utf-8'):
         """
-        ファイル、文字列、文字列のリスト、Songオブジェクトのいずれかより値を取得して登録する。
+        ファイル、文字列、文字列のリスト、Songオブジェクトの
+        いずれかより値を取得して登録する。
         """
         if isinstance(source, str):
             self._load_from_path(source, encoding=encoding)
@@ -154,7 +156,8 @@ class HTSFullLabel(UserList):
             self._load_from_lines(source)
             self.generate_songobj()
         else:
-            raise TypeError(f'Type of the argument "source" must be str, list or {Song}.')
+            raise TypeError(
+                f'Type of the argument "source" must be str, list or {Song}.')
         return self
 
     def _load_from_path(self, path, encoding: str = 'utf-8'):
@@ -246,7 +249,8 @@ class HTSFullLabel(UserList):
         """
         Phoneme をもとに、前後の音素に関する項を埋める。
         """
-        extended_self = [OneLine(), OneLine()] + self.data + [OneLine(), OneLine()]
+        extended_self = [OneLine(), OneLine()] + self.data + \
+            [OneLine(), OneLine()]
         # ol is OneLine objec
         for i, ol in enumerate(extended_self[2:-2], 2):
             ol.before_previous_phoneme = extended_self[i - 2].phoneme
@@ -321,6 +325,7 @@ class OneLine:
         self.song = Song()
 
     def __str__(self):
+        # pylint: disable=consider-using-f-string, line-too-long
         str_self = ''.join((
             f'{self.start} {self.end} ',
             # Phoneme 関連
@@ -636,8 +641,10 @@ class Song(UserList):
             phonemes_in_note = tuple(chain.from_iterable(note))
             t_end += note.length_100ns
             for phoneme in phonemes_in_note:
-                phoneme.start = Decimal(t_start).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
-                phoneme.end = Decimal(t_end).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                phoneme.start = Decimal(t_start).quantize(
+                    Decimal('0'), rounding=ROUND_HALF_UP)
+                phoneme.end = Decimal(t_end).quantize(
+                    Decimal('0'), rounding=ROUND_HALF_UP)
             t_start = t_end
 
     def autofill(self, hts_conf: Union[None, dict] = None):
@@ -656,7 +663,8 @@ class Song(UserList):
         """
         # p12, p13, p14, p15を埋める
         if hts_conf is None:
-            self._fill_p1(vowels=VOWELS, pauses=PAUSES, silences=SILENCES, breaks=BREAKS)
+            self._fill_p1(vowels=VOWELS, pauses=PAUSES,
+                          silences=SILENCES, breaks=BREAKS)
         else:
             self._fill_p1(vowels=hts_conf['VOWELS'], pauses=hts_conf['PAUSES'],
                           silences=hts_conf['SILENCES'], breaks=hts_conf['BREAKS'])
@@ -820,7 +828,6 @@ class Song(UserList):
         e18とe19のデータがある前提で実行する。
         10msでの累計だとずれるので100nsで計算してから10msに直して登録する。
         """
-
         counter_100ns = 0
 
         # 前の休符から数えた時間を登録する。
@@ -1134,14 +1141,6 @@ class Note(UserList):
         self.contexts[3] = str(beat)
 
     @property
-    def timesignatures(self):
-        return self.beat
-
-    @timesignatures.setter
-    def timesignatures(self, timesignatures: str):
-        self.beat = timesignatures
-
-    @property
     def notenum(self):
         """
         音高をノート番号で取得する
@@ -1264,9 +1263,16 @@ class Note(UserList):
         """
         return list(chain.from_iterable(self))
 
+    def is_break(self):
+        """
+        促音ノートかどうかを返す。
+        """
+        phonemes = self.phonemes
+        return len(phonemes) == 1 and phonemes[0].is_break()
+
     def is_rest(self):
         """
-        休符かどうかを返す
+        休符かどうかを返す。
         ノート内の最初の音素が休符かどうかで判断する
         """
         return self[0][0].is_rest()
@@ -1436,6 +1442,17 @@ def adjust_pau_contexts(full_label: HTSFullLabel, strict: bool = True) -> HTSFul
                 ol.b[0:3] = ['xx'] * 3
                 ol.e[0:3] = ['xx'] * 3
 
+    return new_label
+
+
+def adjust_break_contexts(full_label: HTSFullLabel) -> HTSFullLabel:
+    """
+    促音ノートの音高情報を削除する。
+    """
+    new_label = deepcopy(full_label)
+    for ol in new_label:
+        if ol.note.is_break():
+            ol.e[0:3] = ['xx'] * 3
     return new_label
 
 
