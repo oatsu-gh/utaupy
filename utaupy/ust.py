@@ -9,7 +9,7 @@ from copy import deepcopy
 from typing import List
 from warnings import warn
 
-from .utau import utau_appdata_root, utau_root
+from utaupy.utau import utau_appdata_root, utau_root  # pylint: disable=relative-beyond-top-level
 
 NOTENUM_TO_NOTENAME_DICT = {
     12: 'C0', 13: 'Db0', 14: 'D0', 15: 'Eb0', 16: 'E0', 17: 'F0',
@@ -224,7 +224,8 @@ class Ust:
             if tag not in {'[#VERSION]', '[#SETTING]', '[#TRACKEND]', '[#PREV]', '[#NEXT]'}:
                 self.notes.append(note)
             elif tag == '[#VERSION]':
-                self.version = lines[1].replace(' ', '').lower().replace('ustversion', '')
+                self.version = lines[1].replace(
+                    ' ', '').lower().replace('ustversion', '')
                 del note
                 continue
             elif tag == '[#SETTING]':
@@ -248,7 +249,6 @@ class Ust:
 
         # 隠しパラメータ _hidden_dict['Tempo'] を全ノートに設定
         self.reload_tempo()
-        self.reload_timesignatures()
         return self
 
     @property
@@ -268,6 +268,14 @@ class Ust:
         self.setting.tempo = tempo
         # self.notes[0].tempo = tempo
         self.reload_tempo()
+
+    @property
+    def timesignatures(self) -> str:
+        """
+        USTのグローバルな拍子情報
+        独自エントリを使用するため、[#SETTING] ではなく最初のノートから取得する。
+        """
+        return self.setting.get('Timesignatures')
 
     @property
     def voicedir(self):
@@ -298,14 +306,15 @@ class Ust:
         #         current_tempo = note.tempo
         self._clean_local_value('Tempo')
 
-    def _clean_local_value(self, key:str):
+    def _clean_local_value(self, key: str):
         """
         テンポや拍子情報のように、グローバル値とローカル値を
         持ちうるパラメータの余分なものを削除する。
         """
+        # pylint: disable=protected-access
         # まずはグローバルテンポを取得
         first_note = self.notes[0]
-        first_local_value = first_note.get(key, first_note._hidden_dict[key]) # pylint: disable=protected-access
+        first_local_value = first_note.get(key, first_note._hidden_dict[key])
         current_value = self.setting.get(key, first_local_value)
         # 不要なデータを削除
         for note in self.notes:
@@ -313,18 +322,20 @@ class Ust:
                 if note[key] == current_value:
                     del note[key]
             else:
-                current_value = note.get(key, note._hidden_dict[key]) # pylint: disable=protected-access
+                current_value = note.get(key, note._hidden_dict[key])
 
-    def reload_local_value(self, key:str):
+    def reload_local_value(self, key: str):
         """
         テンポや拍子情報など、グローバルな値とローカルな値を持ちうる変数の
         ローカル情報を一時的に格納するためのパラメーターを、
         最新の状態に更新する。
 
-        # テンポの場合の例
+        ## テンポの場合の例
         1. グローバルテンポを1ノート目のテンポで上書きする。
         2. 各ノートでBPMが取得できるように note._hidden_dict['Tempo'] を全ノートに仕込む。
         """
+        # pylint: disable=protected-access
+
         # ノートがないときは何もしない
         if len(self.notes) == 0:
             return
@@ -336,7 +347,8 @@ class Ust:
         # [#PREV]に_hidden_dict['Tempo']を登録
         previous_note = self.previous_note
         if previous_note is not None:
-            previous_note._hidden_dict[key] = previous_note.get(key, current_value) #pylint: disable=protected-access
+            previous_note._hidden_dict[key] = \
+                previous_note.get(key, current_value)
 
         # 通常のノートに_hidden_dict['Tempo']を登録
         for note in self.notes:
@@ -346,16 +358,16 @@ class Ust:
                 else:
                     current_value = note[key]
             # current_value = note.get(key, current_value)
-            note._hidden_dict[key] = current_value #pylint: disable=protected-access
+            note._hidden_dict[key] = current_value
 
         # [#NEXT]に_hidden_dict['Tempo']を登録
         next_note = self.next_note
         if next_note is not None:
-            next_note._hidden_dict[key] = next_note.get(key, current_value) #pylint: disable=protected-access
+            next_note._hidden_dict[key] = \
+                next_note.get(key, current_value)
 
         # 全ノートに登録する必要はないので、不要なものを削除
         self._clean_local_value(key)
-
 
     def reload_tempo(self):
         """
@@ -395,19 +407,7 @@ class Ust:
         # -------------------------------------------------
         self.reload_local_value('Tempo')
 
-    def jmesignatures(self):
-        """
-        1. グローバルテンポを1ノート目のテンポで上書きする。
-        2. 各ノートでBPMが取得できるように note._hidden_dict['$TimeSignatures'] を全ノートに仕込む。
-        """
-        self.reload_local_value('$TimeSignatures')
-
-    # def reload_tempo(self):
-    #     """
-    #     1. グローバルテンポを1ノート目のテンポで上書きする。
-    #     2. 各ノートでBPMが取得できるように note._hidden_dict['Tempo'] を全ノートに仕込む。
-    #     """
-
+    # NOTE: メジャーアップデートの時に変更する
     def reload_index(self, start: int = 0):
         """
         start: 開始番号 (0なら[#0000]から)
@@ -423,7 +423,8 @@ class Ust:
         各ノートのノート番号を振りなおす。
         ファイル出力時に実行することを想定。
         """
-        warn('Use utaupy.Ust.reload_index() instead of utaupy.Ust.reload_tag_number()', DeprecationWarning)
+        warn('Use utaupy.Ust.reload_index() instead of utaupy.Ust.reload_tag_number()',
+             DeprecationWarning)
         self.reload_index(start=start)
 
     # ノート一括編集系関数ここから----------------------------------------------
@@ -517,10 +518,11 @@ class Note(UserDict):
         self.length = 480
         self.notenum = 60
         # 計算用のローカルBPMなどを管理する。
-        self._hidden_dict: dict = {'Tempo': None, '$TimeSignatures': None}
+        self._hidden_dict: dict = {'Tempo': None}
 
     def __str__(self):
-        lines = [self['Tag']] + [f'{k}={v}' for (k, v) in self.items() if k != 'Tag']
+        lines = [self['Tag']] + \
+            [f'{k}={v}' for (k, v) in self.items() if k != 'Tag']
         return '\n'.join(lines)
 
     @property
@@ -605,14 +607,7 @@ class Note(UserDict):
         """
         拍子記号
         """
-        try:
-            return str(self.get('$TimeSignatures', self._hidden_dict['$TimeSignatures']))
-        except KeyError:
-            return str(self.get('TimeSignatures', self._hidden_dict['TimeSignatures']))
-
-    @timesignatures.setter
-    def timesignatures(self, s: str):
-        self['$TimeSignatures'] = str(s)
+        return str(self.get('TimeSignatures'))
 
     @property
     def pbs(self) -> list:
