@@ -63,10 +63,11 @@ class PrefixMap(UserDict):
     def __init__(self, path):
         super().__init__()
         self.comment_lines = []
-        with open(path, 'r') as prefixmap_file:
+        with open(path, 'r', encoding='cp932') as prefixmap_file:
             lines = prefixmap_file.readlines()
         # 改行文字を削除、コメント行を無視
-        lines = [line.rstrip('\r\n') for line in lines if not line.startswith('//')]
+        lines = [line.rstrip('\r\n')
+                 for line in lines if not line.startswith('//')]
         # 空白で区切って {音程: suffix文字列} の辞書にする
         lines_2d = [line.split(maxsplit=1) for line in lines]
         # 音程表記をUSTでの音階番号に変換
@@ -112,8 +113,6 @@ class UtauVoiceBank():
         for path_otoini in all_otoini_paths:
             self.otoini.data += _otoini.load(path_otoini).data
 
-
-
     def autoselect_alias(self, utaupy_ust_note):
         """
         voicebank       : utaupy.utau.UtauVoiceBank オブジェクト
@@ -137,7 +136,6 @@ class UtauVoiceBank():
         alias = lyric + self.prefixmap[str(utaupy_ust_note.notenum)]
         return alias
 
-
     def get_oto(self, utaupy_ust_note, suffix_exists=False):
         """
         voicebank       : utaupy.utau.UtauVoiceBank オブジェクト
@@ -157,7 +155,6 @@ class UtauVoiceBank():
             oto_for_the_alias = _otoini.Oto()
             oto_for_the_alias.alias = alias
         return oto_for_the_alias
-
 
     def autoadjust_parameters(self, utaupy_ust_ust):
         """
@@ -184,8 +181,10 @@ class UtauVoiceBank():
             halflen = notes[i - 1].length_ms / 2
             oto = self.get_oto(note, suffix_exists=True)
             if halflen < oto.preutterance - oto.overlap:
-                at_preuttr = halflen * oto.preutterance / (oto.preutterance - oto.overlap)
-                at_overlap = halflen * oto.overlap / (oto.preutterance - oto.overlap)
+                at_preuttr = halflen * oto.preutterance / \
+                    (oto.preutterance - oto.overlap)
+                at_overlap = halflen * oto.overlap / \
+                    (oto.preutterance - oto.overlap)
                 note['StartPoint'] = oto.preutterance - at_preuttr
                 note['PreUtterance'] = at_preuttr
                 note['VoiceOverlap'] = at_overlap
