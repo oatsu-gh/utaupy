@@ -647,6 +647,14 @@ class Song(UserList):
                     Decimal('0'), rounding=ROUND_HALF_UP)
             t_start = t_end
 
+    def reload_time(self):
+        """
+        発声終了時刻 = 次の音素の発声開始時刻 となるように時刻を再計算する。
+        """
+        phonemes = self.all_phonemes
+        for i, phoneme in enumerate(phonemes[:-1]):
+            phoneme.end = phonemes[i+1].start
+
     def autofill(self, hts_conf: Union[None, dict] = None):
         """
         自動補完可能なものをすべて自動補完する。
@@ -1263,21 +1271,53 @@ class Note(UserList):
         """
         return list(chain.from_iterable(self))
 
-    def is_break(self):
+    @property
+    def start(self) -> int:
+        """
+        ノート内の最初の音素の発声開始時刻。
+        """
+        return self[0][0].start
+
+    @start.setter
+    def start(self, start_time: int):
+        """
+        ノートの開始時刻を上書きする。
+        ノート内の全音素の発声開始時刻を上書きする。
+        """
+        for phonemes in self.phonemes:
+            phonemes.start = start_time
+
+    @property
+    def end(self) -> int:
+        """
+        ノート内の最後の音素の発声終了時刻。
+        """
+        return self[-1][-1].end
+
+    @end.setter
+    def end(self, end_time: int):
+        """
+        ノートの終了時刻を上書きする。
+        ノート内の全音素の発声終了時刻を上書きする。
+        """
+        for phonemes in self.phonemes:
+            phonemes.end = end_time
+
+    def is_break(self) -> bool:
         """
         促音ノートかどうかを返す。
         """
         phonemes = self.phonemes
         return len(phonemes) == 1 and phonemes[0].is_break()
 
-    def is_rest(self):
+    def is_rest(self) -> bool:
         """
         休符かどうかを返す。
         ノート内の最初の音素が休符かどうかで判断する
         """
         return self[0][0].is_rest()
 
-    def is_pau(self):
+    def is_pau(self) -> bool:
         """
         後方互換のために残している。
         'is_pau()' is now 'is_rest()'
