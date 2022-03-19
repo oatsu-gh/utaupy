@@ -121,7 +121,7 @@ class HTSFullLabel(UserList):
             mono_label.append(mono_phoneme)
         return mono_label
 
-    def write(self, path, strict_sinsy_style: bool = True, mode='w', encoding='utf-8') -> str:
+    def write(self, path, strict_sinsy_style: bool = False, mode='w', encoding='utf-8') -> str:
         """
         ファイル出力する
         strict_sinsy_style: bool:
@@ -607,7 +607,7 @@ class Song(UserList):
             mono_label.append(mono_phoneme)
         return mono_label
 
-    def write(self, path, strict_sinsy_style: bool = True, as_mono: bool = False,
+    def write(self, path, strict_sinsy_style: bool = False, as_mono: bool = False,
               mode='w', encoding='utf-8') -> Union[HTSFullLabel, _label.Label]:
         """
         ファイル出力する。
@@ -981,7 +981,7 @@ class Song(UserList):
             previous_abspitch = previous_note.absolute_pitch
             current_abspitch = note.absolute_pitch
             # 直前のノートまたは今のノートが休符のときはスキップ
-            if (previous_note.is_rest() or note.is_rest()):
+            if any((previous_note.is_rest(), previous_note.is_break(), note.is_rest(), note.is_break())):
                 note.contexts[56] = 'xx'
                 continue
             # 直前のノートも今のノートも音符のとき
@@ -997,7 +997,7 @@ class Song(UserList):
             previous_abspitch = previous_note.absolute_pitch
             current_abspitch = note.absolute_pitch
             # 直後のノートまたは今のノートが休符のときはスキップ
-            if (previous_note.is_rest() or note.is_rest()):
+            if any((previous_note.is_rest(), previous_note.is_break(), note.is_rest(), note.is_break())):
                 note.contexts[57] = 'xx'
                 continue
             # 直前のノートも今のノートも音符のとき
