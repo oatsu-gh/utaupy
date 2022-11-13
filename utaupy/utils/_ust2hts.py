@@ -26,7 +26,7 @@ import utaupy as up
 
 
 def ustnote2htsnote(
-        ust_note: up.ust.Note, d_table: dict, key_of_the_note: int = None) -> up.hts.Note:
+        ust_note: up.ust.Note, d_table: dict, key_of_the_note: int = None, start_tick = 0) -> up.hts.Note:
     """
     utaupy.ust.Note を utaupy.hts.Note に変換する。
     """
@@ -50,7 +50,7 @@ def ustnote2htsnote(
     # e5
     hts_note.tempo = round(ust_note.tempo)
     # e8
-    hts_note.length = round(ust_note.length / 20)
+    hts_note.length = round((start_tick + ust_note.length) / 20) - round(start_tick / 20)
 
     # UST内のノートの歌詞を空白で区切る
     kana_lyrics = ust_note.lyric.replace('っ', ' っ ').split()
@@ -93,11 +93,13 @@ def ustobj2songobj(
     song = up.hts.Song()
     ust_notes = ust.notes
     # Noteオブジェクトの種類を変換
+    current_tick = 0
     for ust_note in ust_notes:
         hts_note = ustnote2htsnote(
-            ust_note, d_table, key_of_the_note=key_of_the_note)
+            ust_note, d_table, key_of_the_note=key_of_the_note, start_tick=current_tick)
         song.append(hts_note)
-
+        current_tick += ust_note.length
+        
     # ノート長や位置などを自動補完
     song.autofill()
     # 発声開始時刻と終了時刻をノート長に応じて設定
