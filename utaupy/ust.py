@@ -9,7 +9,8 @@ from copy import deepcopy
 from typing import List
 from warnings import warn
 
-from utaupy.utau import utau_appdata_root, utau_root  # pylint: disable=relative-beyond-top-level
+from utaupy.utau import (  # pylint: disable=relative-beyond-top-level
+    utau_appdata_root, utau_root)
 
 NOTENUM_TO_NOTENAME_DICT = {
     12: 'C0', 13: 'Db0', 14: 'D0', 15: 'Eb0', 16: 'E0', 17: 'F0',
@@ -672,7 +673,7 @@ class Note(UserDict):
     def pbm(self) -> List[str]:
         """
         PBM (mode2ピッチ点の形状) を取得
-        例) PBY=,,,,
+        例) PBM=,,,,
         """
         # 辞書には文字列で登録してある
         s_pby = self['PBM']
