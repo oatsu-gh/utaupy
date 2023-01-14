@@ -12,7 +12,7 @@ from os.path import dirname, expandvars
 from . import otoini as _otoini
 
 # Windowsのとき
-if str(platform.system) == 'Windows':
+if str(platform.system()) == 'Windows':
     import winreg
 
     def utau_root() -> str:

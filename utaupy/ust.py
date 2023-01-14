@@ -284,7 +284,7 @@ class Ust:
         UTAU音源のフォルダのパスを返す
         """
         voicedir = self.setting['VoiceDir']
-        voicedir = voicedir.replace('%VOICE%', f'{utau_root()}\\voice')
+        voicedir = voicedir.replace('%VOICE%', f'{utau_root()}\\voice\\')
         voicedir = voicedir.replace('%DATA%', utau_appdata_root())
         return voicedir
 
