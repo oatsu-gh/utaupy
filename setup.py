@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
-# Copyright (c) 2020-2021 oatsu
+# Copyright (c) 2020-2023 oatsu
 """
 Python script for PyPI registation
 """
 from setuptools import find_packages, setup
 
-version = '1.18.1'
+version = '1.18.2'
 
 try:
     with open("README.md", mode='r', encoding='utf-8') as f:
