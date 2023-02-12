@@ -640,7 +640,7 @@ class Note(UserDict):
         # 辞書には文字列で登録してある
         s_pbw = self['PBW']
         # 整数のリストに変換 (空白文字の場合でも対応できるようにしている)
-        l_pbw = [int(x or 0) for x in s_pbw.split(',')]
+        l_pbw = [float(x or 0) for x in s_pbw.split(',')]
         # PBWの値をリストで返す
         return l_pbw
 
@@ -659,7 +659,7 @@ class Note(UserDict):
         # 辞書には文字列で登録してある
         s_pby = self['PBY']
         # 整数のリストに変換
-        l_pby = [int(x or 0) for x in s_pby.split(',')]
+        l_pby = [float(x or 0) for x in s_pby.split(',')]
         # PBYの値をリストで返す
         return l_pby
 
