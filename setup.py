@@ -5,7 +5,7 @@ Python script for PyPI registation
 """
 from setuptools import find_packages, setup
 
-version = '1.18.2'
+version = '1.18.3'
 
 try:
     with open("README.md", mode='r', encoding='utf-8') as f:
