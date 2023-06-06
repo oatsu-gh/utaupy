@@ -1215,7 +1215,7 @@ class Note(UserList):
         """
         if 'xx' in (self.tempo, self.length):
             return 'xx'
-        return float(25000000 * int(self.length) / int(self.tempo))
+        return float(25000000 * int(self.length) / float(self.tempo))
 
     @property
     def position(self):

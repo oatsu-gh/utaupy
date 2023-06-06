@@ -48,7 +48,7 @@ def ustnote2htsnote(
     #     )
     # ------------------------------------------
     # e5
-    hts_note.tempo = round(ust_note.tempo)
+    hts_note.tempo = ust_note.tempo
     # e8
     hts_note.length = round(ust_note.length / 20)
 
