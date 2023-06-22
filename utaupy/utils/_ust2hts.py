@@ -23,6 +23,7 @@ d2, d3, e2, e3, f2, f3 はスケール判定が必要なため、実行時にキ
 d3, e3, f3 には 'xx' を代入する。歌うときに休符の学習データ引っ張ってきそうな気はする。
 """
 import utaupy as up
+from decimal import *
 
 
 def ustnote2htsnote(
@@ -48,7 +49,7 @@ def ustnote2htsnote(
     #     )
     # ------------------------------------------
     # e5
-    hts_note.tempo = ust_note.tempo
+    hts_note.tempo = Decimal(ust_note.tempo) 
     # e8
     hts_note.length = round(ust_note.length / 20)
 
