@@ -24,8 +24,17 @@ if str(platform.system()) == 'Windows':
         """
         # 現在のユーザーにおいて、ustファイルに関連付けられているコマンド取得して、
         # '"C:\\UTAU\\utau.exe" "%1"' のような文字列を得る
-        reg_key = winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER,
-                                   r'Software\Classes\UTAUSequenceText\shell\open\command')
+        try:
+            reg_key = winreg.OpenKeyEx(
+                winreg.HKEY_CURRENT_USER,
+                r'Software\Classes\UTAUSequenceText\shell\open\command'
+            )
+        # 「全てのユーザーにインストール」されている場合
+        except FileNotFoundError as _:
+            reg_key = winreg.OpenKeyEx(
+                winreg.HKEY_LOCAL_MACHINE,
+                r'Software\Classes\UTAUSequenceText\shell\open\command'
+            )
         reg_data, _ = winreg.QueryValueEx(reg_key, '')
         winreg.CloseKey(reg_key)
         # reg_data の前半部分だけ取り出して 'C:\\UTAU\\utau.exe' にする
