@@ -236,6 +236,7 @@ class Ust:
             elif tag == '[#SETTING]':
                 del note['Length']
                 del note['NoteNum']
+                note.update(self.setting)  # __init__で定義した初期設定を保持
                 self.setting = note
             elif tag == '[#PREV]':
                 self.previous_note = note
@@ -368,6 +369,8 @@ class Ust:
         テンポや拍子情報など、グローバルな値とローカルな値を持ちうる変数の
         ローカル情報を一時的に格納するためのパラメーターを、
         最新の状態に更新する。
+
+        グローバルな値か、1ノート目のローカルな値のどちらかが存在する前提で処理をすることに注意。
 
         ## テンポの場合の例
         1. グローバルテンポを1ノート目のテンポで上書きする。
@@ -615,17 +618,6 @@ class Note(UserDict):
     @tempo.setter
     def tempo(self, x):
         self['Tempo'] = str(x)
-
-    @tempo.setter
-    def tempo(self, x):
-        self['$TimeSignatures'] = str(x)
-
-    @property
-    def timesignature(self):
-        """
-        表記ゆれの対策
-        """
-        return self.timesignatures
 
     @property
     def timesignatures(self):
