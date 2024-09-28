@@ -6,6 +6,7 @@ USTファイルとデータを扱うモジュールです。
 import re
 from collections import UserDict
 from copy import deepcopy
+from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
 from typing import List
 from warnings import warn
 
@@ -135,6 +136,8 @@ NOTENAME_TO_NOTENUM_DICT = {
     'Gb9': 126, 'G9': 127
 }
 
+TIMESIGNATURES_PATTERN = re.compile(r"\(\d+/\d+/\d+\)")
+
 
 def notenum_as_abc(notenum) -> str:
     """
@@ -168,6 +171,7 @@ class Ust:
         self.previous_note = None  # [#PREV]
         # 初期値を設定したり消したりする
         self.setting['Tempo'] = 120
+        self.setting['$TimeSignatures'] = '(4/4/0)'
         del self.setting['Length']
         del self.setting['NoteNum']
         del self.trackend['Length']
@@ -248,8 +252,14 @@ class Ust:
                 key, value = line.split('=', maxsplit=1)
                 note[key] = value
 
+        # ノート長を整数にする
+        self.round_length()
+        # 音階番号を整数にする
+        self.round_notenum()
         # 隠しパラメータ _hidden_dict['Tempo'] を全ノートに設定
         self.reload_tempo()
+        # 隠しパラメータ _hidden_dict['$TimeSignatures] を全ノートに設定
+        self.reload_timesignatures()
         return self
 
     @property
@@ -275,8 +285,18 @@ class Ust:
         """
         USTのグローバルな拍子情報
         独自エントリを使用するため、[#SETTING] ではなく最初のノートから取得する。
+        UST Ver.2.0 以降では (4/4/0) のような表記をするらしい。
         """
-        return self.setting.get('Timesignatures')
+        if '$TimeSignatures' not in self.setting:
+            self.setting['$TimeSignatures'] = self.notes[0].timesignatures
+        return self.setting['$TimeSignatures']
+
+    @timesignatures.setter
+    def timesignatures(self, x):
+        if not TIMESIGNATURES_PATTERN.match(x):
+            raise ValueError('拍子情報の表記が不適切です。\"(4/4/0)\" のように表記してください。')
+        self.setting['$TimeSignatures'] = str(x)
+        self.reload_timesignatures()
 
     @property
     def voicedir(self):
@@ -291,6 +311,24 @@ class Ust:
     @voicedir.setter
     def voicedir(self, path):
         self.setting['VoiceDir'] = path.strip('\'"')
+
+    def round_length(self, rounding=ROUND_HALF_EVEN):
+        """
+        SynthVなどで生成したUSTファイルだとLengthが小数になっていることがあるので、整数に丸める。
+        UST全体の長さがずれないように銀行丸めを用いる。
+        """
+        for note in self.notes:
+            note['Length'] = int(Decimal(note['Length']).quantize(
+                Decimal(0), rounding=rounding))
+
+    def round_notenum(self, rounding=ROUND_HALF_UP):
+        """
+        SynthVなどで生成したUSTファイルだとNoteNumが小数になっていることがあるので、整数に丸める。
+        銀行丸めではなく四捨五入を用いる。
+        """
+        for note in self.notes:
+            note['NoteNum'] = int(Decimal(note['NoteNum']).quantize(
+                Decimal(0), rounding=rounding))
 
     def clean_tempo(self):
         """
@@ -375,38 +413,13 @@ class Ust:
         1. グローバルテンポを1ノート目のテンポで上書きする。
         2. 各ノートでBPMが取得できるように note._hidden_dict['Tempo'] を全ノートに仕込む。
         """
-        # 2021年12月までの実装----------------------------
-        # # ノートがないときは何もしない
-        # if len(self.notes) == 0:
-        #     return
-        # # ここからはノートが1つ以上あるとき
-        # if 'Tempo' in self.notes[0]:
-        #     self.setting['Tempo'] = self.notes[0]['Tempo']
-        # current_tempo = self.setting['Tempo']
-        #
-        # # [#PREV]に_hidden_dict['Tempo']を登録
-        # previous_note = self.previous_note
-        # if previous_note is not None:
-        #     previous_note._hidden_dict['Tempo'] = previous_note.get('Tempo', current_tempo)
-        #
-        # # 通常のノートに_hidden_dict['Tempo']を登録
-        # for note in self.notes:
-        #     if 'Tempo' in note:
-        #         if float(note['Tempo']) == current_tempo:
-        #             del note['Tempo']
-        #         else:
-        #             current_tempo = note['Tempo']
-        #     # current_tempo = note.get('Tempo', current_tempo)
-        #     note._hidden_dict['Tempo'] = float(current_tempo)
-        #
-        # # [#NEXT]に_hidden_dict['Tempo']を登録
-        # next_note = self.next_note
-        # if next_note is not None:
-        #     next_note._hidden_dict['Tempo'] = next_note.get('Tempo', current_tempo)
-        #
-        # self.clean_tempo()
-        # -------------------------------------------------
         self.reload_local_value('Tempo')
+
+    def reload_timesignatures(self):
+        """
+        拍子情報を各ノートに登録する
+        """
+        self.reload_local_value('$TimeSignatures')
 
     # NOTE: メジャーアップデートの時に変更する
     def reload_index(self, start: int = 0):
@@ -499,7 +512,7 @@ class Ust:
         # テンポを整理する
         duplicated_self.reload_tempo()
         # ノート番号を振りなおす
-        duplicated_self.reload_tag_number()
+        duplicated_self.reload_index()
         # 文字列にする
         s = str(duplicated_self) + '\n'
         # ファイル出力
@@ -603,12 +616,29 @@ class Note(UserDict):
     def tempo(self, x):
         self['Tempo'] = str(x)
 
+    @tempo.setter
+    def tempo(self, x):
+        self['$TimeSignatures'] = str(x)
+
+    @property
+    def timesignature(self):
+        """
+        表記ゆれの対策
+        """
+        return self.timesignatures
+
     @property
     def timesignatures(self):
         """
         拍子記号
         """
-        return str(self.get('TimeSignatures'))
+        return str(self.get('$TimeSignatures', self._hidden_dict['$TimeSignatures']))
+
+    @timesignatures.setter
+    def timesignatures(self, x):
+        if not TIMESIGNATURES_PATTERN.match(x):
+            raise ValueError('拍子情報の表記が不適切です。\"(4/4/0)\" のように表記してください。')
+        self['$TimeSignatures'] = str(x)
 
     @property
     def pbs(self) -> list:
@@ -618,8 +648,12 @@ class Note(UserDict):
         """
         # 辞書には文字列で登録してある
         str_pbs = self['PBS']
+        # リストに変換
+        list_pbs = re.split('[;,]', str_pbs)
+        # 2項目め(ピッチ点の高さ)が空欄の場合は0を入れる
+        list_pbs = [list_pbs[0], 0] if list_pbs[1] == '' else list_pbs
         # 浮動小数のリストに変換
-        list_pbs = list(map(float, re.split('[;,]', str_pbs)))
+        list_pbs = list(map(float, list_pbs))
         # PBSの値をリストで返す
         return list_pbs
 
