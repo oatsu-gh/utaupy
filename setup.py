@@ -5,7 +5,7 @@ Python script for PyPI registation
 """
 from setuptools import find_packages, setup
 
-version = '1.18.3'
+version = '1.19.0'
 
 try:
     with open("README.md", mode='r', encoding='utf-8') as f:
@@ -21,9 +21,9 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='oatsu',
-    author_email='panchi.psp@gmail.com',
+    author_email='oatsu.dev@gmail.com',
     maintainer='oatsu',
-    maintainer_email='panchi.psp@gmail.com',
+    maintainer_email='oatsu.dev@gmail.com',
     url='https://github.com/oatsu-gh/utaupy',
     packages=find_packages(),
     install_requires=[],
