@@ -645,14 +645,18 @@ class Note(UserDict):
         # PBSがないときはNoneを返す
         if str_pbs is None:
             return None
+        if str_pbs == '':
+            return None
         # リストに変換
         list_pbs = re.split('[;,]', str_pbs)
-        # 2項目め(ピッチ点の高さ)が空欄の場合は0を入れる
-        list_pbs = [list_pbs[0], 0] if list_pbs[1] == '' else list_pbs
-        # 浮動小数のリストに変換
-        list_pbs = list(map(float, list_pbs))
-        # PBSの値をリストで返す
-        return list_pbs
+        # 2項目目がない場合は0を追加して
+        if len(list_pbs) == 1:
+            return [float(list_pbs[0]), 0]
+        # 2項目め(ピッチ点の高さ)が空欄の場合も0を追加して返す
+        if list_pbs[1] == '':
+            return [float(list_pbs[0]), 0]
+        # 浮動小数のリストに変換して返す
+        return list(map(float, list_pbs))
 
     @pbs.setter
     def pbs(self, list_pbs: list | None):
@@ -675,6 +679,8 @@ class Note(UserDict):
         s_pbw = self.get('PBW')
         # PBWがないときはNoneを返す
         if s_pbw is None:
+            return None
+        if s_pbw == '':
             return None
         # 整数のリストに変換 (空白文字の場合でも対応できるようにしている)
         l_pbw = [float(x or 0) for x in s_pbw.split(',')]
@@ -700,6 +706,8 @@ class Note(UserDict):
         # PBYがないとき
         if s_pby is None:
             return None
+        if s_pby == '':
+            return None
         # 整数のリストに変換
         l_pby = [float(x or 0) for x in s_pby.split(',')]
         # PBYの値をリストで返す
@@ -714,7 +722,7 @@ class Note(UserDict):
         self['PBY'] = str_pby
 
     @property
-    def pbm(self, default='s') -> List[str] | None:
+    def pbm(self, default='') -> List[str] | None:
         """
         PBM (mode2ピッチ点の形状) を取得
         例) PBM=,,,,
@@ -723,6 +731,8 @@ class Note(UserDict):
         s_pbm = self.get('PBM')
         # PBMがないとき
         if s_pbm is None:
+            return None
+        if s_pbm == '':
             return None
         # リストに変換
         l_pbm = [x or default for x in s_pbm.split(',')]
