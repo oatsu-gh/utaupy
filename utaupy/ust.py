@@ -725,7 +725,7 @@ class Note(UserDict):
         if s_pbm is None:
             return None
         # リストに変換
-        l_pbm = [x or default for x in s.split(',')]
+        l_pbm = [x or default for x in s_pbm.split(',')]
         # PBYの値をリストで返す
         return l_pbm
 
