@@ -633,13 +633,18 @@ class Note(UserDict):
         self['$TimeSignatures'] = str(x)
 
     @property
-    def pbs(self) -> list:
+    def pbs(self) -> list | None:
         """
-        PBS (mode2ピッチ開始位置[ms])
+        PBS (mode2ピッチ開始位置[ms];ピッチの高さ[cent])
+
         例) PBS=-104;20.0
+        前半だけだったり後半だけだったりする
         """
         # 辞書には文字列で登録してある
-        str_pbs = self['PBS']
+        str_pbs = self.get('PBS')
+        # PBSがないときはNoneを返す
+        if str_pbs is None:
+            return None
         # リストに変換
         list_pbs = re.split('[;,]', str_pbs)
         # 2項目め(ピッチ点の高さ)が空欄の場合は0を入れる
@@ -650,66 +655,84 @@ class Note(UserDict):
         return list_pbs
 
     @pbs.setter
-    def pbs(self, list_pbs):
+    def pbs(self, list_pbs: list | None):
+        if list_pbs is None:
+            return
+        if not 1 <= len(list_pbs) <= 2:
+            raise ValueError('pbs must be a list of length 1 or 2.')
         s1 = f'{int(list_pbs[0])};'
         s2 = ','.join(map(str, list_pbs[1:]))
-
         str_pbs = s1 + s2
         self['PBS'] = str_pbs
 
     @property
-    def pbw(self) -> List[int]:
+    def pbw(self) -> List[float] | None:
         """
         PBW (mode2ピッチ点の間隔[ms]) を取得
         例) PBW=77,163
         """
         # 辞書には文字列で登録してある
-        s_pbw = self['PBW']
+        s_pbw = self.get('PBW')
+        # PBWがないときはNoneを返す
+        if s_pbw is None:
+            return None
         # 整数のリストに変換 (空白文字の場合でも対応できるようにしている)
         l_pbw = [float(x or 0) for x in s_pbw.split(',')]
         # PBWの値をリストで返す
         return l_pbw
 
     @pbw.setter
-    def pbw(self, list_pbw: List[int]):
+    def pbw(self, list_pbw: List[int] | List[float] | None):
+        if list_pbw is None:
+            return
         # リストを整数の文字列に変換
-        str_pbw = ','.join(list(map(str, map(int, list_pbw))))
+        str_pbw = ','.join(list(map(str, map(float, list_pbw))))
         self['PBW'] = str_pbw
 
     @property
-    def pby(self) -> list:
+    def pby(self) -> List[float] | None:
         """
         PBY (mode2ピッチ点の高さ) を取得
         例) PBY=-10.6,0.0
         """
         # 辞書には文字列で登録してある
-        s_pby = self['PBY']
+        s_pby = self.get('PBY')
+        # PBYがないとき
+        if s_pby is None:
+            return None
         # 整数のリストに変換
         l_pby = [float(x or 0) for x in s_pby.split(',')]
         # PBYの値をリストで返す
         return l_pby
 
     @pby.setter
-    def pby(self, list_pby):
+    def pby(self, list_pby: List[int] | List[float] | None):
+        if list_pby is None:
+            return
         # リストを小数の文字列に変換
         str_pby = ','.join(list(map(str, map(float, list_pby))))
         self['PBY'] = str_pby
 
     @property
-    def pbm(self) -> List[str]:
+    def pbm(self, default='s') -> List[str] | None:
         """
         PBM (mode2ピッチ点の形状) を取得
         例) PBM=,,,,
         """
         # 辞書には文字列で登録してある
-        s_pby = self['PBM']
-        # 整数のリストに変換
-        l_pbm = s_pby.split(',')
+        s_pbm = self.get('PBM')
+        # PBMがないとき
+        if s_pbm is None:
+            return None
+        # リストに変換
+        l_pbm = [x or default for x in s.split(',')]
         # PBYの値をリストで返す
         return l_pbm
 
     @pbm.setter
-    def pbm(self, list_pbm: list):
+    def pbm(self, list_pbm: List[str] | None):
+        if list_pbm is None:
+            return
         # リストを文字列に変換
         str_pbm = ','.join(list_pbm)
         self['PBM'] = str_pbm
