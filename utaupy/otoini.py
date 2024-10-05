@@ -8,6 +8,7 @@ from collections import UserList
 
 # TODO: setParam用のコメントファイルを扱えるようにする。
 
+
 def main():
     """
     直接実行されたときの挙動
@@ -48,6 +49,82 @@ class OtoIni(UserList):
         for oto in self:
             oto.alias = oto.alias.replace(before, after)
         return self
+
+    def apply_regex(self, func, *args, pattern=None):
+        """
+        エイリアスが正規表現に完全一致したら、その行で関数を実行する。
+
+        Parameters:
+            func(function): 対象行に実行する関数名。
+            *args(Tuple): funcの引数。複数可能。
+            pattern(str): 対象行の正規表現のパターン。完全一致。省略時は全行に実行。
+        """
+        # 正規表現がNone以外なら、エイリアスが完全一致した行で実行
+        if pattern is not None:
+            regex = re.compile(rf"{pattern}")
+            for oto in self:
+                if regex.fullmatch(oto.alias):
+                    func(oto, *args)
+
+        # 正規表現がNoneなら、全行で実行
+        else:
+            for oto in self:
+                func(oto, *args)
+        return self
+
+    def replace_regexp_alias(self, before, after=None, pattern=None):
+        """
+        エイリアスを置換する。(正規表現対応)
+
+        Parameters:
+            before(str): 置換する文字列。
+            after(str): 置換後の文字列。省略時は空文字。
+            pattern(str): 対象行の正規表現のパターン。完全一致。省略時は全行に実行。
+        """
+        # 入力を取得 or デフォルト値を設定
+        before = str(before or "")
+        after = str(after or "")
+
+        # 一致した行 or 全行で置換
+        def replace_func(oto, before, after):
+            oto.alias = oto.alias.replace(before, after)
+        return self.apply_regex(replace_func, before, after, pattern=pattern)
+
+    def add_alias(self, prefix=None, suffix=None, pattern=None):
+        """
+        エイリアスに接頭辞と接尾辞を追加する。
+
+        Parameters:
+            prefix(str): 追加する接頭辞。省略時は追加しない。
+            suffix(str): 追加する接尾辞。省略時は追加しない。
+            pattern(str): 対象行の正規表現のパターン。完全一致。省略時は全行に実行。
+        """
+        # 入力を取得 or デフォルト値を設定
+        prefix = str(prefix or "")
+        suffix = str(suffix or "")
+
+        # 一致した行 or 全行に追加
+        def add_alias_func(oto):
+            oto.alias = (prefix or "") + oto.alias + (suffix or "")
+        return self.apply_regex(add_alias_func, pattern=pattern)
+
+    def trim_alias(self, prefix_len=None, suffix_len=None, pattern=None):
+        """
+        エイリアスの前後から指定した文字数を削除する。
+
+        Parameters:
+            prefix(int): 語頭から削除する桁数。省略時は削除しない。
+            suffix(int): 語尾から削除する桁数。省略時は削除しない。
+            pattern(str): 対象行の正規表現のパターン。完全一致。省略時は全行に実行。
+        """
+        # 入力を整数として取得 or デフォルト値を設定
+        prefix_len = int(prefix_len or 0)
+        suffix_len = int(suffix_len or 0)
+
+        # 一致した行 or 全行から削除
+        def trim_func(oto):
+            oto.alias = oto.alias[prefix_len:len(oto.alias)-suffix_len]
+        return self.apply_regex(trim_func, pattern=pattern)
 
     def is_mono(self):
         """
