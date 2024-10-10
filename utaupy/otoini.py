@@ -55,21 +55,20 @@ class OtoIni(UserList):
         エイリアスが正規表現に完全一致したら、その行で関数を実行する。
 
         Parameters:
-            func(function): 対象行に実行する関数名。
-            *args(Tuple): funcの引数。複数可能。
-            pattern(str): 対象行の正規表現のパターン。完全一致。省略時は全行に実行。
+            func (function): 対象行に実行する関数名。
+            *args (Tuple): funcの引数。複数可能。
+            pattern (str): 対象行の正規表現のパターン。完全一致。省略時は全行に実行。
         """
-        # 正規表現がNone以外なら、エイリアスが完全一致した行で実行
+        # 正規表現がNone以外なら、正規表現に完全一致した行をフィルタリング
         if pattern is not None:
             regex = re.compile(rf"{pattern}")
-            for oto in self:
-                if regex.fullmatch(oto.alias):
-                    func(oto, *args)
-
-        # 正規表現がNoneなら、全行で実行
+            filtered_otos = [oto for oto in self if regex.fullmatch(oto.alias)]
+        # 違えば全行をフィルタリング
         else:
-            for oto in self:
-                func(oto, *args)
+            filtered_otos = [oto for oto in self]
+
+        # フィルタリングした行に関数を実行
+        list(map(lambda oto: func(oto, *args), filtered_otos))
         return self
 
     def replace_regexp_alias(self, before, after=None, pattern=None):
@@ -77,9 +76,9 @@ class OtoIni(UserList):
         エイリアスを置換する。(正規表現対応)
 
         Parameters:
-            before(str): 置換する文字列。
-            after(str): 置換後の文字列。省略時は空文字。
-            pattern(str): 対象行の正規表現のパターン。完全一致。省略時は全行に実行。
+            before (str): 置換する文字列。
+            after (str): 置換後の文字列。省略時は空文字。
+            pattern (str): 対象行の正規表現のパターン。完全一致。省略時は全行に実行。
         """
         # 入力を取得 or デフォルト値を設定
         before = str(before or "")
@@ -95,9 +94,9 @@ class OtoIni(UserList):
         エイリアスに接頭辞と接尾辞を追加する。
 
         Parameters:
-            prefix(str): 追加する接頭辞。省略時は追加しない。
-            suffix(str): 追加する接尾辞。省略時は追加しない。
-            pattern(str): 対象行の正規表現のパターン。完全一致。省略時は全行に実行。
+            prefix (str): 追加する接頭辞。省略時は追加しない。
+            suffix (str): 追加する接尾辞。省略時は追加しない。
+            pattern (str): 対象行の正規表現のパターン。完全一致。省略時は全行に実行。
         """
         # 入力を取得 or デフォルト値を設定
         prefix = str(prefix or "")
@@ -113,9 +112,9 @@ class OtoIni(UserList):
         エイリアスの前後から指定した文字数を削除する。
 
         Parameters:
-            prefix(int): 語頭から削除する桁数。省略時は削除しない。
-            suffix(int): 語尾から削除する桁数。省略時は削除しない。
-            pattern(str): 対象行の正規表現のパターン。完全一致。省略時は全行に実行。
+            prefix (int): 語頭から削除する桁数。省略時は削除しない。
+            suffix (int): 語尾から削除する桁数。省略時は削除しない。
+            pattern (str): 対象行の正規表現のパターン。完全一致。省略時は全行に実行。
         """
         # 入力を整数として取得 or デフォルト値を設定
         prefix_len = int(prefix_len or 0)
