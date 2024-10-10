@@ -69,7 +69,6 @@ class OtoIni(UserList):
 
         # フィルタリングした行に関数を実行
         list(map(lambda oto: func(oto, *args), filtered_otos))
-
         return self
 
     def drop_duplicates(self, keep='first'):
@@ -124,10 +123,10 @@ class OtoIni(UserList):
         先行発声、固定範囲、右ブランク(cutoff)の位置は変わらない。
 
         Parameters:
-            bpm(float): 収録BPM。
-            preutterance(float): 先行発声の固定値。省略時は収録BPMから計算する。
-            ratio(float): 「1/3」と書くと1/3に、「1.5」と書くと1.5倍にする。
-            pattern(str): 対象行の正規表現のパターン。完全一致。省略時は全行に実行。
+            bpm (float): 収録BPM。
+            preutterance (float): 先行発声の固定値。省略時は収録BPMから計算する。
+            ratio (float): 「1/3」と書くと1/3に、「1.5」と書くと1.5倍にする。
+            pattern (str): 対象行の正規表現のパターン。完全一致。省略時は全行に実行。
 
         Example of Use:
             import utaupy
@@ -156,7 +155,6 @@ class OtoIni(UserList):
                 oto.cutoff += moving_value
             else:  # プラス値のcutoffは、offsetが動いても変わらない
                 oto.cutoff = oto.cutoff
-
         return self.apply_regex(overlap_ratio_func, pattern=pattern)
 
     def is_mono(self):
