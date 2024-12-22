@@ -554,6 +554,17 @@ class Note(UserDict):
         self['Tag'] = s
 
     @property
+    def intensity(self) -> int:
+        """
+        ノート長[Ticks]
+        """
+        return round(self.get('Intensity', 100))
+
+    @intensity.setter
+    def intensity(self, x):
+        self['Intensity'] = str(x)
+
+    @property
     def length(self) -> int:
         """
         ノート長[Ticks]
