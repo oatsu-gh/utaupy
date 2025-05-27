@@ -556,9 +556,9 @@ class Note(UserDict):
     @property
     def intensity(self) -> int:
         """
-        ノート長[Ticks]
+        音量
         """
-        return round(self.get('Intensity', 100))
+        return round(float(self.get('Intensity', 100)))
 
     @intensity.setter
     def intensity(self, x):
