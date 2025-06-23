@@ -801,7 +801,61 @@ class Note(UserDict):
 
     @label.setter
     def label(self, label: str):
+
         self['Label'] = str(label)
+
+    @property
+    def vbr(self) -> str:
+        """
+        ノートのビブラート情報
+
+        ## 例
+        VBR=65,180,35,20,20,0,0
+        ## 詳細(8項目)
+            - 長さ[%]
+            - 周期[ms]
+            - 深さ[cent]
+            - 入(フェードイン)[%]
+            - 出(フェードアウト)[%]
+            - 位相[%]
+            - 高さ[%]
+            - 未使用[-]
+        """
+        # 辞書には文字列で登録してある
+        s_vbr = self.get('VBR')
+        # VBRがないとき
+        if s_vbr is None:
+            return None
+        if s_vbr == '':
+            return None
+        # 整数のリストに変換
+        l_vbr = [float(x or 0) for x in s_vbr.split(',')]
+        # VBRの値をリストで返す
+        return l_vbr
+
+    @vbr.setter
+    def vbr(self, list_vbr: List[int] | List[float] | None):
+        if list_vbr is None:
+            return
+        if len(list_vbr) != 7 and len(list_vbr) != 8:
+            raise ValueError('VBR must be a list of length 7 or 8.')
+        # 7項目なら8項目目を0にする
+        if len(list_vbr) == 7:
+            list_vbr.append(0)
+        # リストを小数の文字列に変換
+        str_vbr = ','.join(list(map(str, map(float, list_vbr))))
+        self['VBR'] = str_vbr
+
+    @property
+    def vibrato(self) -> list | None:
+        """
+        ノートのビブラート情報 (vbr のエイリアス)
+        """
+        return self.vbr
+
+    @vibrato.setter
+    def vibrato(self, value: list | None):
+        self.vbr = value
 
     # ここからノート操作系-----------------------------------------------------
 
@@ -836,19 +890,11 @@ class Note(UserDict):
     # ここまでノート操作系-----------------------------------------------------
 
 
-def main():
-    """
-    実行されたときの挙動
-    """
+if __name__ == '__main__':
+    # 直接実行されたときは ust を読み取って表示する
     print('デフォ子かわいいよデフォ子\n')
-
     print('ust読み取りテストをします。')
     path = input('ustのパスを入力してください。\n>>> ')
     ust = load(path)
     print(ust)
-
     input('\nPress Enter to exit.')
-
-
-if __name__ == '__main__':
-    main()
