@@ -5,6 +5,7 @@
 
 import logging
 from collections import UserList
+from typing import Optional, Union
 
 
 def main():
@@ -270,7 +271,9 @@ class Label(UserList):
         LABファイルを書き出し
         """
         if time_unit == '100ns':
-            lines = [delimiter.join([ph.start, ph.end, ph.symbol]) for ph in self]
+            lines = [
+                f'{ph.start}{delimiter}{ph.end}{delimiter}{ph.symbol}' for ph in self
+            ]
         elif time_unit in ('s', '1s', 'sec'):
             lines = [
                 f'{ph.start:.7f} {ph.end:.7f} {ph.symbol}' for ph in self
@@ -288,6 +291,10 @@ class Phoneme:
     """
     ラベルの一行分の情報を持つクラス(2020/07/23から)
     """
+
+    start: Optional[Union[int, float]]
+    end: Optional[Union[int, float]]
+    symbol: Optional[str]
 
     def __init__(self):
         self.start = None  # 発声開始位置
