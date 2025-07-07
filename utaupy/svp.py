@@ -1,9 +1,9 @@
 #! /usr/bin/env python3
-# coding: utf-8
 """
 SynthVのS5PとSVPを扱うモジュールです。
 読み取り機能のみです。
 """
+
 import json
 from collections import OrderedDict
 
@@ -24,4 +24,4 @@ def load(path_svp):
     d = json.loads(b)
     d = OrderedDict(d)
     # pprint(d, width=200)
-    return d
+    return d  # noqa:RET504

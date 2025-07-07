@@ -1,8 +1,9 @@
 #! /usr/bin/env python3
-# coding: utf-8
+# Copyright (c) oatsu
 """
 setParam用のINIファイルとデータを扱うモジュールです。
 """
+
 import re
 from collections import UserList
 
@@ -31,8 +32,15 @@ def load(path, mode='r', encoding='cp932'):
         params = re.split('[=,]', line.strip())
         params = params[:2] + [float(v) for v in params[2:]]
         oto = Oto()
-        (oto.filename, oto.alias, oto.offset, oto.consonant,
-         oto.cutoff, oto.preutterance, oto.overlap) = params
+        (
+            oto.filename,
+            oto.alias,
+            oto.offset,
+            oto.consonant,
+            oto.cutoff,
+            oto.preutterance,
+            oto.overlap,
+        ) = params
         otoini.append(oto)
     return otoini
 
@@ -61,14 +69,14 @@ class OtoIni(UserList):
         """
         # 正規表現がNone以外なら、正規表現に完全一致した行をフィルタリング
         if pattern is not None:
-            regex = re.compile(rf"{pattern}")
+            regex = re.compile(rf'{pattern}')
             filtered_otos = [oto for oto in self if regex.fullmatch(oto.alias)]
         # 違えば全行をフィルタリング
         else:
-            filtered_otos = [oto for oto in self]
+            filtered_otos = list(self)
 
         # フィルタリングした行に関数を実行
-        list(map(lambda oto: func(oto, *args), filtered_otos))
+        [func(oto, *args) for oto in filtered_otos]
         return self
 
     def drop_duplicates(self, keep='first'):
@@ -114,10 +122,10 @@ class OtoIni(UserList):
             oto.cutoff = round(oto.cutoff, digits)
             oto.preutterance = round(oto.preutterance, digits)
             oto.overlap = round(oto.overlap, digits)
+
         return self.apply_regex(round_func, pattern=pattern)
 
-    def init_overlap_ratio(
-            self, bpm=120, preutterance=None, ratio=1/3, pattern=None):
+    def init_overlap_ratio(self, bpm=120, preutterance=None, ratio=1 / 3, pattern=None):
         """
         オーバーラップを先行発声で割る。乗算も可。
         先行発声、固定範囲、右ブランク(cutoff)の位置は変わらない。
@@ -155,6 +163,7 @@ class OtoIni(UserList):
                 oto.cutoff += moving_value
             else:  # プラス値のcutoffは、offsetが動いても変わらない
                 oto.cutoff = oto.cutoff
+
         return self.apply_regex(overlap_ratio_func, pattern=pattern)
 
     def is_mono(self):
@@ -183,14 +192,18 @@ class OtoIni(UserList):
                 mono_oto = Oto()
                 mono_oto.filename = name_wav
                 mono_oto.alias = phonemes[0]
-                mono_oto.offset = oto.offset + oto.overlap  # オーバーラップの位置に左ブランクを移動
+                mono_oto.offset = (
+                    oto.offset + oto.overlap
+                )  # オーバーラップの位置に左ブランクを移動
                 mono_oto.preutterance = 0
                 mono_otoini.append(mono_oto)
                 # 2文字目(先行発声から固定範囲まで)----------------
                 mono_oto = Oto()
                 mono_oto.filename = name_wav
                 mono_oto.alias = phonemes[1]
-                mono_oto.offset = oto.offset + oto.preutterance  # 先行発声の位置に左ブランクを移動
+                mono_oto.offset = (
+                    oto.offset + oto.preutterance
+                )  # 先行発声の位置に左ブランクを移動
                 mono_oto.preutterance = 0
                 mono_otoini.append(mono_oto)
                 if len(phonemes) == 3:
@@ -198,13 +211,15 @@ class OtoIni(UserList):
                     mono_oto = Oto()
                     mono_oto.filename = name_wav
                     mono_oto.alias = phonemes[2]
-                    mono_oto.offset = oto.offset + oto.consonant  # 固定範囲の位置に左ブランクを移動
+                    mono_oto.offset = (
+                        oto.offset + oto.consonant
+                    )  # 固定範囲の位置に左ブランクを移動
                     mono_oto.preutterance = 0
                     mono_otoini.append(mono_oto)
             else:
                 print('\n[ERROR in otoini.monophonize()]----------------')
                 print('  1エイリアスの音素数は 1, 2, 3 以外対応していません。')
-                print('  phonemes: {}'.format(phonemes))
+                print(f'  phonemes: {phonemes}')
                 print('  文字を連結して処理を続行します。')
                 print('-----------------------------------------------\n')
                 mono_otoini.append(oto)
@@ -236,16 +251,16 @@ class Oto:
         self.comment = None
 
     def __str__(self):
-        s = '{}={},{},{},{},{},{}'.format(
+        s = '{}={},{},{},{},{},{}'.format(  # noqa: UP032
             self.filename,
             self.alias,
             round(float(self.offset), 4),
             round(float(self.consonant), 4),
             round(float(self.cutoff), 4),
             round(float(self.preutterance), 4),
-            round(float(self.overlap), 4)
+            round(float(self.overlap), 4),
         )
-        return s
+        return s  # noqa: RET504
 
     @property
     def cutoff2(self):
@@ -264,7 +279,8 @@ class Oto:
         """
         if absolute_cutoff_time < 0:
             raise ValueError(
-                f'Argument "absolute_cutoff_time" must be positive : {absolute_cutoff_time}')
+                f'Argument "absolute_cutoff_time" must be positive : {absolute_cutoff_time}'  # noqa: E501
+            )
         self.cutoff = self.offset - absolute_cutoff_time
 
 

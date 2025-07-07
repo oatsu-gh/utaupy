@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-# coding: utf-8
 # Copyright (c) oatsu
 """
 UTAUのプラグイン用のモジュール
@@ -7,9 +6,9 @@ utaupy.ust.Ust をもとに、ファイル入出力機能を変更したもの�
 """
 
 from copy import deepcopy
+from os.path import splitext
 from sys import argv
 from typing import Callable
-from os.path import splitext
 
 from utaupy import ust as _ust
 
@@ -81,7 +80,7 @@ class UtauPlugin(_ust.Ust):
         # Ustオブジェクトを生成
         ust = _ust.Ust()
         # [#SETTING] の情報をコピー
-        ust.version = plugin.version   # [#VERSION]
+        ust.version = plugin.version  # [#VERSION]
         ust.setting = plugin.setting  # [#SETTING]
         ust.notes = plugin.notes  # [#1234], [#INSERT], [#DELETE]
         return ust

@@ -1,9 +1,11 @@
 #! /usr/bin/env python3
-# coding: utf-8
+# Copyright (c) oatsu
+
 """
 UTAUの録音リストを扱うモジュール
 録音リストは休憩する部分で空白行を入れてね
 """
+
 import re
 from pprint import pprint
 
@@ -15,9 +17,19 @@ def main():
     # pathを標準入力
     path_reclist = input('録音リストのパスを入力してください。\n>>> ')
     # OREMOのコメントの扱いを質問
-    oremo = input('OREMO用のコメントを含んでいますか？(Y/n)\n>>> ') in ['Y', 'y', 'Ｙ', 'ｙ']
+    oremo = input('OREMO用のコメントを含んでいますか？(Y/n)\n>>> ') in [
+        'Y',
+        'y',
+        'Ｙ',
+        'ｙ',
+    ]
     # 録音リストの空行の扱いを質問
-    remove_blankline = input('空行を削除しますか？(Y/n)\n>>> ') in ['Y', 'y', 'Ｙ', 'ｙ']
+    remove_blankline = input('空行を削除しますか？(Y/n)\n>>> ') in [
+        'Y',
+        'y',
+        'Ｙ',
+        'ｙ',
+    ]
     # 録音リストを読み取る
     l = load(path_reclist, remove_blankline=remove_blankline, oremo=oremo)
     print('\n取得結果---------------------------')

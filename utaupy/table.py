@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-# coding: utf-8
 """
 日本語とアルファベットの対応表を扱うモジュールです。
 """
@@ -24,14 +23,14 @@ def load_table_file(path_table, encoding='utf-8') -> dict:
     """テーブルを読み取ってインスタンス生成"""
     # ファイル読み取り
     try:
-        with open(path_table, mode='r', encoding=encoding) as f:
+        with open(path_table, encoding=encoding) as f:
             lines = [line.strip() for line in f.readlines()]
     except UnicodeDecodeError:
         try:
-            with open(path_table, mode='r', encoding='cp932') as f:
+            with open(path_table, encoding='cp932') as f:
                 lines = [line.strip() for line in f.readlines()]
         except UnicodeDecodeError:
-            with open(path_table, mode='r', encoding='utf-8') as f:
+            with open(path_table, encoding='utf-8') as f:
                 lines = [line.strip() for line in f.readlines()]
     # 辞書にする
     d_table = {}
@@ -45,14 +44,14 @@ def load_conf_file(path_conf, encoding='utf-8') -> dict:
     """音素分類用のファイルを読み取って辞書を返す"""
     # ファイル読み取り
     try:
-        with open(path_conf, mode='r', encoding=encoding) as f:
+        with open(path_conf, encoding=encoding) as f:
             lines = [line.strip() for line in f.readlines()]
     except UnicodeDecodeError:
         try:
-            with open(path_conf, mode='r', encoding='cp932') as f:
+            with open(path_conf, encoding='cp932') as f:
                 lines = [line.strip() for line in f.readlines()]
         except UnicodeDecodeError:
-            with open(path_conf, mode='r', encoding='utf-8') as f:
+            with open(path_conf, mencoding='utf-8') as f:
                 lines = [line.strip() for line in f.readlines()]
     # 辞書にする
     d_conf = {'SILENCES': ['sil'], 'PAUSES': ['pau'], 'BREAKS': ['br']}

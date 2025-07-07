@@ -1,12 +1,11 @@
 #! /usr/bin/env python3
-# coding: utf-8
 # Copyright (c) oatsu
 """
 入出力ファイルのバックアップを取りたいときに使う
 """
 
 from datetime import datetime
-from os import path, makedirs
+from os import makedirs, path
 from shutil import copy2
 
 

@@ -1,2 +1,17 @@
-from utaupy import (backup, convert, hts, label, otoini, reaper, reclist,
-                    setparam, shiro, svp, table, ust, utau, utauplugin, utils)
+from utaupy import (  # noqa: F401
+    backup,
+    convert,
+    hts,
+    label,
+    otoini,
+    reaper,
+    reclist,
+    setparam,
+    shiro,
+    svp,
+    table,
+    ust,
+    utau,
+    utauplugin,
+    utils,
+)

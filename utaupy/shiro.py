@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-# coding: utf-8
 """
 SHIRO (https://github.com/Sleepwalking/SHIRO) 関連のファイルを扱う。
 """
@@ -50,5 +49,5 @@ class Index:
     def values(self, lines):
         """値を登録"""
         if not isinstance(lines, list):
-            raise TypeError('\"lines\" must be list instance (values.setter in label.py)')
+            raise TypeError('"lines" must be list instance (values.setter in label.py)')
         self.__values = lines

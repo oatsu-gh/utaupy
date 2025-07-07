@@ -1,9 +1,9 @@
 #! /usr/bin/env python3
-# coding: utf-8
-# Copyright (c) 2020 oatsu
+# Copyright (c) oatsu
 """
 UTAU音源を扱うモジュール
 """
+
 import platform
 from collections import UserDict
 from glob import glob
@@ -27,13 +27,13 @@ if str(platform.system()) == 'Windows':
         try:
             reg_key = winreg.OpenKeyEx(
                 winreg.HKEY_CURRENT_USER,
-                r'Software\Classes\UTAUSequenceText\shell\open\command'
+                r'Software\Classes\UTAUSequenceText\shell\open\command',
             )
         # 「全てのユーザーにインストール」されている場合
         except FileNotFoundError as _:
             reg_key = winreg.OpenKeyEx(
                 winreg.HKEY_LOCAL_MACHINE,
-                r'Software\Classes\UTAUSequenceText\shell\open\command'
+                r'Software\Classes\UTAUSequenceText\shell\open\command',
             )
         reg_data, _ = winreg.QueryValueEx(reg_key, '')
         winreg.CloseKey(reg_key)
@@ -43,6 +43,7 @@ if str(platform.system()) == 'Windows':
         return dirname(path_utau_exe)
 # Windowsじゃないとき
 else:
+
     def utau_root() -> str:
         """
         utau.exe のフォルダのパスを返す。
@@ -72,31 +73,110 @@ class PrefixMap(UserDict):
     def __init__(self, path):
         super().__init__()
         self.comment_lines = []
-        with open(path, 'r', encoding='cp932') as prefixmap_file:
+        with open(path, encoding='cp932') as prefixmap_file:
             lines = prefixmap_file.readlines()
         # 改行文字を削除、コメント行を無視
-        lines = [line.rstrip('\r\n')
-                 for line in lines if not line.startswith('//')]
+        lines = [line.rstrip('\r\n') for line in lines if not line.startswith('//')]
         # 空白で区切って {音程: suffix文字列} の辞書にする
         lines_2d = [line.split(maxsplit=1) for line in lines]
         # 音程表記をUSTでの音階番号に変換
         abc_to_notenum = {
-            'C1': '24', 'C#1': '25', 'D1': '26', 'D#1': '27', 'E1': '28', 'F1': '29',
-            'F#1': '30', 'G1': '31', 'G#1': '32', 'A1': '33', 'A#1': '34', 'B1': '35',
-            'C2': '36', 'C#2': '37', 'D2': '38', 'D#2': '39', 'E2': '40', 'F2': '41',
-            'F#2': '42', 'G2': '43', 'G#2': '44', 'A2': '45', 'A#2': '46', 'B2': '47',
-            'C3': '48', 'C#3': '49', 'D3': '50', 'D#3': '51', 'E3': '52', 'F3': '53',
-            'F#3': '54', 'G3': '55', 'G#3': '56', 'A3': '57', 'A#3': '58', 'B3': '59',
-            'C4': '60', 'C#4': '61', 'D4': '62', 'D#4': '63', 'E4': '64', 'F4': '65',
-            'F#4': '66', 'G4': '67', 'G#4': '68', 'A4': '69', 'A#4': '70', 'B4': '71',
-            'C5': '72', 'C#5': '73', 'D5': '74', 'D#5': '75', 'E5': '76', 'F5': '77',
-            'F#5': '78', 'G5': '79', 'G#5': '80', 'A5': '81', 'A#5': '82', 'B5': '83',
-            'C6': '84', 'C#6': '85', 'D6': '86', 'D#6': '87', 'E6': '88', 'F6': '89',
-            'F#6': '90', 'G6': '91', 'G#6': '92', 'A6': '93', 'A#6': '94', 'B6': '95',
-            'C7': '96', 'C#7': '97', 'D7': '98', 'D#7': '99', 'E7': '100', 'F7': '101',
-            'F#7': '102', 'G7': '103', 'G#7': '104', 'A7': '105', 'A#7': '106', 'B7': '107',
-            'C8': '108', 'C#8': '109', 'D8': '110', 'D#8': '111', 'E8': '112', 'F8': '113',
-            'F#8': '114', 'G8': '115', 'G#8': '116', 'A8': '117', 'A#8': '118', 'B8': '119'
+            'C1': '24',
+            'C#1': '25',
+            'D1': '26',
+            'D#1': '27',
+            'E1': '28',
+            'F1': '29',
+            'F#1': '30',
+            'G1': '31',
+            'G#1': '32',
+            'A1': '33',
+            'A#1': '34',
+            'B1': '35',
+            'C2': '36',
+            'C#2': '37',
+            'D2': '38',
+            'D#2': '39',
+            'E2': '40',
+            'F2': '41',
+            'F#2': '42',
+            'G2': '43',
+            'G#2': '44',
+            'A2': '45',
+            'A#2': '46',
+            'B2': '47',
+            'C3': '48',
+            'C#3': '49',
+            'D3': '50',
+            'D#3': '51',
+            'E3': '52',
+            'F3': '53',
+            'F#3': '54',
+            'G3': '55',
+            'G#3': '56',
+            'A3': '57',
+            'A#3': '58',
+            'B3': '59',
+            'C4': '60',
+            'C#4': '61',
+            'D4': '62',
+            'D#4': '63',
+            'E4': '64',
+            'F4': '65',
+            'F#4': '66',
+            'G4': '67',
+            'G#4': '68',
+            'A4': '69',
+            'A#4': '70',
+            'B4': '71',
+            'C5': '72',
+            'C#5': '73',
+            'D5': '74',
+            'D#5': '75',
+            'E5': '76',
+            'F5': '77',
+            'F#5': '78',
+            'G5': '79',
+            'G#5': '80',
+            'A5': '81',
+            'A#5': '82',
+            'B5': '83',
+            'C6': '84',
+            'C#6': '85',
+            'D6': '86',
+            'D#6': '87',
+            'E6': '88',
+            'F6': '89',
+            'F#6': '90',
+            'G6': '91',
+            'G#6': '92',
+            'A6': '93',
+            'A#6': '94',
+            'B6': '95',
+            'C7': '96',
+            'C#7': '97',
+            'D7': '98',
+            'D#7': '99',
+            'E7': '100',
+            'F7': '101',
+            'F#7': '102',
+            'G7': '103',
+            'G#7': '104',
+            'A7': '105',
+            'A#7': '106',
+            'B7': '107',
+            'C8': '108',
+            'C#8': '109',
+            'D8': '110',
+            'D#8': '111',
+            'E8': '112',
+            'F8': '113',
+            'F#8': '114',
+            'G8': '115',
+            'G#8': '116',
+            'A8': '117',
+            'A#8': '118',
+            'B8': '119',
         }
         # {音階番号: suffix文字列} の辞書になる
         for line in lines_2d:
@@ -106,7 +186,7 @@ class PrefixMap(UserDict):
                 self.data.update({abc_to_notenum[line[0]]: line[1]})
 
 
-class UtauVoiceBank():
+class UtauVoiceBank:
     """
     UTAU音源の原音設定を扱うクラス。
     音階と歌詞（連続音）を指定したら、原音設定を返すようにしたい。
@@ -127,7 +207,8 @@ class UtauVoiceBank():
         voicebank       : utaupy.utau.UtauVoiceBank オブジェクト
         utaupy_ust_note : utaupy.Ust.Note オブジェクト
         use_atalias     : Noteオブジェクトの '@alias' を使用するかどうか。
-                          voicebankで指定しているUTAU音源が 対象USTのUTAU音源とは違う場合、
+                          voicebankで指定しているUTAU音源が
+                          対象USTのUTAU音源とは違う場合には、
                           Falseにするほうがよい。
 
         Noteオブジェクトの歌詞と音程から、使用する原音に対応するエイリアスを決定する。
@@ -142,15 +223,15 @@ class UtauVoiceBank():
             return lyric.lstrip('?')
         # 普通の歌詞の場合はprefixmapを参照してサフィックス追加
         # TODO: すでにサフィックスがある場合に不具合を回避する必要がある
-        alias = lyric + self.prefixmap[str(utaupy_ust_note.notenum)]
-        return alias
+        return lyric + self.prefixmap[str(utaupy_ust_note.notenum)]
 
     def get_oto(self, utaupy_ust_note, suffix_exists=False):
         """
         voicebank       : utaupy.utau.UtauVoiceBank オブジェクト
         utaupy_ust_note : utaupy.Ust.Note オブジェクト
         use_atparam     : Noteオブジェクトの '@alias' などを使用するかどうか。
-                          voicebankで指定しているUTAU音源が 対象USTのUTAU音源とは違う場合、
+                          voicebankで指定しているUTAU音源が
+                          対象USTのUTAU音源とは違う場合、
                           Falseにするほうがよい。
         Noteオブジェクトに対応する原音設定の値を取得する。
         """
@@ -190,10 +271,10 @@ class UtauVoiceBank():
             halflen = notes[i - 1].length_ms / 2
             oto = self.get_oto(note, suffix_exists=True)
             if halflen < oto.preutterance - oto.overlap:
-                at_preuttr = halflen * oto.preutterance / \
-                    (oto.preutterance - oto.overlap)
-                at_overlap = halflen * oto.overlap / \
-                    (oto.preutterance - oto.overlap)
+                at_preuttr = (
+                    halflen * oto.preutterance / (oto.preutterance - oto.overlap)
+                )
+                at_overlap = halflen * oto.overlap / (oto.preutterance - oto.overlap)
                 note['StartPoint'] = oto.preutterance - at_preuttr
                 note['PreUtterance'] = at_preuttr
                 note['VoiceOverlap'] = at_overlap

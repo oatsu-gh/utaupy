@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-# Copyright (c) 2020-2022 oatsu
+# Copyright (c) oatsu
 """Python3 module for HTS-full-label.
 
 Sinsy仕様のHTSフルコンテキストラベルを扱うモジュール
 forループが多いのでpypy3を使っても良いかも。(とくにdeepcopyが重い)
 """
+
 # import json
 import re
 from collections import UserList
@@ -26,50 +27,242 @@ SILENCES = ['sil']
 # e1を埋めるのに使う
 NOTENUM_TO_ABSPITCH_DICT = {
     'xx': 'xx',
-    '12': 'C0', '13': 'Db0', '14': 'D0', '15': 'Eb0', '16': 'E0', '17': 'F0',
-    '18': 'Gb0', '19': 'G0', '20': 'Ab0', '21': 'A0', '22': 'Bb0', '23': 'B0',
-    '24': 'C1', '25': 'Db1', '26': 'D1', '27': 'Eb1', '28': 'E1', '29': 'F1',
-    '30': 'Gb1', '31': 'G1', '32': 'Ab1', '33': 'A1', '34': 'Bb1', '35': 'B1',
-    '36': 'C2', '37': 'Db2', '38': 'D2', '39': 'Eb2', '40': 'E2', '41': 'F2',
-    '42': 'Gb2', '43': 'G2', '44': 'Ab2', '45': 'A2', '46': 'Bb2', '47': 'B2',
-    '48': 'C3', '49': 'Db3', '50': 'D3', '51': 'Eb3', '52': 'E3', '53': 'F3',
-    '54': 'Gb3', '55': 'G3', '56': 'Ab3', '57': 'A3', '58': 'Bb3', '59': 'B3',
-    '60': 'C4', '61': 'Db4', '62': 'D4', '63': 'Eb4', '64': 'E4', '65': 'F4',
-    '66': 'Gb4', '67': 'G4', '68': 'Ab4', '69': 'A4', '70': 'Bb4', '71': 'B4',
-    '72': 'C5', '73': 'Db5', '74': 'D5', '75': 'Eb5', '76': 'E5', '77': 'F5',
-    '78': 'Gb5', '79': 'G5', '80': 'Ab5', '81': 'A5', '82': 'Bb5', '83': 'B5',
-    '84': 'C6', '85': 'Db6', '86': 'D6', '87': 'Eb6', '88': 'E6', '89': 'F6',
-    '90': 'Gb6', '91': 'G6', '92': 'Ab6', '93': 'A6', '94': 'Bb6', '95': 'B6',
-    '96': 'C7', '97': 'Db7', '98': 'D7', '99': 'Eb7', '100': 'E7', '101': 'F7',
-    '102': 'Gb7', '103': 'G7', '104': 'Ab7', '105': 'A7', '106': 'Bb7', '107': 'B7',
-    '108': 'C8', '109': 'Db8', '110': 'D8', '111': 'Eb8', '112': 'E8', '113': 'F8',
-    '114': 'Gb8', '115': 'G8', '116': 'Ab8', '117': 'A8', '118': 'Bb8', '119': 'B8',
-    '120': 'C9', '121': 'Db9', '122': 'D9', '123': 'Eb9', '124': 'E9', '125': 'F9',
-    '126': 'Gb9', '127': 'G9',
+    '12': 'C0',
+    '13': 'Db0',
+    '14': 'D0',
+    '15': 'Eb0',
+    '16': 'E0',
+    '17': 'F0',
+    '18': 'Gb0',
+    '19': 'G0',
+    '20': 'Ab0',
+    '21': 'A0',
+    '22': 'Bb0',
+    '23': 'B0',
+    '24': 'C1',
+    '25': 'Db1',
+    '26': 'D1',
+    '27': 'Eb1',
+    '28': 'E1',
+    '29': 'F1',
+    '30': 'Gb1',
+    '31': 'G1',
+    '32': 'Ab1',
+    '33': 'A1',
+    '34': 'Bb1',
+    '35': 'B1',
+    '36': 'C2',
+    '37': 'Db2',
+    '38': 'D2',
+    '39': 'Eb2',
+    '40': 'E2',
+    '41': 'F2',
+    '42': 'Gb2',
+    '43': 'G2',
+    '44': 'Ab2',
+    '45': 'A2',
+    '46': 'Bb2',
+    '47': 'B2',
+    '48': 'C3',
+    '49': 'Db3',
+    '50': 'D3',
+    '51': 'Eb3',
+    '52': 'E3',
+    '53': 'F3',
+    '54': 'Gb3',
+    '55': 'G3',
+    '56': 'Ab3',
+    '57': 'A3',
+    '58': 'Bb3',
+    '59': 'B3',
+    '60': 'C4',
+    '61': 'Db4',
+    '62': 'D4',
+    '63': 'Eb4',
+    '64': 'E4',
+    '65': 'F4',
+    '66': 'Gb4',
+    '67': 'G4',
+    '68': 'Ab4',
+    '69': 'A4',
+    '70': 'Bb4',
+    '71': 'B4',
+    '72': 'C5',
+    '73': 'Db5',
+    '74': 'D5',
+    '75': 'Eb5',
+    '76': 'E5',
+    '77': 'F5',
+    '78': 'Gb5',
+    '79': 'G5',
+    '80': 'Ab5',
+    '81': 'A5',
+    '82': 'Bb5',
+    '83': 'B5',
+    '84': 'C6',
+    '85': 'Db6',
+    '86': 'D6',
+    '87': 'Eb6',
+    '88': 'E6',
+    '89': 'F6',
+    '90': 'Gb6',
+    '91': 'G6',
+    '92': 'Ab6',
+    '93': 'A6',
+    '94': 'Bb6',
+    '95': 'B6',
+    '96': 'C7',
+    '97': 'Db7',
+    '98': 'D7',
+    '99': 'Eb7',
+    '100': 'E7',
+    '101': 'F7',
+    '102': 'Gb7',
+    '103': 'G7',
+    '104': 'Ab7',
+    '105': 'A7',
+    '106': 'Bb7',
+    '107': 'B7',
+    '108': 'C8',
+    '109': 'Db8',
+    '110': 'D8',
+    '111': 'Eb8',
+    '112': 'E8',
+    '113': 'F8',
+    '114': 'Gb8',
+    '115': 'G8',
+    '116': 'Ab8',
+    '117': 'A8',
+    '118': 'Bb8',
+    '119': 'B8',
+    '120': 'C9',
+    '121': 'Db9',
+    '122': 'D9',
+    '123': 'Eb9',
+    '124': 'E9',
+    '125': 'F9',
+    '126': 'Gb9',
+    '127': 'G9',
 }
 # e57, e58 を埋めるのに使う
 ABSPITCH_TO_NOTENUM_DICT = {
     'xx': 'xx',
-    'C0': 12, 'Db0': 13, 'D0': 14, 'Eb0': 15, 'E0': 16, 'F0': 17,
-    'Gb0': 18, 'G0': 19, 'Ab0': 20, 'A0': 21, 'Bb0': 22, 'B0': 23,
-    'C1': 24, 'Db1': 25, 'D1': 26, 'Eb1': 27, 'E1': 28, 'F1': 29,
-    'Gb1': 30, 'G1': 31, 'Ab1': 32, 'A1': 33, 'Bb1': 34, 'B1': 35,
-    'C2': 36, 'Db2': 37, 'D2': 38, 'Eb2': 39, 'E2': 40, 'F2': 41,
-    'Gb2': 42, 'G2': 43, 'Ab2': 44, 'A2': 45, 'Bb2': 46, 'B2': 47,
-    'C3': 48, 'Db3': 49, 'D3': 50, 'Eb3': 51, 'E3': 52, 'F3': 53,
-    'Gb3': 54, 'G3': 55, 'Ab3': 56, 'A3': 57, 'Bb3': 58, 'B3': 59,
-    'C4': 60, 'Db4': 61, 'D4': 62, 'Eb4': 63, 'E4': 64, 'F4': 65,
-    'Gb4': 66, 'G4': 67, 'Ab4': 68, 'A4': 69, 'Bb4': 70, 'B4': 71,
-    'C5': 72, 'Db5': 73, 'D5': 74, 'Eb5': 75, 'E5': 76, 'F5': 77,
-    'Gb5': 78, 'G5': 79, 'Ab5': 80, 'A5': 81, 'Bb5': 82, 'B5': 83,
-    'C6': 84, 'Db6': 85, 'D6': 86, 'Eb6': 87, 'E6': 88, 'F6': 89,
-    'Gb6': 90, 'G6': 91, 'Ab6': 92, 'A6': 93, 'Bb6': 94, 'B6': 95,
-    'C7': 96, 'Db7': 97, 'D7': 98, 'Eb7': 99, 'E7': 100, 'F7': 101,
-    'Gb7': 102, 'G7': 103, 'Ab7': 104, 'A7': 105, 'Bb7': 106, 'B7': 107,
-    'C8': 108, 'Db8': 109, 'D8': 110, 'Eb8': 111, 'E8': 112, 'F8': 113,
-    'Gb8': 114, 'G8': 115, 'Ab8': 116, 'A8': 117, 'Bb8': 118, 'B8': 119,
-    'C9': 120, 'Db9': 121, 'D9': 122, 'Eb9': 123, 'E9': 124, 'F9': 125,
-    'Gb9': 126, 'G9': 127
+    'C0': 12,
+    'Db0': 13,
+    'D0': 14,
+    'Eb0': 15,
+    'E0': 16,
+    'F0': 17,
+    'Gb0': 18,
+    'G0': 19,
+    'Ab0': 20,
+    'A0': 21,
+    'Bb0': 22,
+    'B0': 23,
+    'C1': 24,
+    'Db1': 25,
+    'D1': 26,
+    'Eb1': 27,
+    'E1': 28,
+    'F1': 29,
+    'Gb1': 30,
+    'G1': 31,
+    'Ab1': 32,
+    'A1': 33,
+    'Bb1': 34,
+    'B1': 35,
+    'C2': 36,
+    'Db2': 37,
+    'D2': 38,
+    'Eb2': 39,
+    'E2': 40,
+    'F2': 41,
+    'Gb2': 42,
+    'G2': 43,
+    'Ab2': 44,
+    'A2': 45,
+    'Bb2': 46,
+    'B2': 47,
+    'C3': 48,
+    'Db3': 49,
+    'D3': 50,
+    'Eb3': 51,
+    'E3': 52,
+    'F3': 53,
+    'Gb3': 54,
+    'G3': 55,
+    'Ab3': 56,
+    'A3': 57,
+    'Bb3': 58,
+    'B3': 59,
+    'C4': 60,
+    'Db4': 61,
+    'D4': 62,
+    'Eb4': 63,
+    'E4': 64,
+    'F4': 65,
+    'Gb4': 66,
+    'G4': 67,
+    'Ab4': 68,
+    'A4': 69,
+    'Bb4': 70,
+    'B4': 71,
+    'C5': 72,
+    'Db5': 73,
+    'D5': 74,
+    'Eb5': 75,
+    'E5': 76,
+    'F5': 77,
+    'Gb5': 78,
+    'G5': 79,
+    'Ab5': 80,
+    'A5': 81,
+    'Bb5': 82,
+    'B5': 83,
+    'C6': 84,
+    'Db6': 85,
+    'D6': 86,
+    'Eb6': 87,
+    'E6': 88,
+    'F6': 89,
+    'Gb6': 90,
+    'G6': 91,
+    'Ab6': 92,
+    'A6': 93,
+    'Bb6': 94,
+    'B6': 95,
+    'C7': 96,
+    'Db7': 97,
+    'D7': 98,
+    'Eb7': 99,
+    'E7': 100,
+    'F7': 101,
+    'Gb7': 102,
+    'G7': 103,
+    'Ab7': 104,
+    'A7': 105,
+    'Bb7': 106,
+    'B7': 107,
+    'C8': 108,
+    'Db8': 109,
+    'D8': 110,
+    'Eb8': 111,
+    'E8': 112,
+    'F8': 113,
+    'Gb8': 114,
+    'G8': 115,
+    'Ab8': 116,
+    'A8': 117,
+    'Bb8': 118,
+    'B8': 119,
+    'C9': 120,
+    'Db9': 121,
+    'D9': 122,
+    'Eb9': 123,
+    'E9': 124,
+    'F9': 125,
+    'Gb9': 126,
+    'G9': 127,
 }
 
 
@@ -121,7 +314,9 @@ class HTSFullLabel(UserList):
             mono_label.append(mono_phoneme)
         return mono_label
 
-    def write(self, path, strict_sinsy_style: bool = False, mode='w', encoding='utf-8') -> str:
+    def write(
+        self, path, strict_sinsy_style: bool = False, mode='w', encoding='utf-8'
+    ) -> str:
         """
         ファイル出力する
         strict_sinsy_style: bool:
@@ -157,7 +352,8 @@ class HTSFullLabel(UserList):
             self.generate_songobj()
         else:
             raise TypeError(
-                f'Type of the argument "source" must be str, list or {Song}.')
+                f'Type of the argument "source" must be str, list or {Song}.'
+            )
         return self
 
     def _load_from_path(self, path, encoding: str = 'utf-8'):
@@ -168,10 +364,10 @@ class HTSFullLabel(UserList):
         path = path.strip('"')
         # ファイルを読み取って行のリストにする
         try:
-            with open(path, mode='r', encoding=encoding) as f:
+            with open(path, encoding=encoding) as f:
                 lines = [line.rstrip('\r\n') for line in f.readlines()]
         except UnicodeDecodeError:
-            with open(path, mode='r', encoding='cp932') as f:
+            with open(path, encoding='cp932') as f:
                 lines = [line.rstrip('\r\n') for line in f.readlines()]
         # 行ごとに分割したリストをもとに情報を登録する。
         self._load_from_lines(lines)
@@ -197,7 +393,9 @@ class HTSFullLabel(UserList):
             sep = re.escape('=+-~∼!@#$%^ˆ&;_|[]')
             l_contexts_2d = [re.split((f'[{sep}]'), s) for s in l_contexts]
             # 1行分の情報用のオブジェクトに、各種コンテキストを登録する
-            ol.p, ol.a, ol.b, ol.c, ol.d, ol.e, ol.f, ol.g, ol.h, ol.i, ol.j = l_contexts_2d
+            ol.p, ol.a, ol.b, ol.c, ol.d, ol.e, ol.f, ol.g, ol.h, ol.i, ol.j = (
+                l_contexts_2d
+            )
             # 1行分の情報用のオブジェクトを HTSFullLabel オブジェクトに追加する。
             self.append(ol)
         return self
@@ -249,8 +447,7 @@ class HTSFullLabel(UserList):
         """
         Phoneme をもとに、前後の音素に関する項を埋める。
         """
-        extended_self = [OneLine(), OneLine()] + self.data + \
-            [OneLine(), OneLine()]
+        extended_self = [OneLine(), OneLine()] + self.data + [OneLine(), OneLine()]
         # ol is OneLine objec
         for i, ol in enumerate(extended_self[2:-2], 2):
             ol.before_previous_phoneme = extended_self[i - 2].phoneme
@@ -326,28 +523,30 @@ class OneLine:
 
     def __str__(self):
         # pylint: disable=consider-using-f-string, line-too-long
-        str_self = ''.join((
-            f'{self.start} {self.end} ',
-            # Phoneme 関連
-            '{}@{}^{}-{}+{}={}_{}%{}^{}_{}~{}-{}!{}[{}${}]{}'
-            .format(*self.p),
-            # Syllable 関連
-            '/A:{}-{}-{}@{}~{}'.format(*self.a),
-            '/B:{}_{}_{}@{}|{}'.format(*self.b),
-            '/C:{}+{}+{}@{}&{}'.format(*self.c),
-            # Note 関連
-            '/D:{}!{}#{}${}%{}|{}&{};{}-{}'.format(*self.d),
-            '/E:{}]{}^{}={}~{}!{}@{}#{}+{}]{}${}|{}[{}&{}]{}={}^{}~{}#{}_{};{}${}&{}%{}[{}|{}]{}-{}^{}+{}~{}={}@{}${}!{}%{}#{}|{}|{}-{}&{}&{}+{}[{};{}]{};{}~{}~{}^{}^{}@{}[{}#{}={}!{}~{}+{}!{}^{}' \
-            .format(*self.e),
-            '/F:{}#{}#{}-{}${}${}+{}%{};{}'.format(*self.f),
-            # Phrase 関連
-            '/G:{}_{}'.format(*self.g),
-            '/H:{}_{}'.format(*self.h),
-            '/I:{}_{}'.format(*self.i),
-            # Song 関連
-            '/J:{}~{}@{}'.format(*self.j)
-        ))
-        return str_self
+        str_self = ''.join(
+            (
+                f'{self.start} {self.end} ',
+                # Phoneme 関連
+                '{}@{}^{}-{}+{}={}_{}%{}^{}_{}~{}-{}!{}[{}${}]{}'.format(*self.p),
+                # Syllable 関連
+                '/A:{}-{}-{}@{}~{}'.format(*self.a),
+                '/B:{}_{}_{}@{}|{}'.format(*self.b),
+                '/C:{}+{}+{}@{}&{}'.format(*self.c),
+                # Note 関連
+                '/D:{}!{}#{}${}%{}|{}&{};{}-{}'.format(*self.d),
+                '/E:{}]{}^{}={}~{}!{}@{}#{}+{}]{}${}|{}[{}&{}]{}={}^{}~{}#{}_{};{}${}&{}%{}[{}|{}]{}-{}^{}+{}~{}={}@{}${}!{}%{}#{}|{}|{}-{}&{}&{}+{}[{};{}]{};{}~{}~{}^{}^{}@{}[{}#{}={}!{}~{}+{}!{}^{}'.format(
+                    *self.e
+                ),
+                '/F:{}#{}#{}-{}${}${}+{}%{};{}'.format(*self.f),
+                # Phrase 関連
+                '/G:{}_{}'.format(*self.g),
+                '/H:{}_{}'.format(*self.h),
+                '/I:{}_{}'.format(*self.i),
+                # Song 関連
+                '/J:{}~{}@{}'.format(*self.j),
+            )
+        )
+        return str_self  # noqa: RET504
 
     @property
     def start(self) -> int:
@@ -406,29 +605,30 @@ class OneLine:
             self.phoneme.position_backward,
             self.phoneme.distance_from_previous_vowel,
             self.phoneme.distance_to_next_vowel,
-            self.phoneme.undefined_context
+            self.phoneme.undefined_context,
         ]
-        return p
+        return p  # noqa: RET504
 
     @p.setter
     def p(self, phoneme_contexts: list):
-        (self.phoneme.language_independent_identity,
-         self.before_previous_phoneme.identity,
-         self.previous_phoneme.identity,
-         self.phoneme.identity,
-         self.next_phoneme.identity,
-         self.after_next_phoneme.identity,
-         self.before_previous_phoneme.flag,
-         self.previous_phoneme.flag,
-         self.phoneme.flag,
-         self.next_phoneme.flag,
-         self.after_next_phoneme.flag,
-         self.phoneme.position,
-         self.phoneme.position_backward,
-         self.phoneme.distance_from_previous_vowel,
-         self.phoneme.distance_to_next_vowel,
-         self.phoneme.undefined_context
-         ) = phoneme_contexts[0:16]
+        (
+            self.phoneme.language_independent_identity,
+            self.before_previous_phoneme.identity,
+            self.previous_phoneme.identity,
+            self.phoneme.identity,
+            self.next_phoneme.identity,
+            self.after_next_phoneme.identity,
+            self.before_previous_phoneme.flag,
+            self.previous_phoneme.flag,
+            self.phoneme.flag,
+            self.next_phoneme.flag,
+            self.after_next_phoneme.flag,
+            self.phoneme.position,
+            self.phoneme.position_backward,
+            self.phoneme.distance_from_previous_vowel,
+            self.phoneme.distance_to_next_vowel,
+            self.phoneme.undefined_context,
+        ) = phoneme_contexts[0:16]
 
     @property
     def a(self) -> list:
@@ -607,8 +807,14 @@ class Song(UserList):
             mono_label.append(mono_phoneme)
         return mono_label
 
-    def write(self, path, strict_sinsy_style: bool = False, as_mono: bool = False,
-              mode='w', encoding='utf-8') -> Union[HTSFullLabel, _label.Label]:
+    def write(
+        self,
+        path,
+        strict_sinsy_style: bool = False,
+        as_mono: bool = False,
+        mode='w',
+        encoding='utf-8',
+    ) -> Union[HTSFullLabel, _label.Label]:
         """
         ファイル出力する。
         HTSFullLabelからではなく、USTなどからSongが直接生成されている場合に対応する。
@@ -623,8 +829,8 @@ class Song(UserList):
             return mono_label
 
         full_label.write(
-            path, strict_sinsy_style=strict_sinsy_style,
-            mode=mode, encoding=encoding)
+            path, strict_sinsy_style=strict_sinsy_style, mode=mode, encoding=encoding
+        )
         return full_label
 
     def reset_time(self):
@@ -642,9 +848,11 @@ class Song(UserList):
             t_end += note.length_100ns
             for phoneme in phonemes_in_note:
                 phoneme.start = Decimal(t_start).quantize(
-                    Decimal('0'), rounding=ROUND_HALF_UP)
+                    Decimal('0'), rounding=ROUND_HALF_UP
+                )
                 phoneme.end = Decimal(t_end).quantize(
-                    Decimal('0'), rounding=ROUND_HALF_UP)
+                    Decimal('0'), rounding=ROUND_HALF_UP
+                )
             t_start = t_end
 
     def reload_time(self):
@@ -653,7 +861,7 @@ class Song(UserList):
         """
         phonemes = self.all_phonemes
         for i, phoneme in enumerate(phonemes[:-1]):
-            phoneme.end = phonemes[i+1].start
+            phoneme.end = phonemes[i + 1].start
 
     def autofill(self, hts_conf: Union[None, dict] = None):
         """
@@ -671,11 +879,16 @@ class Song(UserList):
         """
         # p12, p13, p14, p15を埋める
         if hts_conf is None:
-            self._fill_p1(vowels=VOWELS, pauses=PAUSES,
-                          silences=SILENCES, breaks=BREAKS)
+            self._fill_p1(
+                vowels=VOWELS, pauses=PAUSES, silences=SILENCES, breaks=BREAKS
+            )
         else:
-            self._fill_p1(vowels=hts_conf['VOWELS'], pauses=hts_conf['PAUSES'],
-                          silences=hts_conf['SILENCES'], breaks=hts_conf['BREAKS'])
+            self._fill_p1(
+                vowels=hts_conf['VOWELS'],
+                pauses=hts_conf['PAUSES'],
+                silences=hts_conf['SILENCES'],
+                breaks=hts_conf['BREAKS'],
+            )
         self._fill_p12_p13()
         self._fill_p14_p15()
 
@@ -782,8 +995,9 @@ class Song(UserList):
             # e8 の情報をもとに e7 を埋める。テンポ情報(e5)がないと困る。
             # 100ns単位での長さも登録する。
             if note.tempo != 'xx' and note.length != 'xx':
-                note.length_10ms = Decimal(note.length_100ns / 100000
-                                           ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                note.length_10ms = Decimal(note.length_100ns / 100000).quantize(
+                    Decimal('0'), rounding=ROUND_HALF_UP
+                )
 
         # フレーズ内で何番目のノートかを埋める
         self._fill_e18_e19()
@@ -852,8 +1066,9 @@ class Song(UserList):
                 counter_100ns += note.length_100ns
             # 休符でもなくて最初のノートでもないとき
             else:
-                note.position_100ms = Decimal(
-                    counter_100ns / 1000000).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                note.position_100ms = Decimal(counter_100ns / 1000000).quantize(
+                    Decimal('0'), rounding=ROUND_HALF_UP
+                )
                 note.position_100ns = counter_100ns
                 counter_100ns += note.length_100ns
 
@@ -869,13 +1084,15 @@ class Song(UserList):
             elif note.position_backward == 1:
                 counter_100ns = note.length_100ns
                 note.position_100ms_backward = Decimal(
-                    counter_100ns / 1000000).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                    counter_100ns / 1000000
+                ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
                 note.position_100ns_backward = counter_100ns
             # 休符でもなくて最後のノートでもないとき
             else:
                 counter_100ns += note.length_100ns
                 note.position_100ms_backward = Decimal(
-                    counter_100ns / 1000000).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                    counter_100ns / 1000000
+                ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
                 note.position_100ns_backward = counter_100ns
 
     def _fill_e22_e23(self):
@@ -931,12 +1148,14 @@ class Song(UserList):
                 note.contexts[23] = 'xx'
             elif note.position == 1:
                 phrase_length_100ns = note.position_100ns_backward
-                note.contexts[23] = Decimal(100 * counter_100ns / phrase_length_100ns
-                                            ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                note.contexts[23] = Decimal(
+                    100 * counter_100ns / phrase_length_100ns
+                ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
                 counter_100ns += note.length_100ns
             else:
-                note.contexts[23] = Decimal(100 * counter_100ns / phrase_length_100ns
-                                            ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                note.contexts[23] = Decimal(
+                    100 * counter_100ns / phrase_length_100ns
+                ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
                 counter_100ns += note.length_100ns
 
         # NOTE: 次のブロックの処理でうまくいかなかった場合、コメント部分のコードを使う。
@@ -946,6 +1165,7 @@ class Song(UserList):
                 note.contexts[24] = 'xx'
             else:
                 note.contexts[24] = 100 - note.contexts[23]
+
         # NOTE: 上のブロックが動かなかったらここを使う
         # # フレーズの全体の長さ
         # phrase_length_100ns = 0
@@ -961,12 +1181,12 @@ class Song(UserList):
         #         phrase_length_100ns = note.position_100ns + note.length_100ns
         #         counter_100ns = note.length_100ns
         #         note.contexts[24] = Decimal(100 * counter_100ns / phrase_length_100ns
-        #                                     ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
-        #     # 休符でもなくて最後のノートでもないときは普通に登録して、累積時間を増やす。
+        #                                     ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)  # noqa: E501
+        #     # 休符でもなくて最後のノートでもないときは普通に登録して、累積時間を増やす。  # noqa: E501
         #     else:
         #         counter_100ns += note.length_100ns
         #         note.contexts[24] = Decimal(100 * counter_100ns / phrase_length_100ns
-        #                                     ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+        #                                     ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)  # noqa: E501
 
     def _fill_e57_e58(self):
         """
@@ -981,14 +1201,23 @@ class Song(UserList):
             previous_abspitch = previous_note.absolute_pitch
             current_abspitch = note.absolute_pitch
             # 直前のノートまたは今のノートが休符のときはスキップ
-            if any((previous_note.is_rest(), previous_note.is_break(), note.is_rest(), note.is_break())):
+            if any(
+                (
+                    previous_note.is_rest(),
+                    previous_note.is_break(),
+                    note.is_rest(),
+                    note.is_break(),
+                )
+            ):
                 note.contexts[56] = 'xx'
                 continue
             # 直前のノートも今のノートも音符のとき
             previous_notenum = abspitch_to_notenum(previous_abspitch)
             current_notenum = abspitch_to_notenum(current_abspitch)
             pitch_difference = previous_notenum - current_notenum
-            note.contexts[56] = f'{"p" if pitch_difference >= 0 else "m"}{abs(pitch_difference)}'
+            note.contexts[56] = (
+                f'{"p" if pitch_difference >= 0 else "m"}{abs(pitch_difference)}'
+            )
 
         # e58 を埋める
         # 処理内容を比較しやすいようにprevious_noteにしているが、実際はnext_note
@@ -997,14 +1226,23 @@ class Song(UserList):
             previous_abspitch = previous_note.absolute_pitch
             current_abspitch = note.absolute_pitch
             # 直後のノートまたは今のノートが休符のときはスキップ
-            if any((previous_note.is_rest(), previous_note.is_break(), note.is_rest(), note.is_break())):
+            if any(
+                (
+                    previous_note.is_rest(),
+                    previous_note.is_break(),
+                    note.is_rest(),
+                    note.is_break(),
+                )
+            ):
                 note.contexts[57] = 'xx'
                 continue
             # 直前のノートも今のノートも音符のとき
             previous_notenum = abspitch_to_notenum(previous_abspitch)
             current_notenum = abspitch_to_notenum(current_abspitch)
             pitch_difference = previous_notenum - current_notenum
-            note.contexts[57] = f'{"p" if pitch_difference >= 0 else "m"}{abs(pitch_difference)}'
+            note.contexts[57] = (
+                f'{"p" if pitch_difference >= 0 else "m"}{abs(pitch_difference)}'
+            )
 
     def _fill_song_contexts(self):
         """
@@ -1100,8 +1338,7 @@ class Note(UserList):
         return self.contexts[0]
 
     @absolute_pitch.setter
-    def absolute_pitch(
-            self, absolute_pitch: str = None, notenum: int = None):
+    def absolute_pitch(self, absolute_pitch: str = None, notenum: int = None):
         """
         absolute_pitch: C0-G9 のような表記
         notenum: MIDIなどの note number による表記(C-1:0 ~ G9:127)

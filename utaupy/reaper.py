@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-# coding: utf-8
 # Copyright (c) oatsu
 """
 REAPERのリージョンCSVを扱うモジュールです。
@@ -44,16 +43,14 @@ def load(path, mode='r', encoding='utf-8'):
     # 指定された文字コードで読み取ろうとする
     try:
         with open(path, mode=mode, encoding=encoding) as f:
-            reader = csv.reader(f)
-            l = [row for row in reader]
+            l = list(csv.reader(f))
 
     # 上手くいかなかったらもう片方の文字コードで読み取る
     except UnicodeDecodeError as e:
         print('[WARN]', e)
-        print('[INFO] 文字コードを {} に変更して読み取ります。'.format(choices[0]))
+        print(f'[INFO] 文字コードを {choices[0]} に変更して読み取ります。')
         with open(path, mode=mode, encoding=choices[0]) as f:
-            reader = csv.reader(f)
-            l = [row for row in csv.reader(f)]
+            l = list(csv.reader(f))
 
     tmp = []
     # 行ごとにRegionオブジェクトを生成

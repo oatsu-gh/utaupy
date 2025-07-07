@@ -1,17 +1,18 @@
 #! /usr/bin/env python3
-# Copyright (c) 2020-2025 oatsu
+# Copyright (c) oatsu
 """
 Python script for PyPI registation
 """
+
 from setuptools import find_packages, setup
 
-version = '1.21.0'
+version = '1.21.1'
 
 try:
-    with open("README.md", mode='r', encoding='utf-8') as f:
+    with open('README.md', encoding='utf-8') as f:
         long_description = f.read()
 except UnicodeDecodeError:
-    with open("README.md", mode='r', encoding='utf-8') as f:
+    with open('README.md', encoding='utf-8') as f:
         long_description = f.read()
 
 setup(
@@ -27,8 +28,6 @@ setup(
     url='https://github.com/oatsu-gh/utaupy',
     packages=find_packages(),
     install_requires=[],
-    classifiers=[
-        'Programming Language :: Python :: 3'
-    ],
-    keywords=['UTAU']
+    classifiers=['Programming Language :: Python :: 3'],
+    keywords=['UTAU'],
 )

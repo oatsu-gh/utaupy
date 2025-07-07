@@ -1,11 +1,10 @@
 #! /usr/bin/env python3
-# coding: utf-8
+# Copyright (c) oatsu
 """
 UTAU関連ファイルの相互変換
 """
 # from pysnooper import snoop
 # from pprint import pprint
-
 
 # from . import reaper as _reaper
 # from . import reclist as _reclist
@@ -58,7 +57,9 @@ def svp2ust(svp, debug=False):
     return ust
 
 
-def ust2otoini(ust, name_wav, d_table, mode='romaji_cv', dt=100, replace=True, debug=False):
+def ust2otoini(
+    ust, name_wav, d_table, mode='romaji_cv', dt=100, replace=True, debug=False
+):
     """
     UstクラスオブジェクトからOtoIniクラスオブジェクトを生成
     機能選択部分
@@ -66,12 +67,14 @@ def ust2otoini(ust, name_wav, d_table, mode='romaji_cv', dt=100, replace=True, d
     allowed_modes = ['mono', 'romaji_cv']
     if mode == 'romaji_cv':
         print('  変換モード : ひらがな歌詞 → ローマ字CV')
-        otoini = ust2otoini_romaji_cv(ust, name_wav, d_table, dt, replace=replace, debug=debug)
+        otoini = ust2otoini_romaji_cv(
+            ust, name_wav, d_table, dt, replace=replace, debug=debug
+        )
     elif mode == 'mono':
         print('  変換モード : ひらがな歌詞 → ローマ字モノフォン')
         otoini = ust2otoini_mono(ust, name_wav, d_table, debug=debug)
     else:
-        raise ValueError('argument \'mode\' must be in {}'.format(allowed_modes))
+        raise ValueError(f'argument "mode" must be in {allowed_modes}')
     return otoini
 
 
@@ -122,7 +125,9 @@ def ust2otoini_mono(ust, name_wav, d_table, dt=100, debug=False):
             phonemes = d_table[simple_oto.alias]
         except KeyError as e:
             print('KeyError in utaupy.convert.ust2otoini_mono---------')
-            print('ひらがなローマ字変換に失敗しました。半角スペースで音素分割してぶち込みます。')
+            print(
+                'ひらがなローマ字変換に失敗しました。半角スペースで音素分割してぶち込みます。'
+            )
             print('エラー詳細:', e)
             print('--------------------------------------\n')
             phonemes = simple_oto.alias.split()
@@ -137,7 +142,7 @@ def ust2otoini_mono(ust, name_wav, d_table, dt=100, debug=False):
             oto.overlap = 0
             oto.preutterance = dt
             oto.consonant = 2 * dt
-            oto.cutoff = - 2 * dt
+            oto.cutoff = -2 * dt
             mono_otoini.append(oto)
             # 母音部分
             oto = _otoini.Oto()
@@ -170,7 +175,7 @@ def ust2otoini_mono(ust, name_wav, d_table, dt=100, debug=False):
             oto.overlap = 0
             oto.preutterance = dt
             oto.consonant = 2 * dt
-            oto.cutoff = - 2 * dt
+            oto.cutoff = -2 * dt
             mono_otoini.append(oto)
             # 半母音部分
             oto = _otoini.Oto()
@@ -180,7 +185,7 @@ def ust2otoini_mono(ust, name_wav, d_table, dt=100, debug=False):
             oto.overlap = 0
             oto.preutterance = dt
             oto.consonant = 2 * dt
-            oto.cutoff = - 2 * dt
+            oto.cutoff = -2 * dt
             mono_otoini.append(oto)
             # 母音部分
             oto = _otoini.Oto()
@@ -227,15 +232,19 @@ def ust2otoini_romaji_cv(ust, name_wav, d_table, dt=100, replace=True, debug=Fal
 
         length = note.length_ms
         oto = _otoini.Oto()
-        oto.filename = name_wav     # wavファイル名
+        oto.filename = name_wav  # wavファイル名
         if replace:
             oto.alias = ' '.join(phonemes)  # エイリアスは音素ごとに空白区切り
         else:
             oto.alias = note.lyric
-        oto.offset = t - (2 * dt)   # 左ブランクはノート開始位置より2段手前
-        oto.preutterance = 2 * dt   # 先行発声はノート開始位置
-        oto.consonant = min(3 * dt, length + 2 * dt)  # 子音部固定範囲は先行発声より1段後ろか終端
-        oto.cutoff = -(length + 2 * dt)  # 右ブランクはノート終端、負で左ブランク相対時刻、正で絶対時刻
+        oto.offset = t - (2 * dt)  # 左ブランクはノート開始位置より2段手前
+        oto.preutterance = 2 * dt  # 先行発声はノート開始位置
+        oto.consonant = min(
+            3 * dt, length + 2 * dt
+        )  # 子音部固定範囲は先行発声より1段後ろか終端
+        oto.cutoff = -(
+            length + 2 * dt
+        )  # 右ブランクはノート終端、負で左ブランク相対時刻、正で絶対時刻
 
         # 1音素のときはノート開始位置に先行発声を配置
         if len(phonemes) == 1:
@@ -247,7 +256,8 @@ def ust2otoini_romaji_cv(ust, name_wav, d_table, dt=100, replace=True, debug=Fal
 
         # 4音素以上には未対応。特殊音素と判断して1音素として処理
         else:
-            print('\n[WARN] when setting alias : phonemes = {}-------------'.format(phonemes))
+            print(f'\n[WARN] when setting alias : phonemes = {phonemes}-------------')
+
             print('1エイリアスあたり 1, 2, 3 音素しか対応していません。')
             oto.alias = ''.join(phonemes)
             oto.overlap = 0
@@ -282,7 +292,7 @@ def otoini2label(otoini, mode='auto', debug=False):
 
     allowed_modes = ('auto', 'mono', 'romaji_cv')
     if mode not in allowed_modes:
-        raise ValueError('argument "mode" must be in {}'.format(allowed_modes))
+        raise ValueError(f'argument "mode" must be in {allowed_modes}')
     # エイリアスのタイプ自動判別
     if mode == 'auto':
         if otoini.is_mono():
@@ -332,7 +342,7 @@ def label2otoini(label, name_wav):
     label_time_order : ラベルの時間オーダー。
     """
     # time_order_ratio = label_time_order / otoini_time_order
-    time_order_ratio = 10**(-4)
+    time_order_ratio = 10 ** (-4)
 
     otoini = _otoini.OtoIni()
     # 各音素PhonemeオブジェクトをOtoオブジェクトに変換して、OtoIniに格納する。
@@ -344,7 +354,7 @@ def label2otoini(label, name_wav):
         oto.overlap = 0.0
         oto.preutterance = 0.0
         oto.consonant = (phoneme.end - phoneme.start) * time_order_ratio
-        oto.cutoff = - (phoneme.end - phoneme.start) * time_order_ratio
+        oto.cutoff = -(phoneme.end - phoneme.start) * time_order_ratio
         otoini.append(oto)
     return otoini
 

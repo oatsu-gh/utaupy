@@ -1,0 +1,10 @@
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.format]
+quote-style = 'single'
+indent-style = 'space'
+
+[tool.ruff.lint]
+select = ['ALL']
+ignore = ['E741']
