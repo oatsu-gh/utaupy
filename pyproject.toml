@@ -1,3 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "utaupy"
+version = "1.21.2"
+description = "Python3 module for UTAU and singing-databases"
+readme = { file = "README.md", content-type = "text/markdown" }
+license = { file = "LICENSE.md" }
+authors = [{ name = "oatsu", email = "oatsu.dev@gmail.com" }]
+maintainers = [{ name = "oatsu", email = "oatsu.dev@gmail.com" }]
+keywords = ["UTAU"]
+classifiers = ["Programming Language :: Python :: 3"]
+requires-python = ">=3.9"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/oatsu-gh/utaupy"
+
+[tool.setuptools]
+packages = ["utaupy"]
+
 [tool.ruff]
 line-length = 88
 
@@ -7,4 +30,4 @@ indent-style = 'space'
 
 [tool.ruff.lint]
 select = ['ALL']
-ignore = ['E741']
+ignore = ['E741', 'ERA001']
