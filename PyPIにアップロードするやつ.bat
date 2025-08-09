@@ -1,6 +1,6 @@
-@rem PyPIにアップロードするやつ
+@REM PyPIにアップロードするやつ
 
-rd /s /q dist build utaupy.egg-info
+RD /s /q dist build utaupy.egg-info
 python -m build
 twine check dist/*
 REM twine upload --repository testpypi dist/* --verbose
