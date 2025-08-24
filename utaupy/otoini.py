@@ -22,7 +22,7 @@ def load(path, mode='r', encoding='cp932'):
     otoiniを読み取ってオブジェクト生成
     """
     # otoiniファイルを読み取る
-    path = path.strip('"')
+    path = str(path).strip('"')
     with open(path, mode=mode, encoding=encoding) as f:
         lines = [line.strip() for line in f.readlines()]
 
@@ -201,9 +201,7 @@ class OtoIni(UserList):
                 mono_oto = Oto()
                 mono_oto.filename = name_wav
                 mono_oto.alias = phonemes[1]
-                mono_oto.offset = (
-                    oto.offset + oto.preutterance
-                )  # 先行発声の位置に左ブランクを移動
+                mono_oto.offset = oto.offset + oto.preutterance  # 先行発声の位置に左ブランクを移動
                 mono_oto.preutterance = 0
                 mono_otoini.append(mono_oto)
                 if len(phonemes) == 3:

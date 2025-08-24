@@ -314,9 +314,7 @@ class HTSFullLabel(UserList):
             mono_label.append(mono_phoneme)
         return mono_label
 
-    def write(
-        self, path, strict_sinsy_style: bool = False, mode='w', encoding='utf-8'
-    ) -> str:
+    def write(self, path, strict_sinsy_style: bool = False, mode='w', encoding='utf-8') -> str:
         """
         ファイル出力する
         strict_sinsy_style: bool:
@@ -351,9 +349,7 @@ class HTSFullLabel(UserList):
             self._load_from_lines(source)
             self.generate_songobj()
         else:
-            raise TypeError(
-                f'Type of the argument "source" must be str, list or {Song}.'
-            )
+            raise TypeError(f'Type of the argument "source" must be str, list or {Song}.')
         return self
 
     def _load_from_path(self, path, encoding: str = 'utf-8'):
@@ -361,7 +357,7 @@ class HTSFullLabel(UserList):
         ファイルをもとに値を登録する。
         """
         # パスに半角スペースが入っている場合に出現する引用符を除去
-        path = path.strip('"')
+        path = str(path).strip('"')
         # ファイルを読み取って行のリストにする
         try:
             with open(path, encoding=encoding) as f:
@@ -393,9 +389,7 @@ class HTSFullLabel(UserList):
             sep = re.escape('=+-~∼!@#$%^ˆ&;_|[]')
             l_contexts_2d = [re.split((f'[{sep}]'), s) for s in l_contexts]
             # 1行分の情報用のオブジェクトに、各種コンテキストを登録する
-            ol.p, ol.a, ol.b, ol.c, ol.d, ol.e, ol.f, ol.g, ol.h, ol.i, ol.j = (
-                l_contexts_2d
-            )
+            ol.p, ol.a, ol.b, ol.c, ol.d, ol.e, ol.f, ol.g, ol.h, ol.i, ol.j = l_contexts_2d
             # 1行分の情報用のオブジェクトを HTSFullLabel オブジェクトに追加する。
             self.append(ol)
         return self
@@ -828,9 +822,7 @@ class Song(UserList):
             mono_label.write(path, mode=mode, encoding=encoding)
             return mono_label
 
-        full_label.write(
-            path, strict_sinsy_style=strict_sinsy_style, mode=mode, encoding=encoding
-        )
+        full_label.write(path, strict_sinsy_style=strict_sinsy_style, mode=mode, encoding=encoding)
         return full_label
 
     def reset_time(self):
@@ -847,12 +839,8 @@ class Song(UserList):
             phonemes_in_note = tuple(chain.from_iterable(note))
             t_end += note.length_100ns
             for phoneme in phonemes_in_note:
-                phoneme.start = Decimal(t_start).quantize(
-                    Decimal('0'), rounding=ROUND_HALF_UP
-                )
-                phoneme.end = Decimal(t_end).quantize(
-                    Decimal('0'), rounding=ROUND_HALF_UP
-                )
+                phoneme.start = Decimal(t_start).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                phoneme.end = Decimal(t_end).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
             t_start = t_end
 
     def reload_time(self):
@@ -879,9 +867,7 @@ class Song(UserList):
         """
         # p12, p13, p14, p15を埋める
         if hts_conf is None:
-            self._fill_p1(
-                vowels=VOWELS, pauses=PAUSES, silences=SILENCES, breaks=BREAKS
-            )
+            self._fill_p1(vowels=VOWELS, pauses=PAUSES, silences=SILENCES, breaks=BREAKS)
         else:
             self._fill_p1(
                 vowels=hts_conf['VOWELS'],
@@ -1083,16 +1069,16 @@ class Song(UserList):
             # フレーズ中で最後のノートのときは時間をリセットして、累積時間を増やす。
             elif note.position_backward == 1:
                 counter_100ns = note.length_100ns
-                note.position_100ms_backward = Decimal(
-                    counter_100ns / 1000000
-                ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                note.position_100ms_backward = Decimal(counter_100ns / 1000000).quantize(
+                    Decimal('0'), rounding=ROUND_HALF_UP
+                )
                 note.position_100ns_backward = counter_100ns
             # 休符でもなくて最後のノートでもないとき
             else:
                 counter_100ns += note.length_100ns
-                note.position_100ms_backward = Decimal(
-                    counter_100ns / 1000000
-                ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                note.position_100ms_backward = Decimal(counter_100ns / 1000000).quantize(
+                    Decimal('0'), rounding=ROUND_HALF_UP
+                )
                 note.position_100ns_backward = counter_100ns
 
     def _fill_e22_e23(self):
@@ -1148,14 +1134,14 @@ class Song(UserList):
                 note.contexts[23] = 'xx'
             elif note.position == 1:
                 phrase_length_100ns = note.position_100ns_backward
-                note.contexts[23] = Decimal(
-                    100 * counter_100ns / phrase_length_100ns
-                ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                note.contexts[23] = Decimal(100 * counter_100ns / phrase_length_100ns).quantize(
+                    Decimal('0'), rounding=ROUND_HALF_UP
+                )
                 counter_100ns += note.length_100ns
             else:
-                note.contexts[23] = Decimal(
-                    100 * counter_100ns / phrase_length_100ns
-                ).quantize(Decimal('0'), rounding=ROUND_HALF_UP)
+                note.contexts[23] = Decimal(100 * counter_100ns / phrase_length_100ns).quantize(
+                    Decimal('0'), rounding=ROUND_HALF_UP
+                )
                 counter_100ns += note.length_100ns
 
         # NOTE: 次のブロックの処理でうまくいかなかった場合、コメント部分のコードを使う。
@@ -1215,9 +1201,7 @@ class Song(UserList):
             previous_notenum = abspitch_to_notenum(previous_abspitch)
             current_notenum = abspitch_to_notenum(current_abspitch)
             pitch_difference = previous_notenum - current_notenum
-            note.contexts[56] = (
-                f'{"p" if pitch_difference >= 0 else "m"}{abs(pitch_difference)}'
-            )
+            note.contexts[56] = f'{"p" if pitch_difference >= 0 else "m"}{abs(pitch_difference)}'
 
         # e58 を埋める
         # 処理内容を比較しやすいようにprevious_noteにしているが、実際はnext_note
@@ -1240,9 +1224,7 @@ class Song(UserList):
             previous_notenum = abspitch_to_notenum(previous_abspitch)
             current_notenum = abspitch_to_notenum(current_abspitch)
             pitch_difference = previous_notenum - current_notenum
-            note.contexts[57] = (
-                f'{"p" if pitch_difference >= 0 else "m"}{abs(pitch_difference)}'
-            )
+            note.contexts[57] = f'{"p" if pitch_difference >= 0 else "m"}{abs(pitch_difference)}'
 
     def _fill_song_contexts(self):
         """

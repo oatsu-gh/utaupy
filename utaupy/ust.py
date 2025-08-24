@@ -471,7 +471,7 @@ def load(path: str, encoding: str = 'cp932'):
     USTを読み取り
     """
     new_ust = Ust()
-    new_ust.load(path.strip('"'), encoding=encoding)
+    new_ust.load(str(path).strip('"'), encoding=encoding)
     return new_ust
 
 
@@ -552,9 +552,7 @@ class Ust:
             }:
                 self.notes.append(note)
             elif tag == '[#VERSION]':
-                self.version = (
-                    lines[1].replace(' ', '').lower().replace('ustversion', '')
-                )
+                self.version = lines[1].replace(' ', '').lower().replace('ustversion', '')
                 del note
                 continue
             elif tag == '[#SETTING]':
@@ -571,9 +569,7 @@ class Ust:
                 del note['NoteNum']
                 self.trackend = note
             else:
-                raise Exception(
-                    '想定外のエラーです。開発者に連絡してください。:', tag, str(note)
-                )
+                raise Exception('想定外のエラーです。開発者に連絡してください。:', tag, str(note))
             # 2行目移行: タグ以外の情報
             for line in lines[1:]:
                 key, value = line.split('=', maxsplit=1)
@@ -621,9 +617,7 @@ class Ust:
     @timesignatures.setter
     def timesignatures(self, x):
         if not TIMESIGNATURES_PATTERN.match(x):
-            raise ValueError(
-                '拍子情報の表記が不適切です。"(4/4/0)" のように表記してください。'
-            )
+            raise ValueError('拍子情報の表記が不適切です。"(4/4/0)" のように表記してください。')
         self.setting['$TimeSignatures'] = str(x)
         self.reload_timesignatures()
 
@@ -647,9 +641,7 @@ class Ust:
         UST全体の長さがずれないように銀行丸めを用いる。
         """
         for note in self.notes:
-            note['Length'] = int(
-                Decimal(note['Length']).quantize(Decimal(0), rounding=rounding)
-            )
+            note['Length'] = int(Decimal(note['Length']).quantize(Decimal(0), rounding=rounding))
 
     def round_notenum(self, rounding=ROUND_HALF_UP):
         """
@@ -657,9 +649,7 @@ class Ust:
         銀行丸めではなく四捨五入を用いる。
         """
         for note in self.notes:
-            note['NoteNum'] = int(
-                Decimal(note['NoteNum']).quantize(Decimal(0), rounding=rounding)
-            )
+            note['NoteNum'] = int(Decimal(note['NoteNum']).quantize(Decimal(0), rounding=rounding))
 
     def clean_tempo(self):
         """
@@ -843,9 +833,7 @@ class Ust:
         """
         duplicated_self = deepcopy(self)
         # [#DELETE] なノートをファイル出力しないために削除
-        duplicated_self.notes = [
-            note for note in duplicated_self.notes if note.tag != '[#DELETE]'
-        ]
+        duplicated_self.notes = [note for note in duplicated_self.notes if note.tag != '[#DELETE]']
         # テンポを整理する
         duplicated_self.reload_tempo()
         # ノート番号を振りなおす
@@ -973,9 +961,7 @@ class Note(UserDict):
     @timesignatures.setter
     def timesignatures(self, x):
         if not TIMESIGNATURES_PATTERN.match(x):
-            raise ValueError(
-                '拍子情報の表記が不適切です。"(4/4/0)" のように表記してください。'
-            )
+            raise ValueError('拍子情報の表記が不適切です。"(4/4/0)" のように表記してください。')
         self['$TimeSignatures'] = str(x)
 
     @property

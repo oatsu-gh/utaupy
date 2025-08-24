@@ -22,12 +22,15 @@ d2, d3, e2, e3, f2, f3 はスケール判定が必要なため、実行時にキ
 キーを指定しない場合は上記の値は'xx'のままにする。
 d3, e3, f3 には 'xx' を代入する。歌うときに休符の学習データ引っ張ってきそうな気はする。
 """
-import utaupy as up
+
 from decimal import Decimal
+
+import utaupy as up
 
 
 def ustnote2htsnote(
-        ust_note: up.ust.Note, d_table: dict, key_of_the_note: int = None) -> up.hts.Note:
+    ust_note: up.ust.Note, d_table: dict, key_of_the_note: int = None
+) -> up.hts.Note:
     """
     utaupy.ust.Note を utaupy.hts.Note に変換する。
     """
@@ -78,8 +81,7 @@ def ustnote2htsnote(
     return hts_note
 
 
-def ustobj2songobj(
-        ust: up.ust.Ust, d_table: dict, key_of_the_note: int = None) -> up.hts.Song:
+def ustobj2songobj(ust: up.ust.Ust, d_table: dict, key_of_the_note: int = None) -> up.hts.Song:
     """
     Ustオブジェクトをノートごとに処理して、HTS用に変換する。
     日本語歌詞を想定するため、音節数は1とする。促音に注意。
@@ -95,8 +97,7 @@ def ustobj2songobj(
     ust_notes = ust.notes
     # Noteオブジェクトの種類を変換
     for ust_note in ust_notes:
-        hts_note = ustnote2htsnote(
-            ust_note, d_table, key_of_the_note=key_of_the_note)
+        hts_note = ustnote2htsnote(ust_note, d_table, key_of_the_note=key_of_the_note)
         song.append(hts_note)
 
     # ノート長や位置などを自動補完
@@ -107,8 +108,12 @@ def ustobj2songobj(
 
 
 def ust2hts(
-        path_ust: str, path_hts: str, path_table: str,
-        strict_sinsy_style: bool = True, as_mono: bool = False):
+    path_ust: str,
+    path_hts: str,
+    path_table: str,
+    strict_sinsy_style: bool = True,
+    as_mono: bool = False,
+):
     """
     USTファイルをLABファイルに変換する。
     """
@@ -118,8 +123,30 @@ def ust2hts(
     hts_song = ustobj2songobj(ust, d_table)
     # HTSFullLabel中の重複データを削除して整理
     # ファイル出力
-    hts_song.write(
-        path_hts, strict_sinsy_style=strict_sinsy_style, as_mono=as_mono)
+    hts_song.write(path_hts, strict_sinsy_style=strict_sinsy_style, as_mono=as_mono)
+
+
+# def __ust2hts_with_precise_time(
+#         path_ust: str, path_hts: str, path_table: str,
+#         strict_sinsy_style: bool = True, as_mono: bool = False):
+#     """
+#     USTファイルをLABファイルに変換する。時刻の詳細を保った状態で保存する。
+#     1tick = 1,470,000
+#     4分音符 = 480tick = 705,600,000
+#     """
+#     ust = up.ust.load(path_ust)
+#     d_table = up.table.load(path_table, encoding='utf-8')
+#     # Ust → HTSFullLabel
+#     hts_song = ustobj2songobj(ust, d_table)
+
+#     # ノート数が一致することを確認する
+#     assert len(ust.notes) == len(hts_song.all_notes)
+#     # 時刻を再計算する。SynthVと同じ仕様
+#     ust_note_length_x1470000 = [note.length * 1470000 for note in ust.notes]
+#     # HTSFullLabel中の重複データを削除して整理
+#     # ファイル出力
+#     hts_song.write(
+#         path_hts, strict_sinsy_style=strict_sinsy_style, as_mono=as_mono)
 
 
 def main():
@@ -140,8 +167,7 @@ def main():
             # 変換
             ust2hts(path_in, path_out, path_table, strict_sinsy_style=False)
         except Exception as e:
-            raise Exception(
-                f'Some exception was raised while processing {path_in}') from e
+            raise Exception(f'Some exception was raised while processing {path_in}') from e
 
 
 if __name__ == '__main__':

@@ -33,17 +33,12 @@ def load_as_plainlist(path, mode='r', encoding='utf-8', time_unit='100ns'):
     # リストにする [[開始時刻, 終了時刻, 発音], [], ...]
     if time_unit in ('s', 'sec', 'second'):
         # きりたんDBのモノラベル形式の場合、時刻が 0.0000000[s] なのでfloatを経由する。
-        l = [
-            [int(10000000 * float(v[0])), int(10000000 * float(v[1])), v[2]]
-            for v in lines
-        ]
+        l = [[int(10000000 * float(v[0])), int(10000000 * float(v[1])), v[2]] for v in lines]
     elif time_unit in ('100ns', 'subus', 'subμs'):
         # Sinsyのモノラベル形式の場合、時刻が 1234567[100ns] なのでintにする。
         l = [[int(v[0]), int(v[1]), v[2]] for v in lines]
     else:
-        raise ValueError(
-            'function argument "time_unit" must be in ["100ns" (recommended), "s"]'
-        )
+        raise ValueError('function argument "time_unit" must be in ["100ns" (recommended), "s"]')
     return l
 
 
@@ -52,7 +47,7 @@ def load(path, mode='r', encoding='utf-8', time_unit='100ns'):
     labファイルを読み取って Label クラスオブジェクトにする
     時刻を整数にすることに注意
     """
-    path = path.strip('"')
+    path = str(path).strip('"')
     # lab ファイル読み取り
     with open(path, mode=mode, encoding=encoding) as f:
         lines = [s.strip().split(maxsplit=2) for s in f.readlines()]
@@ -80,9 +75,7 @@ def load(path, mode='r', encoding='utf-8', time_unit='100ns'):
             phoneme.symbol = v[2]
             label.append(phoneme)
     else:
-        raise ValueError(
-            'function argument "time_unit" must be in ["100ns" (recommended), "s"]'
-        )
+        raise ValueError('function argument "time_unit" must be in ["100ns" (recommended), "s"]')
     return label
 
 
@@ -271,9 +264,7 @@ class Label(UserList):
         LABファイルを書き出し
         """
         if time_unit == '100ns':
-            lines = [
-                f'{ph.start}{delimiter}{ph.end}{delimiter}{ph.symbol}' for ph in self
-            ]
+            lines = [f'{ph.start}{delimiter}{ph.end}{delimiter}{ph.symbol}' for ph in self]
         elif time_unit in ('s', '1s', 'sec'):
             lines = [
                 f'{ph.start:.7f} {ph.end:.7f} {ph.symbol}' for ph in self

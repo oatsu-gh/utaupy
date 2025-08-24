@@ -271,9 +271,7 @@ class UtauVoiceBank:
             halflen = notes[i - 1].length_ms / 2
             oto = self.get_oto(note, suffix_exists=True)
             if halflen < oto.preutterance - oto.overlap:
-                at_preuttr = (
-                    halflen * oto.preutterance / (oto.preutterance - oto.overlap)
-                )
+                at_preuttr = halflen * oto.preutterance / (oto.preutterance - oto.overlap)
                 at_overlap = halflen * oto.overlap / (oto.preutterance - oto.overlap)
                 note['StartPoint'] = oto.preutterance - at_preuttr
                 note['PreUtterance'] = at_preuttr
