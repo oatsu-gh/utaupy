@@ -22,11 +22,11 @@ Homepage = "https://github.com/oatsu-gh/utaupy"
 packages = ["utaupy"]
 
 [tool.ruff]
-line-length = 88
+line-length = 99
 
 [tool.ruff.format]
-quote-style = 'single'
 indent-style = 'space'
+quote-style = 'single'
 
 [tool.ruff.lint]
 select = ['ALL']
