@@ -7,6 +7,7 @@ import re
 from collections import UserDict
 from copy import deepcopy
 from decimal import ROUND_HALF_EVEN, ROUND_HALF_UP, Decimal
+from pathlib import Path
 from typing import Optional, Union
 from warnings import warn
 
@@ -466,7 +467,7 @@ def notenum_as_abc(notenum) -> str:
     return NOTENUM_TO_NOTENAME_DICT[int(notenum)]
 
 
-def load(path: str, encoding: str = 'cp932'):
+def load(path: Path | str, encoding: str = 'cp932'):
     """
     USTを読み取り
     """
@@ -517,7 +518,7 @@ class Ust:
         # 改行文字で結合した文字列を返す
         return '\n'.join(l)
 
-    def load(self, path: str, encoding='cp932'):
+    def load(self, path: Path | str, encoding='cp932'):
         """
         ファイルからインスタンス生成
         """
@@ -632,8 +633,8 @@ class Ust:
         return voicedir  # noqa: RET504
 
     @voicedir.setter
-    def voicedir(self, path):
-        self.setting['VoiceDir'] = path.strip('\'"')
+    def voicedir(self, path: Path | str):
+        self.setting['VoiceDir'] = str(path).strip('\'"')
 
     def round_length(self, rounding=ROUND_HALF_EVEN):
         """
@@ -775,12 +776,13 @@ class Ust:
         for note in self.notes:
             note.lyric = note.lyric.replace(before, after)
 
-    def translate_lyrics(self, before, after):
+    def translate_lyrics(self, before, after, delete=''):
         """
         歌詞を一括置換（複数文字指定・破壊的処理）
         """
+        translation_table = str.maketrans(before, after, delete)
         for note in self.notes:
-            note.lyric = note.lyric.translate(before, after)
+            note.lyric = note.lyric.translate(translation_table)
 
     def vcv2cv(self):
         """
@@ -827,7 +829,7 @@ class Ust:
         """
         self.make_final_note_R()
 
-    def write(self, path: str, mode: str = 'w', encoding: str = 'cp932') -> str:
+    def write(self, path: Path | str, mode: str = 'w', encoding: str = 'cp932') -> str:
         """
         USTをファイル出力
         """
@@ -1119,7 +1121,7 @@ class Note(UserDict):
         self['Label'] = str(label)
 
     @property
-    def vbr(self) -> str:
+    def vbr(self) -> list[float] | None:
         """
         ノートのビブラート情報
 
