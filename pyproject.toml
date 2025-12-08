@@ -19,7 +19,7 @@ dependencies = []
 Homepage = "https://github.com/oatsu-gh/utaupy"
 
 [tool.setuptools]
-packages = ["utaupy"]
+packages = ["utaupy", "utaupy.utils"]
 
 [tool.ruff]
 line-length = 99
