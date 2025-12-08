@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "utaupy"
-version = "1.21.2"
+version = "1.22.0"
 description = "Python3 module for UTAU and singing-databases"
 readme = { file = "README.md", content-type = "text/markdown" }
-license = { file = "LICENSE.md" }
+license-files = ["LICENSE.md"]
 authors = [{ name = "oatsu", email = "oatsu.dev@gmail.com" }]
 maintainers = [{ name = "oatsu", email = "oatsu.dev@gmail.com" }]
 keywords = ["UTAU"]
